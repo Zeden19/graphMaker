@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <link rel="icon" href="%sveltekit.assets%/favicon.png"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Graph Maker</title>
+  %sveltekit.head%
+</head>
+<body data-sveltekit-preload-data="hover">
+<div style="display: contents">%sveltekit.body%</div>
+</body>
+</html>
+
+<style>
+  :root {
+    --primaryBg: #0F0F0F;
+    --secondaryBg: #171c22;
+    --canvasBg: #121212;
+    --text: #E1E8EB;
+
+    --buttonBg: #B13BFF;
+
+    --mainBorder: 2px solid white;
+
+    --rainbowCircleGradient: conic-gradient(
+      hsl(0, 100%, 50%),
+      hsl(30, 100%, 50%),
+      hsl(60, 100%, 50%),
+      hsl(90, 100%, 50%),
+      hsl(120, 100%, 50%),
+      hsl(150, 100%, 50%),
+      hsl(180, 100%, 50%),
+      hsl(210, 100%, 50%),
+      hsl(240, 100%, 50%),
+      hsl(270, 100%, 50%),
+      hsl(300, 100%, 50%),
+      hsl(330, 100%, 50%),
+      hsl(360, 100%, 50%));
+
+    --shape-transition-timing: 150ms;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--primaryBg);
+    color: var(--text);
+    margin: 0px;
+  }
+
+  button {
+    background: none;
+    border: none;
+  }
+
+  .button {
+    background-color: var(--buttonBg);
+    border: none;
+    border-radius: 20px;
+    padding: 11px 30px;
+    color: white;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  }
+
+  .button:hover {
+    transform: translate(1px, -2px);
+    box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+  }
+
+  .button:active {
+    background-color: white;
+    color: black;
+    transform: translate(0px, 0px);
+  }
+
+  .no-select {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+  }
+</style>
