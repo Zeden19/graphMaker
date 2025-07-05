@@ -6,8 +6,8 @@
 
   let {circle = $bindable(), offset, removeCircle, canvasScale} = $props();
 
-  let radiusWithScale = $derived(circle.r * canvasScale);
   let position = $derived({x: offset.x + circle.x, y: offset.y + circle.y});
+  let radiusWithScale = $derived(circle.r * canvasScale);
   let circleRect = $derived.by(() => {
     const bottomRightAngle = 45 * Math.PI / 180; // 45 degrees
     const bottomLeftAngle = 135 * Math.PI / 180; // 135 degrees
@@ -67,10 +67,6 @@
     });
 
   let isDragging = $derived(moveCircle.isDragging || resizeCircle.isDragging);
-
-  let circleRef = $state();
-  let resizeRef = $state();
-
 </script>
 
 
@@ -85,7 +81,6 @@
   stroke-width="2"
   role="presentation"
   style="transform-origin: {position.x}px {position.y}px; {circle.selected ? 'outline: 1px solid white;' : ''}"
-  bind:this={circleRef}
 />
 
 {#if circle.selected}
@@ -95,7 +90,8 @@
     width="40"
     height="40">
     <button class="no-select" transition:fade={{duration: 130}} onmousedown="{resizeCircle.setDrag}">
-      <img bind:this={resizeRef} src="{resize}" alt="resize" width="30" draggable="false"/>
+      <img
+        src="{resize}" alt="resize" width="30" draggable="false"/>
     </button>
   </foreignObject>
 
@@ -103,7 +99,6 @@
   <Popup x={position.x}
          y={circleRect.top - 52.5}
          bind:shape={circle}
-         popupRefs={[circleRef, resizeRef]}
          removeShape={removeCircle}
          {isDragging}/>
 {/if}

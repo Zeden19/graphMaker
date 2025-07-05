@@ -1,30 +1,14 @@
 <script>
-  import {onMount, onDestroy} from "svelte";
   import {fade} from "svelte/transition";
   import trash from "$lib/assets/trash.png";
   import ColorPicker from "svelte-awesome-color-picker";
 
   import {colord} from "colord";
 
-  let {x, y, shape = $bindable(), popupRefs, removeShape, isDragging} = $props();
+  let {x, y, shape = $bindable(), removeShape, isDragging} = $props();
 
-  let popupRef = $state(null);
   let colors = ["white", "black", "red", "green", "blue", "yellow"].map((color) => colord(color));
   let hex = $derived(shape.color.toHex());
-
-  const hidePopup = (event) => {
-    if ([popupRef, ...popupRefs].every((ref) => ref && !(ref.contains(event.target)))) {
-      shape.selected = false;
-    }
-  };
-
-  onMount(() => {
-    window.addEventListener("mousedown", hidePopup);
-  });
-
-  onDestroy(() => {
-    window.removeEventListener("mousedown", hidePopup);
-  });
 </script>
 
 
@@ -32,7 +16,7 @@
   x={x} y={y}
   width="1"
   height="1">
-  <div xmlns="http://www.w3.org/1999/xhtml" class="popup-wrapper no-select" bind:this={popupRef}
+  <div xmlns="http://www.w3.org/1999/xhtml" class="popup-wrapper no-select"
        transition:fade={{duration: 110}} style="{isDragging ? 'opacity: 0.4' : ''}">
     <div class="popup-content">
       {#each colors as color}

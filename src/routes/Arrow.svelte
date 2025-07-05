@@ -1,5 +1,5 @@
 <script>
-  import {scale} from "svelte/transition";
+  import {scale, fade} from "svelte/transition";
   import Popup from "./Popup.svelte";
   import DraggableObject from "./DraggableObject.svelte.js";
 
@@ -50,10 +50,7 @@
       arrow.y1 = arrowPosBefore.y1 + dy;
     });
 
-  let arrowRef = $state();
-  let endArrowRef = $state();
-  let startArrowRef = $state();
-  let popupRefs = $derived([arrowRef, endArrowRef, startArrowRef]);
+  let isDragging = $derived(moveEntireArrow.isDragging || moveFront.isDragging || moveEnd.isDragging);
 </script>
 
 <defs>
@@ -68,7 +65,6 @@
 <line
   transition:scale={{duration: 120}}
   style="transform-origin: {(position.x1 + position.x2) / 2}px {(position.y1 + position.y2) / 2}px;"
-  bind:this={arrowRef}
   onmousedown="{moveEntireArrow.setDrag}"
   x1={position.x1}
   y1={position.y1}
@@ -82,7 +78,8 @@
 
 {#if arrow.selected}
   <circle
-    bind:this={startArrowRef}
+    transition:fade={{duration: 120}}
+    style="transform-origin: {(position.x1 + position.x2) / 2}px {(position.y1 + position.y2) / 2}px;"
     cx="{position.x1}"
     cy="{position.y1}"
     r="{4}"
@@ -93,7 +90,8 @@
   </circle>
 
   <circle
-    bind:this={endArrowRef}
+    transition:fade={{duration: 120}}
+    style="transform-origin: {(position.x1 + position.x2) / 2}px {(position.y1 + position.y2) / 2}px;"
     cx="{position.x2}"
     cy="{position.y2}"
     r="{4}"
@@ -102,15 +100,12 @@
     onmousedown="{moveEnd.setDrag}"
     role="presentation">
   </circle>
-{/if}
 
-{#if arrow.selected}
   <Popup x={((position.x1 + position.x2) / 2)}
          y={((position.y1 + position.y2) / 2) - 55}
          bind:shape={arrow}
-         {popupRefs}
          removeShape={removeArrow}
-         isDragging={moveEntireArrow.isDragging}/>
+         {isDragging}/>
 {/if}
 
 

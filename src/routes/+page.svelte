@@ -4,6 +4,7 @@
   import namesPlugin from "colord/plugins/names";
   import Arrow from "./Arrow.svelte";
   import DraggableObject from "./DraggableObject.svelte.js";
+  import Shape from "./Shape.svelte";
 
   const INSERT_POSITION = 300;
   const DEFAULT_PRIMARY_SEP = 40;
@@ -98,12 +99,16 @@
 
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
     {#each circles as circle, index (circle)}
+      <Shape bind:shape={circles[index]}>
         <Circle bind:circle={circles[index]} {offset} {canvasScale} removeCircle={() => removeObject(circles,index)}/>
+      </Shape>
     {/each}
 
     {#each arrows as arrow, index (arrow)}
-      <Arrow bind:arrow={arrows[index]} {offset} {canvasScale} markerIndex={index}
-             removeArrow={() => removeObject(arrows,index)}/>
+      <Shape bind:shape={arrows[index]}>
+        <Arrow bind:arrow={arrows[index]} {offset} {canvasScale} markerIndex={index}
+               removeArrow={() => removeObject(arrows,index)}/>
+      </Shape>
     {/each}
 
     <circle cx="{offset.x}" cy="{offset.y}" r="2" fill="red"></circle>
