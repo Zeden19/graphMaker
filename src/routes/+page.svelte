@@ -81,6 +81,7 @@
     <button class="button" onclick={addArrow}>Add Arrow</button>
     <button class="button" onclick="{clear}">Clear</button>
     <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
+    <button class="button" onclick="{() => offset = {x: 0, y: 0}}">Reset Position</button>
     <input type="range" min="0.3" max="2" step="0.1" bind:value="{canvasScale}"
            oninput="{(e) => changeScale(e.target.value)}">
   </div>
@@ -106,7 +107,7 @@
 
     {#each arrows as arrow, index (arrow)}
       <Shape bind:shape={arrows[index]}>
-        <Arrow bind:arrow={arrows[index]} {offset} {canvasScale} markerIndex={index}
+        <Arrow bind:arrow={arrows[index]} {offset} {canvasScale} {index}
                removeArrow={() => removeObject(arrows,index)}/>
       </Shape>
     {/each}

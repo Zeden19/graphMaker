@@ -3,44 +3,46 @@
   import resize from "$lib/assets/resize.png";
   import Popup from "./Popup.svelte";
   import DraggableObject from "./DraggableObject.svelte.js";
+  import {onMount} from "svelte";
 
   let {circle = $bindable(), offset, removeCircle, canvasScale} = $props();
 
   let position = $derived({x: offset.x + circle.x, y: offset.y + circle.y});
   let radiusWithScale = $derived(circle.r * canvasScale);
-  let circleRect = $derived.by(() => {
-    const bottomRightAngle = 45 * Math.PI / 180; // 45 degrees
-    const bottomLeftAngle = 135 * Math.PI / 180; // 135 degrees
-    const topRightAngle = 315 * Math.PI / 180; // 315 degrees
-    const topLeftAngle = 225 * Math.PI / 180; // 225 degrees
 
-    return {
-      top: position.y - radiusWithScale,
-      bottom: position.y + radiusWithScale,
-      left: position.x - radiusWithScale,
-      right: position.x + radiusWithScale,
 
+  const bottomRightAngle = 45 * Math.PI / 180; // 45 degrees
+  const bottomLeftAngle = 135 * Math.PI / 180; // 135 degrees
+  const topRightAngle = 315 * Math.PI / 180; // 315 degrees
+  const topLeftAngle = 225 * Math.PI / 180; // 225 degrees
+  let circleRect = $derived(
+    {
+      basic: {
+        top: {
+          x: position.x, y: position.y - radiusWithScale,
+        },
+        bottom: {
+          x: position.x, y: position.y + radiusWithScale,
+        },
+        left: {
+          x: position.x - radiusWithScale, y: position.y,
+        },
+        right: {
+          x: position.x + radiusWithScale, y: position.y,
+        },
+      },
       bottomRight: {
         x: position.x + radiusWithScale * Math.cos(bottomRightAngle),
         y: position.y + radiusWithScale * Math.sin(bottomRightAngle)
-      },
-
-      bottomLeft: {
-        x: position.x + radiusWithScale * Math.cos(bottomLeftAngle),
-        y: position.y + radiusWithScale * Math.sin(bottomLeftAngle)
-      },
-
-      topRight: {
-        x: position.x + radiusWithScale * Math.cos(topRightAngle),
-        y: position.y + radiusWithScale * Math.sin(topRightAngle)
-      },
-
-      topLeft: {
-        x: position.x + radiusWithScale * Math.cos(topLeftAngle),
-        y: position.y + radiusWithScale * Math.sin(topLeftAngle)
       }
-    };
-  });
+    });
+
+  let arrowsSnapped = $state({
+    top: [],
+    bottom: [],
+    left: [],
+    right: [],
+  })
 
   let circlePosBefore = {x: 0, y: 0};
   const moveCircle = new DraggableObject(
@@ -52,6 +54,13 @@
     (dx, dy) => {
       circle.x = circlePosBefore.x + dx;
       circle.y = circlePosBefore.y + dy;
+      Object.entries(circleRect.basic).forEach(([area, {x, y}]) => {
+        if (arrowsSnapped[area].length !== 0) {
+          arrowsSnapped[area].forEach(({index, pos}) => {
+            dispatchEvent(new CustomEvent(`arrowSnap${index}`, {detail: {x, y, pos}}))
+          });
+        }
+      })
     })
 
   const resizeCircle = new DraggableObject(
@@ -67,8 +76,30 @@
     });
 
   let isDragging = $derived(moveCircle.isDragging || resizeCircle.isDragging);
-</script>
 
+  onMount(() => {
+    window.addEventListener("arrowMove", ({detail: {x, y, index, pos}}) => {
+      const areaSize = 20;
+
+      Object.entries(circleRect.basic).forEach(([area, point]) => {
+        if ((x < point.x + areaSize && x > point.x - areaSize) &&
+          (y < point.y + areaSize && y > point.y - areaSize)) {
+
+          if (!arrowsSnapped[area].map(({index}) => index).includes(index)) {
+            arrowsSnapped[area].push({index, pos})
+          }
+
+          dispatchEvent(new CustomEvent(`arrowSnap${index}`,
+            {detail: {x: point.x, y: point.y, pos}}))
+        } else if (arrowsSnapped[area].map(({index}) => index).includes(index)) {
+          arrowsSnapped[area] = arrowsSnapped[area].filter(arrow => arrow.index !== index);
+        }
+      })
+    })
+  })
+
+
+</script>
 
 <circle
   transition:scale={{duration: 120}}
@@ -80,7 +111,7 @@
   stroke={"black"}
   stroke-width="2"
   role="presentation"
-  style="transform-origin: {position.x}px {position.y}px; {circle.selected ? 'outline: 1px solid white;' : ''}"
+  style="transform-origin: {position.x}px {position.y}px;"
 />
 
 {#if circle.selected}
@@ -96,8 +127,8 @@
   </foreignObject>
 
 
-  <Popup x={position.x}
-         y={circleRect.top - 52.5}
+  <Popup x={circleRect.basic.top.x}
+         y={circleRect.basic.top.y - 52.5}
          bind:shape={circle}
          removeShape={removeCircle}
          {isDragging}/>
