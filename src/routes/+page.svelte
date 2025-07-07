@@ -1,5 +1,7 @@
 <script>
   import Circle from "./Circle.svelte";
+  import {Circle as CircleClass} from "./circle.svelte.js";
+  import {Arrow as ArrowClass} from "./arrow.svelte.js";
   import {colord, extend} from "colord";
   import namesPlugin from "colord/plugins/names";
   import Arrow from "./Arrow.svelte";
@@ -25,7 +27,8 @@
     },
     (dx, dy) => {
       if (!canMoveGrid) return;
-      offset = {x: offsetBefore.x + dx, y: offsetBefore.y + dy};
+      offset.x = offsetBefore.x + dx
+      offset.y = offsetBefore.y + dy
     })
 
   let circles = $state([]);
@@ -34,25 +37,22 @@
 
   // negative 1 because offset is opposite of the canvas position
   const addCircle = () => {
-    circles.push({
-      x: offset.x * -1 + INSERT_POSITION,
-      y: offset.y * -1 + INSERT_POSITION,
-      r: CIRCLE_BASE_RADIUS * canvasScale,
-      color: colord("white"),
-      selected: false
-    });
+    circles.push(new CircleClass(
+      INSERT_POSITION,
+      INSERT_POSITION,
+      CIRCLE_BASE_RADIUS,
+      colord("white"), offset, () => canvasScale) // need to function so it proxies
+    );
   }
 
   const addArrow = () => {
-    arrows.push({
-      x1: offset.x * -1 + INSERT_POSITION,
-      y1: offset.y * -1 + INSERT_POSITION,
-      x2: offset.x * -1 + INSERT_POSITION + 100,
-      y2: offset.y * -1 + INSERT_POSITION,
-      width: ARROW_BASE_WIDTH * canvasScale,
-      color: colord("white"),
-      selected: false
-    });
+    arrows.push(new ArrowClass(
+      INSERT_POSITION,
+      INSERT_POSITION,
+      INSERT_POSITION + 100,
+      INSERT_POSITION,
+      ARROW_BASE_WIDTH,
+      colord("white"), offset, () => canvasScale))
   }
 
   const removeObject = (array, index) => {
@@ -68,9 +68,10 @@
     arrows = [];
   }
 
-  const changeScale = (newScale) => {
-    canvasScale = newScale;
+  const changeScale = (event) => {
+    canvasScale = event.target?.value ?? 1;
   }
+
 
 </script>
 
@@ -81,9 +82,9 @@
     <button class="button" onclick={addArrow}>Add Arrow</button>
     <button class="button" onclick="{clear}">Clear</button>
     <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
-    <button class="button" onclick="{() => offset = {x: 0, y: 0}}">Reset Position</button>
-    <input type="range" min="0.3" max="2" step="0.1" bind:value="{canvasScale}"
-           oninput="{(e) => changeScale(e.target.value)}">
+    <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
+    <input type="range" min="0.3" max="2" step="0.1"
+           oninput="{changeScale}">
   </div>
 
 
@@ -101,13 +102,13 @@
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
     {#each circles as circle, index (circle)}
       <Shape bind:shape={circles[index]}>
-        <Circle bind:circle={circles[index]} {offset} {canvasScale} removeCircle={() => removeObject(circles,index)}/>
+        <Circle bind:circle={circles[index]} removeCircle={() => removeObject(circles,index)}/>
       </Shape>
     {/each}
 
     {#each arrows as arrow, index (arrow)}
       <Shape bind:shape={arrows[index]}>
-        <Arrow bind:arrow={arrows[index]} {offset} {canvasScale} {index}
+        <Arrow bind:arrow={arrows[index]} {offset} {index}
                removeArrow={() => removeObject(arrows,index)}/>
       </Shape>
     {/each}
