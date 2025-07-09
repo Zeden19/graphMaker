@@ -76,14 +76,19 @@
 
   onMount(() => {
     window.addEventListener(`arrowSnap${index}`, ({detail: {index: circleIndex, location, pos}}) => {
-      // need to double function to prevent detach unless you scroll or click arrow (idk)
-      let snapTo = () => circles[circleIndex].circleRect.basic[location];
+      // need to  function to prevent detach unless you scroll or click arrow (idk)
       if (pos === "front") {
-        arrow.startSnapped = () => snapTo()
+        arrow.startSnapped = () => circles[circleIndex]?.circleRect.basic[location];
       } else if (pos === "end") {
-        arrow.endSnapped = () => snapTo()
+        arrow.endSnapped = () => circles[circleIndex]?.circleRect.basic[location];
       }
     });
+
+    window.addEventListener(`circleDelete${index}`, () => {
+      console.log("circleDelete")
+      arrow.startSnapped = null;
+      arrow.endSnapped = null;
+    })
   });
 
 </script>

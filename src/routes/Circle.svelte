@@ -3,7 +3,7 @@
   import resize from "$lib/assets/resize.png";
   import Popup from "./Popup.svelte";
   import DraggableObject from "./DraggableObject.svelte.js";
-  import {onMount} from "svelte";
+  import {onDestroy, onMount} from "svelte";
 
   let {circle = $bindable(), removeCircle, index} = $props();
 
@@ -33,18 +33,29 @@
 
   let isDragging = $derived(moveCircle.isDragging || resizeCircle.isDragging);
 
+  const arrowIndexes = []
   onMount(() => {
-    window.addEventListener("arrowMove", ({detail: {x, y, index: arrowIndex, pos}}) => {
-      const areaSize = 20;
-
+    const areaSize = 20;
+    const funcRef = ({detail: {x, y, index: arrowIndex, pos}}) => {
       Object.entries(circle.circleRect.basic).forEach(([location, point]) => {
         if ((x < point.x + areaSize && x > point.x - areaSize) &&
           (y < point.y + areaSize && y > point.y - areaSize)) {
+          arrowIndexes.push(arrowIndex)
           dispatchEvent(new CustomEvent(`arrowSnap${arrowIndex}`, {detail: {index, location, pos}}))
         }
       });
-    });
+    }
+
+    window.addEventListener("arrowMove", funcRef);
+
+    return () => {
+      arrowIndexes.forEach((index) => {
+        window.removeEventListener("arrowMove", funcRef);
+        dispatchEvent(new CustomEvent(`circleDelete${index}`));
+      })
+    }
   });
+
 </script>
 
 <circle

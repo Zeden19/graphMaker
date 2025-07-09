@@ -14,25 +14,25 @@ export class Arrow {
     this.endSnapped = $state(null);
 
     this.positionX1 = $derived.by(() => {
-      if (this.startSnapped !== null) {
+      if (this.startSnapped) {
         return this.startSnapped().x
       }
       return offset.x + this.x1
     });
     this.positionX2 = $derived.by(() => {
-      if (this.endSnapped !== null) {
+      if (this.endSnapped) {
         return this.endSnapped().x
       }
       return offset.x + this.x2
     });
     this.positionY1 = $derived.by(() => {
-      if (this.startSnapped !== null) {
+      if (this.startSnapped) {
         return this.startSnapped().y
       }
       return offset.y + this.y1
     });
     this.positionY2 = $derived.by(() => {
-      if (this.endSnapped !== null) {
+      if (this.endSnapped) {
         return this.endSnapped().y
       }
       return offset.y + this.y2
