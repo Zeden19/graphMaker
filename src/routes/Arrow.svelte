@@ -76,7 +76,7 @@
 
   onMount(() => {
     window.addEventListener(`arrowSnap${index}`, ({detail: {index: circleIndex, location, pos}}) => {
-      // need to  function to prevent detach unless you scroll or click arrow (idk)
+      // need to function to prevent detach unless you scroll or click arrow (idk)
       if (pos === "front") {
         arrow.startSnapped = () => circles[circleIndex]?.circleRect.basic[location];
       } else if (pos === "end") {
@@ -84,8 +84,8 @@
       }
     });
 
-    window.addEventListener(`circleDelete${index}`, () => {
-      console.log("circleDelete")
+    window.addEventListener(`circleDelete${index}`, ({detail: {pos}}) => {
+      // when refactoring arrow snap, make it so that only one gets set to null and the other works fine
       arrow.startSnapped = null;
       arrow.endSnapped = null;
     })

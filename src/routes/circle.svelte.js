@@ -35,7 +35,19 @@ export class Circle {
         bottomRight: {
           x: this.positionX + this.radiusWithScale * Math.cos(bottomRightAngle),
           y: this.positionY + this.radiusWithScale * Math.sin(bottomRightAngle)
-        }
+        },
+        bottomLeft: {
+          x: this.positionX + this.radiusWithScale * Math.cos(bottomLeftAngle),
+          y: this.positionY + this.radiusWithScale * Math.sin(bottomLeftAngle)
+        },
+        topLeft: {
+          x: this.positionX + this.radiusWithScale * Math.cos(topLeftAngle),
+          y: this.positionY + this.radiusWithScale * Math.sin(topLeftAngle)
+        },
+        topRight: {
+          x: this.positionX + this.radiusWithScale * Math.cos(topRightAngle),
+          y: this.positionY + this.radiusWithScale * Math.sin(topRightAngle)
+        },
       }
     );
   }

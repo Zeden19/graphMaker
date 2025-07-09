@@ -13,6 +13,7 @@ export class Arrow {
     this.startSnapped = $state(null);
     this.endSnapped = $state(null);
 
+    // fix error coming when you delete circle
     this.positionX1 = $derived.by(() => {
       if (this.startSnapped) {
         return this.startSnapped().x

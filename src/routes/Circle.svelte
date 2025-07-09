@@ -3,7 +3,7 @@
   import resize from "$lib/assets/resize.png";
   import Popup from "./Popup.svelte";
   import DraggableObject from "./DraggableObject.svelte.js";
-  import {onDestroy, onMount} from "svelte";
+  import {onMount} from "svelte";
 
   let {circle = $bindable(), removeCircle, index} = $props();
 
@@ -40,7 +40,7 @@
       Object.entries(circle.circleRect.basic).forEach(([location, point]) => {
         if ((x < point.x + areaSize && x > point.x - areaSize) &&
           (y < point.y + areaSize && y > point.y - areaSize)) {
-          arrowIndexes.push(arrowIndex)
+          arrowIndexes.push({index: arrowIndex, pos})
           dispatchEvent(new CustomEvent(`arrowSnap${arrowIndex}`, {detail: {index, location, pos}}))
         }
       });
@@ -49,12 +49,14 @@
     window.addEventListener("arrowMove", funcRef);
 
     return () => {
-      arrowIndexes.forEach((index) => {
+      arrowIndexes.forEach(({index, pos}) => {
+        dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));
         window.removeEventListener("arrowMove", funcRef);
-        dispatchEvent(new CustomEvent(`circleDelete${index}`));
       })
     }
   });
+
+  let fontSize = $state(0.8);
 
 </script>
 
@@ -71,6 +73,20 @@
   style="transform-origin: {circle.positionX}px {circle.positionY}px;"
 />
 
+
+<foreignObject style="pointer-events: none" x={circle.circleRect.topLeft.x} y={circle.circleRect.topLeft.y}
+               width={circle.circleRect.topRight.x - circle.circleRect.topLeft.x}
+               height={circle.circleRect.bottomLeft.y - circle.circleRect.topLeft.y}
+>
+  <div class="text-container">
+    <div class="no-select circle-text" contenteditable
+         style="font-size:{fontSize}em; pointer-events:{circle.selected ? 'auto' : ''};"
+         >
+      Text here
+    </div>
+  </div>
+</foreignObject>
+
 {#if circle.selected}
   <foreignObject
     x="{circle.circleRect.bottomRight.x}"
@@ -82,7 +98,6 @@
         src="{resize}" alt="resize" width="30" draggable="false"/>
     </button>
   </foreignObject>
-
 
   <Popup x={circle.circleRect.basic.top.x}
          y={circle.circleRect.basic.top.y - 52.5}
@@ -99,5 +114,18 @@
 
   button {
     cursor: nwse-resize;
+  }
+
+  .text-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .circle-text {
+    min-width: 0;
+    color: black;
   }
 </style>
