@@ -5,14 +5,7 @@
   import DraggableObject from "./DraggableObject.svelte.js";
   import {onMount} from "svelte";
 
-  let {circle = $bindable(), removeCircle} = $props();
-
-  let arrowsSnapped = $state({
-    top: [],
-    bottom: [],
-    left: [],
-    right: [],
-  })
+  let {circle = $bindable(), removeCircle, index} = $props();
 
   let circlePosBefore = {x: 0, y: 0};
   const moveCircle = new DraggableObject(
@@ -24,17 +17,11 @@
     (dx, dy) => {
       circle.x = circlePosBefore.x + dx;
       circle.y = circlePosBefore.y + dy;
-      Object.entries(circle.circleRect.basic).forEach(([area, {x, y}]) => {
-        if (arrowsSnapped[area].length !== 0) {
-          arrowsSnapped[area].forEach(({index, pos}) => {
-            dispatchEvent(new CustomEvent(`arrowSnap${index}`, {detail: {x, y, pos}}))
-          });
-        }
-      });
     });
 
   const resizeCircle = new DraggableObject(
-    () => {},
+    () => {
+    },
     (dx, dy) => {
       const isNegative = dx < 0 || dy < 0;
       let distance = Math.sqrt(dx * dx + dy * dy) / 10;
@@ -47,21 +34,13 @@
   let isDragging = $derived(moveCircle.isDragging || resizeCircle.isDragging);
 
   onMount(() => {
-    window.addEventListener("arrowMove", ({detail: {x, y, index, pos}}) => {
+    window.addEventListener("arrowMove", ({detail: {x, y, index: arrowIndex, pos}}) => {
       const areaSize = 20;
 
-      Object.entries(circle.circleRect.basic).forEach(([area, point]) => {
+      Object.entries(circle.circleRect.basic).forEach(([location, point]) => {
         if ((x < point.x + areaSize && x > point.x - areaSize) &&
           (y < point.y + areaSize && y > point.y - areaSize)) {
-
-          if (!arrowsSnapped[area].map(({index}) => index).includes(index)) {
-            arrowsSnapped[area].push({index, pos})
-          }
-
-          dispatchEvent(new CustomEvent(`arrowSnap${index}`,
-            {detail: {x: point.x, y: point.y, pos}}))
-        } else {
-          arrowsSnapped[area] = arrowsSnapped[area].filter(arrow => !(arrow.index === index && arrow.pos === pos));
+          dispatchEvent(new CustomEvent(`arrowSnap${arrowIndex}`, {detail: {index, location, pos}}))
         }
       });
     });

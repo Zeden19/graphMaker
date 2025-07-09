@@ -36,7 +36,8 @@ export class Circle {
           x: this.positionX + this.radiusWithScale * Math.cos(bottomRightAngle),
           y: this.positionY + this.radiusWithScale * Math.sin(bottomRightAngle)
         }
-      });
+      }
+    );
   }
 }
 

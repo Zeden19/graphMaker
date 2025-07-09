@@ -102,13 +102,13 @@
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
     {#each circles as circle, index (circle)}
       <Shape bind:shape={circles[index]}>
-        <Circle bind:circle={circles[index]} removeCircle={() => removeObject(circles,index)}/>
+        <Circle bind:circle={circles[index]} {index} removeCircle={() => removeObject(circles,index)}/>
       </Shape>
     {/each}
 
     {#each arrows as arrow, index (arrow)}
       <Shape bind:shape={arrows[index]}>
-        <Arrow bind:arrow={arrows[index]} {offset} {index}
+        <Arrow bind:arrow={arrows[index]} {offset} {index} {circles}
                removeArrow={() => removeObject(arrows,index)}/>
       </Shape>
     {/each}

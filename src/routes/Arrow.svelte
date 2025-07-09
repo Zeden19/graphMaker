@@ -4,12 +4,18 @@
   import DraggableObject from "./DraggableObject.svelte.js";
   import {onMount} from "svelte";
 
-  let {arrow = $bindable(), offset, removeArrow, index} = $props();
+  const areaSize = 20;
+
+  let {arrow = $bindable(), removeArrow, index, circles, offset} = $props();
 
   let arrowPosBefore = {x1: 0, y1: 0, x2: 0, y2: 0};
 
   let movingStart = $state();
   let movingEnd = $state();
+
+  // to fix arrow incorrect position, maybe make x and y derived variables
+  // this code sucks actually dick but fixing it would be a pain since state management is fucked
+  // will fix later
   let moveArrow = new DraggableObject(
     () => {
       arrow.selected = true;
@@ -22,6 +28,12 @@
       if (movingStart) {
         arrow.x1 = arrowPosBefore.x1 + dx;
         arrow.y1 = arrowPosBefore.y1 + dy;
+
+        if (!(arrow.x1 < arrow.positionX1 + areaSize && arrow.x1 > arrow.positionX1 - areaSize) ||
+          !(arrow.y1 < arrow.positionY1 + areaSize && arrow.y1 > arrow.positionY1 - areaSize)) {
+          arrow.startSnapped = null;
+        }
+
         dispatchEvent(new CustomEvent("arrowMove", {
           detail: {
             x: arrow.positionX1,
@@ -33,6 +45,12 @@
       } else if (movingEnd) {
         arrow.x2 = arrowPosBefore.x2 + dx;
         arrow.y2 = arrowPosBefore.y2 + dy;
+
+        if (!(arrow.x2 < arrow.positionX2 + areaSize && arrow.x2 > arrow.positionX2 - areaSize) ||
+          !(arrow.y2 < arrow.positionY2 + areaSize && arrow.y2 > arrow.positionY2 - areaSize)) {
+          arrow.endSnapped = null;
+        }
+
         dispatchEvent(new CustomEvent("arrowMove", {
           detail: {
             x: arrow.positionX2,
@@ -56,20 +74,18 @@
     }
   })
 
-  let arrowSnapped = $state({start: null, end: null});
-  // should make circle "source of truth" for position of start and end when snapped
   onMount(() => {
-    window.addEventListener(`arrowSnap${index}`, ({detail: {x, y, pos}}) => {
-      // x and y include offset so remove offset for arrow
-      if (pos === "end") {
-        arrow.x2 = x - offset.x;
-        arrow.y2 = y - offset.y;
-      } else if (pos === "front") {
-        arrow.x1 = x - offset.x;
-        arrow.y1 = y - offset.y;
+    window.addEventListener(`arrowSnap${index}`, ({detail: {index: circleIndex, location, pos}}) => {
+      // need to double function to prevent detach unless you scroll or click arrow (idk)
+      let snapTo = () => circles[circleIndex].circleRect.basic[location];
+      if (pos === "front") {
+        arrow.startSnapped = () => snapTo()
+      } else if (pos === "end") {
+        arrow.endSnapped = () => snapTo()
       }
     });
-  })
+  });
+
 </script>
 
 <defs>
