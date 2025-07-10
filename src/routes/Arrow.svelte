@@ -3,6 +3,7 @@
   import Popup from "./Popup.svelte";
   import DraggableObject from "./DraggableObject.svelte.js";
   import {onMount} from "svelte";
+  import Text from "./Text.svelte";
 
   const areaSize = 20;
 
@@ -46,6 +47,7 @@
         arrow.x2 = arrowPosBefore.x2 + dx;
         arrow.y2 = arrowPosBefore.y2 + dy;
 
+        // shared code (?) with circle
         if (!(arrow.x2 < arrow.positionX2 + areaSize && arrow.x2 > arrow.positionX2 - areaSize) ||
           !(arrow.y2 < arrow.positionY2 + areaSize && arrow.y2 > arrow.positionY2 - areaSize)) {
           arrow.endSnapped = null;
@@ -72,7 +74,7 @@
       movingStart = false;
       movingEnd = false;
     }
-  })
+  });
 
   onMount(() => {
     window.addEventListener(`arrowSnap${index}`, ({detail: {index: circleIndex, location, pos}}) => {
@@ -90,6 +92,14 @@
       arrow.endSnapped = null;
     })
   });
+
+  let fontSize = $state(0.8);
+
+  const textPosition = $derived.by(() => {
+    return arrow.positionX2 >= arrow.positionX1 ?
+      {x: arrow.positionX1, y: arrow.positionY1} :
+      {x: arrow.positionX2, y: arrow.positionY2}
+  })
 
 </script>
 
@@ -109,9 +119,18 @@
   </marker>
 </defs>
 
+<foreignObject x={textPosition.x}
+               y={textPosition.y}
+               style="overflow:visible; transform: rotate({arrow.rotation}rad);
+                transform-origin: {textPosition.x}px
+                                  {textPosition.y}px;"
+               width="{arrow.length}" height="2em">
+  <Text {fontSize} color="white" selected={arrow.selected}/>
+</foreignObject>
+
 <line
   transition:scale={{duration: 120}}
-  style="transform-origin: {(arrow.positionX1 + arrow.positionX2) / 2}px {(arrow.positionY1 + arrow.positionY2) / 2}px;"
+  style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
   onmousedown="{moveArrow.setDrag}"
   x1={arrow.positionX1}
   y1={arrow.positionY1}
@@ -124,11 +143,10 @@
   role="presentation"></line>
 
 {#if arrow.selected}
-
   {#snippet draggableCircle(cx, cy, setMoving)}
     <circle
       transition:fade={{duration: 120}}
-      style="transform-origin: {(arrow.positionX1 + arrow.positionX2) / 2}px {(arrow.positionY1 + arrow.positionY2) / 2}px;"
+      style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
       {cx} {cy}
       onmousedown={(event) => {
         moveArrow.setDrag(event)
@@ -143,8 +161,8 @@
   {@render draggableCircle(arrow.positionX1, arrow.positionY1, () => movingStart = true)}
   {@render draggableCircle(arrow.positionX2, arrow.positionY2, () => movingEnd = true)}
 
-  <Popup x={((arrow.positionX1 + arrow.positionX2) / 2)}
-         y={((arrow.positionY1 + arrow.positionY2) / 2) - 55}
+  <Popup x={arrow.middle.x}
+         y={arrow.middle.y - 55}
          bind:shape={arrow}
          removeShape={removeArrow}
          isDragging={moveArrow.isDragging}/>

@@ -35,7 +35,8 @@
           position="responsive"
         />
       </div>
-      <button onclick="{removeShape}" class="popup-button"><img width="30" alt="trash" src="{trash}"/></button>
+      <button onclick="{removeShape}" class="popup-button no-select"><img draggable="false" width="30" alt="trash"
+                                                                          src="{trash}"/></button>
     </div>
     <div class="popup-arrow"></div>
   </div>

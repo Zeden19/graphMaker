@@ -1,3 +1,4 @@
+// this might be able to render if i put this into a component instead of js file. test later.
 class DraggableObject {
   constructor(setFunc, moveFunc) {
     this.mousePosBefore = {x: 0, y: 0};

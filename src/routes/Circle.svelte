@@ -4,6 +4,7 @@
   import Popup from "./Popup.svelte";
   import DraggableObject from "./DraggableObject.svelte.js";
   import {onMount} from "svelte";
+  import Text from "./Text.svelte";
 
   let {circle = $bindable(), removeCircle, index} = $props();
 
@@ -78,13 +79,7 @@
                width={circle.circleRect.topRight.x - circle.circleRect.topLeft.x}
                height={circle.circleRect.bottomLeft.y - circle.circleRect.topLeft.y}
 >
-  <div class="text-container">
-    <div class="no-select circle-text" contenteditable
-         style="font-size:{fontSize}em; pointer-events:{circle.selected ? 'auto' : ''};"
-         >
-      Text here
-    </div>
-  </div>
+  <Text {fontSize} selected={circle.selected} color="black"></Text>
 </foreignObject>
 
 {#if circle.selected}
@@ -114,18 +109,5 @@
 
   button {
     cursor: nwse-resize;
-  }
-
-  .text-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .circle-text {
-    min-width: 0;
-    color: black;
   }
 </style>
