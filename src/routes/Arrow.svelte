@@ -29,15 +29,15 @@
         arrow.x1 = arrowPosBefore.x1 + dx;
         arrow.y1 = arrowPosBefore.y1 + dy;
 
-        if (!(arrow.x1 < arrow.positionX1 + areaSize && arrow.x1 > arrow.positionX1 - areaSize) ||
-          !(arrow.y1 < arrow.positionY1 + areaSize && arrow.y1 > arrow.positionY1 - areaSize)) {
+        if (!(arrow.x1 < arrow.position.x1 + areaSize && arrow.x1 > arrow.position.x1 - areaSize) ||
+          !(arrow.y1 < arrow.position.y1 + areaSize && arrow.y1 > arrow.position.y1 - areaSize)) {
           arrow.startSnapped = null;
         }
 
         dispatchEvent(new CustomEvent("arrowMove", {
           detail: {
-            x: arrow.positionX1,
-            y: arrow.positionY1,
+            x: arrow.position.x1,
+            y: arrow.position.y1,
             index,
             pos: "front"
           }
@@ -47,15 +47,15 @@
         arrow.y2 = arrowPosBefore.y2 + dy;
 
         // shared code (?) with circle
-        if (!(arrow.x2 < arrow.positionX2 + areaSize && arrow.x2 > arrow.positionX2 - areaSize) ||
-          !(arrow.y2 < arrow.positionY2 + areaSize && arrow.y2 > arrow.positionY2 - areaSize)) {
+        if (!(arrow.x2 < arrow.position.x2 + areaSize && arrow.x2 > arrow.position.x2 - areaSize) ||
+          !(arrow.y2 < arrow.position.y2 + areaSize && arrow.y2 > arrow.position.y2 - areaSize)) {
           arrow.endSnapped = null;
         }
 
         dispatchEvent(new CustomEvent("arrowMove", {
           detail: {
-            x: arrow.positionX2,
-            y: arrow.positionY2,
+            x: arrow.position.x2,
+            y: arrow.position.y2,
             index,
             pos: "end"
           }
@@ -79,9 +79,9 @@
     const onArrowMove = ({detail: {index: circleIndex, location, pos}}) => {
       // need to function to prevent detach unless you scroll or click arrow (idk)
       if (pos === "front") {
-        arrow.startSnapped = () => circles[circleIndex]?.circleRect.basic[location];
+        arrow.startSnapped = () => circles[circleIndex]?.circleRect[location];
       } else if (pos === "end") {
-        arrow.endSnapped = () => circles[circleIndex]?.circleRect.basic[location];
+        arrow.endSnapped = () => circles[circleIndex]?.circleRect[location];
       }
     }
 
@@ -114,31 +114,29 @@
       const sin = Math.sin(arrow.rotation);
       const boundaryOffset = Math.abs(cos) * (arrow.length / 2) + Math.abs(sin) * 5;
       const verticalOffset = Math.abs(sin) * (arrow.length / 2) + Math.abs(cos) * 5;
-      return arrow.positionX2 >= arrow.positionX1 ?
+      return arrow.position.x2 >= arrow.position.x1 ?
         {
           x: determineTextPos(
-            arrow.positionX1 - boundaryOffset,
-            arrow.positionX1 + textOffset.x,
-            arrow.positionX1 + boundaryOffset),
+            arrow.position.x1 - boundaryOffset,
+            arrow.position.x1 + textOffset.x,
+            arrow.position.x1 + boundaryOffset),
           y: determineTextPos(
-            arrow.positionY1 - verticalOffset,
-            arrow.positionY1 + textOffset.y,
-            arrow.positionY1 + verticalOffset)
+            arrow.position.y1 - verticalOffset,
+            arrow.position.y1 + textOffset.y,
+            arrow.position.y1 + verticalOffset)
         } :
         {
           x: determineTextPos(
-            arrow.positionX2 - arrow.length / 2,
-            arrow.positionX2 + textOffset.x,
-            arrow.positionX2 + arrow.length / 2),
+            arrow.position.x2 - arrow.length / 2,
+            arrow.position.x2 + textOffset.x,
+            arrow.position.x2 + arrow.length / 2),
           y: determineTextPos(
-            arrow.positionY2 - 5,
-            arrow.positionY2 + textOffset.y,
-            arrow.positionY2 + 5)
+            arrow.position.y2 - 5,
+            arrow.position.y2 + textOffset.y,
+            arrow.position.y2 + 5)
         }
     }
   );
-
-  $inspect(arrow.positionY1 - 5, arrow.positionY1 + textOffset.y, arrow.positionY1 + 5)
 
   let textPosBefore = {x: 0, y: 0}
   let moveText = new DraggableObject(
@@ -185,10 +183,10 @@
   transition:scale={{duration: 120}}
   style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
   onmousedown="{moveArrow.setDrag}"
-  x1={arrow.positionX1}
-  y1={arrow.positionY1}
-  x2={arrow.positionX2}
-  y2={arrow.positionY2}
+  x1={arrow.position.x1}
+  y1={arrow.position.y1}
+  x2={arrow.position.x2}
+  y2={arrow.position.y2}
   stroke="{arrow.color.toHex()}"
   stroke-width={arrow.widthWithScale.line}
   marker-end="url(#arrowHead{index})"
@@ -211,8 +209,8 @@
       role="presentation"></circle>
   {/snippet}
 
-  {@render draggableCircle(arrow.positionX1, arrow.positionY1, () => movingStart = true)}
-  {@render draggableCircle(arrow.positionX2, arrow.positionY2, () => movingEnd = true)}
+  {@render draggableCircle(arrow.position.x1, arrow.position.y1, () => movingStart = true)}
+  {@render draggableCircle(arrow.position.x2, arrow.position.y2, () => movingEnd = true)}
 
   <Popup x={arrow.middle.x}
          y={arrow.middle.y - 55}

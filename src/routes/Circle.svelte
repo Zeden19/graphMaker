@@ -39,7 +39,7 @@
     const areaSize = 20;
 
     const onArrowMove = ({detail: {x, y, index: arrowIndex, pos}}) => {
-      Object.entries(circle.circleRect.basic).forEach(([location, point]) => {
+      Object.entries(circle.circleRect).forEach(([location, point]) => {
         if ((x < point.x + areaSize && x > point.x - areaSize) &&
           (y < point.y + areaSize && y > point.y - areaSize)) {
           arrowIndexes.push({index: arrowIndex, pos});
@@ -95,8 +95,8 @@
     </button>
   </foreignObject>
 
-  <Popup x={circle.circleRect.basic.top.x}
-         y={circle.circleRect.basic.top.y - 52.5}
+  <Popup x={circle.circleRect.top.x}
+         y={circle.circleRect.top.y - 52.5}
          bind:shape={circle}
          removeShape={removeCircle}
          {isDragging}/>

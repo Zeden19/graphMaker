@@ -13,36 +13,23 @@ export class Arrow {
     this.startSnapped = $state(null);
     this.endSnapped = $state(null);
 
-    // fix error coming when you delete circle
-    this.positionX1 = $derived.by(() => {
-      if (this.startSnapped) {
-        return this.startSnapped().x
-      }
-      return offset.x + this.x1
-    });
-    this.positionX2 = $derived.by(() => {
-      if (this.endSnapped) {
-        return this.endSnapped().x
-      }
-      return offset.x + this.x2
-    });
-    this.positionY1 = $derived.by(() => {
-      if (this.startSnapped) {
-        return this.startSnapped().y
-      }
-      return offset.y + this.y1
-    });
-    this.positionY2 = $derived.by(() => {
-      if (this.endSnapped) {
-        return this.endSnapped().y
-      }
-      return offset.y + this.y2
+    this.position = $derived.by(() => {
+      let start;
+      let end;
+
+      if (this.startSnapped) start = {x1: this.startSnapped().x, y1: this.startSnapped().y};
+      else start = {x1: this.x1 + offset.x, y1: this.y1 + offset.y};
+
+      if (this.endSnapped) end = {x2: this.endSnapped().x, y2: this.endSnapped().y};
+      else end = {x2: this.x2 + offset.x, y2: this.y2 + offset.y};
+
+      return {...start, ...end}
     });
 
     this.widthWithScale = $derived({marker: MARKER_SIZE * canvasScale(), line: this.width * canvasScale()});
-    this.middle = $derived({x: (this.positionX1 + this.positionX2) / 2, y: (this.positionY1 + this.positionY2) / 2});
-    this.length = $derived(Math.sqrt(((this.positionX2 - this.positionX1) ** 2) + ((this.positionY2 - this.positionY1) ** 2)))
-    this.rotation = $derived(Math.atan((this.positionY2 - this.positionY1) / (this.positionX2 - this.positionX1)));
+    this.middle = $derived({x: (this.position.x1 + this.position.x2) / 2, y: (this.position.y1 + this.position.y2) / 2});
+    this.length = $derived(Math.sqrt(((this.position.x2 - this.position.x1) ** 2) + ((this.position.y2 - this.position.y1) ** 2)))
+    this.rotation = $derived(Math.atan((this.position.y2 - this.position.y1) / (this.position.x2 - this.position.x1)));
   }
 }
 

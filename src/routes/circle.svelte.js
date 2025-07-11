@@ -18,38 +18,32 @@ export class Circle {
 
     this.circleRect = $derived(
       {
-        basic: {
-          top: {
-            x: this.positionX, y: this.positionY - this.radiusWithScale,
-          },
-          bottom: {
-            x: this.positionX, y: this.positionY + this.radiusWithScale,
-          },
-          left: {
-            x: this.positionX - this.radiusWithScale, y: this.positionY,
-          },
-          right: {
-            x: this.positionX + this.radiusWithScale, y: this.positionY,
-          },
+        top: {
+          x: this.positionX, y: this.positionY - this.radiusWithScale,
         },
-        bottomRight: {
-          x: this.positionX + this.radiusWithScale * Math.cos(bottomRightAngle),
-          y: this.positionY + this.radiusWithScale * Math.sin(bottomRightAngle)
+        bottom: {
+          x: this.positionX, y: this.positionY + this.radiusWithScale,
         },
-        bottomLeft: {
-          x: this.positionX + this.radiusWithScale * Math.cos(bottomLeftAngle),
-          y: this.positionY + this.radiusWithScale * Math.sin(bottomLeftAngle)
+        left: {
+          x: this.positionX - this.radiusWithScale, y: this.positionY,
         },
-        topLeft: {
-          x: this.positionX + this.radiusWithScale * Math.cos(topLeftAngle),
-          y: this.positionY + this.radiusWithScale * Math.sin(topLeftAngle)
+        right: {
+          x: this.positionX + this.radiusWithScale, y: this.positionY,
         },
-        topRight: {
-          x: this.positionX + this.radiusWithScale * Math.cos(topRightAngle),
-          y: this.positionY + this.radiusWithScale * Math.sin(topRightAngle)
-        },
+
+        bottomRight: this.#createCornerPos(bottomRightAngle),
+        bottomLeft: this.#createCornerPos(bottomLeftAngle),
+        topLeft: this.#createCornerPos(topLeftAngle),
+        topRight: this.#createCornerPos(topRightAngle),
       }
     );
+  }
+
+  #createCornerPos(angle) {
+    return {
+      x: this.positionX + this.radiusWithScale * Math.cos(angle),
+      y: this.positionY + this.radiusWithScale * Math.sin(angle)
+    };
   }
 }
 
