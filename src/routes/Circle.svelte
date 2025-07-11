@@ -37,23 +37,24 @@
   const arrowIndexes = []
   onMount(() => {
     const areaSize = 20;
-    const funcRef = ({detail: {x, y, index: arrowIndex, pos}}) => {
+
+    const onArrowMove = ({detail: {x, y, index: arrowIndex, pos}}) => {
       Object.entries(circle.circleRect.basic).forEach(([location, point]) => {
         if ((x < point.x + areaSize && x > point.x - areaSize) &&
           (y < point.y + areaSize && y > point.y - areaSize)) {
-          arrowIndexes.push({index: arrowIndex, pos})
-          dispatchEvent(new CustomEvent(`arrowSnap${arrowIndex}`, {detail: {index, location, pos}}))
+          arrowIndexes.push({index: arrowIndex, pos});
+          dispatchEvent(new CustomEvent(`arrowSnap${arrowIndex}`, {detail: {index, location, pos}}));
         }
       });
     }
 
-    window.addEventListener("arrowMove", funcRef);
+    window.addEventListener("arrowMove", onArrowMove);
 
     return () => {
+      window.removeEventListener("arrowMove", onArrowMove);
       arrowIndexes.forEach(({index, pos}) => {
         dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));
-        window.removeEventListener("arrowMove", funcRef);
-      })
+      });
     }
   });
 

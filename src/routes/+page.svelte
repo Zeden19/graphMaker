@@ -16,7 +16,7 @@
 
   extend([namesPlugin]);
 
-  let offsetBefore = $state({x: 0, y: 0});
+  let offsetBefore = {x: 0, y: 0};
   let offset = $state({x: 0, y: 0});
   let canvasScale = $state(1);
 

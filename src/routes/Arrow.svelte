@@ -9,14 +9,13 @@
 
   let {arrow = $bindable(), removeArrow, index, circles, offset} = $props();
 
-  let arrowPosBefore = {x1: 0, y1: 0, x2: 0, y2: 0};
-
-  let movingStart = $state();
-  let movingEnd = $state();
-
   // to fix arrow incorrect position, maybe make x and y derived variables
   // this code sucks actually dick but fixing it would be a pain since state management is fucked
   // will fix later
+  let arrowPosBefore = {x1: 0, y1: 0, x2: 0, y2: 0};
+  let movingStart = $state();
+  let movingEnd = $state();
+
   let moveArrow = new DraggableObject(
     () => {
       arrow.selected = true;
@@ -77,29 +76,81 @@
   });
 
   onMount(() => {
-    window.addEventListener(`arrowSnap${index}`, ({detail: {index: circleIndex, location, pos}}) => {
+    const onArrowMove = ({detail: {index: circleIndex, location, pos}}) => {
       // need to function to prevent detach unless you scroll or click arrow (idk)
       if (pos === "front") {
         arrow.startSnapped = () => circles[circleIndex]?.circleRect.basic[location];
       } else if (pos === "end") {
         arrow.endSnapped = () => circles[circleIndex]?.circleRect.basic[location];
       }
-    });
+    }
 
-    window.addEventListener(`circleDelete${index}`, ({detail: {pos}}) => {
+    const onCircleDelete = ({detail: {pos}}) => {
       // when refactoring arrow snap, make it so that only one gets set to null and the other works fine
       arrow.startSnapped = null;
       arrow.endSnapped = null;
-    })
+    }
+
+    window.addEventListener(`arrowSnap${index}`, onArrowMove);
+    window.addEventListener(`circleDelete${index}`, onCircleDelete)
+
+    return () => {
+      window.removeEventListener(`arrowSnap${index}`, onArrowMove);
+      window.removeEventListener(`circleDelete${index}`, onCircleDelete);
+    }
   });
 
   let fontSize = $state(0.8);
+  let textContainer = $state();
+  let textOffset = $state({x: 0, y: 0});
 
-  const textPosition = $derived.by(() => {
-    return arrow.positionX2 >= arrow.positionX1 ?
-      {x: arrow.positionX1, y: arrow.positionY1} :
-      {x: arrow.positionX2, y: arrow.positionY2}
-  })
+  const determineTextPos = (min, x, max) => {
+    if (x < min) return min;
+    if (x > max) return max;
+    else return x;
+  }
+  let textPosition = $derived.by(() => {
+      const cos = Math.cos(arrow.rotation);
+      const sin = Math.sin(arrow.rotation);
+      const boundaryOffset = Math.abs(cos) * (arrow.length / 2) + Math.abs(sin) * 5;
+      const verticalOffset = Math.abs(sin) * (arrow.length / 2) + Math.abs(cos) * 5;
+      return arrow.positionX2 >= arrow.positionX1 ?
+        {
+          x: determineTextPos(
+            arrow.positionX1 - boundaryOffset,
+            arrow.positionX1 + textOffset.x,
+            arrow.positionX1 + boundaryOffset),
+          y: determineTextPos(
+            arrow.positionY1 - verticalOffset,
+            arrow.positionY1 + textOffset.y,
+            arrow.positionY1 + verticalOffset)
+        } :
+        {
+          x: determineTextPos(
+            arrow.positionX2 - arrow.length / 2,
+            arrow.positionX2 + textOffset.x,
+            arrow.positionX2 + arrow.length / 2),
+          y: determineTextPos(
+            arrow.positionY2 - 5,
+            arrow.positionY2 + textOffset.y,
+            arrow.positionY2 + 5)
+        }
+    }
+  );
+
+  $inspect(arrow.positionY1 - 5, arrow.positionY1 + textOffset.y, arrow.positionY1 + 5)
+
+  let textPosBefore = {x: 0, y: 0}
+  let moveText = new DraggableObject(
+    () => {
+      textPosBefore.x = textOffset.x;
+      textPosBefore.y = textOffset.y;
+    },
+    (dx, dy) => {
+      textOffset.x = dx + textPosBefore.x;
+      textOffset.y = dy + textPosBefore.y;
+    });
+
 
 </script>
 
@@ -125,7 +176,9 @@
                 transform-origin: {textPosition.x}px
                                   {textPosition.y}px;"
                width="{arrow.length}" height="2em">
-  <Text {fontSize} color="white" selected={arrow.selected}/>
+
+  <Text {fontSize} color="white" selected={arrow.selected} bind:textContainer
+        onmousedown={(event) => {arrow.selected = true; moveText.setDrag(event)}}/>
 </foreignObject>
 
 <line
