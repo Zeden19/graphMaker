@@ -9,7 +9,6 @@
 
   let {arrow = $bindable(), removeArrow, index, offset} = $props();
 
-
   let arrowPosBefore = {x1: 0, y1: 0, x2: 0, y2: 0};
   let movingStart = $state();
   let movingEnd = $state();

@@ -2,10 +2,19 @@
   import {scale} from "svelte/transition";
 
   let {fontSize, color, selected, onmousedown, textContainer = $bindable()} = $props();
+
+  let contenteditable = $state(false)
+  let text = $state();
 </script>
 
-<div class="text-container" draggable="false" bind:this={textContainer} transition:scale={{duration: 120}}>
-  <div class="no-select circle-text" contenteditable onmousedown={(event) => onmousedown ? onmousedown(event) : null}
+<div class="text-container" bind:this={textContainer} transition:scale={{duration: 120}}>
+  <div class="no-select circle-text" draggable="false" {contenteditable} bind:this={text}
+       onfocus={contenteditable = true}
+       onmouseover={contenteditable = true}
+       onmouseleave={() => {
+         if (!text.hasFocus()) contenteditable = false
+       }}
+       onmousedown={(event) => onmousedown ? onmousedown(event) : null}
        style="font-size:{fontSize}em; pointer-events:{selected ? 'auto' : ''}; color: {color};"
        role="presentation">
     Text here
