@@ -6,7 +6,7 @@
   import {onMount} from "svelte";
   import Text from "./Text.svelte";
 
-  let {circle = $bindable(), removeCircle, index} = $props();
+  let {circle = $bindable(), removeCircle} = $props();
 
   let circlePosBefore = {x: 0, y: 0};
   const moveCircle = new DraggableObject(
@@ -42,19 +42,19 @@
       Object.entries(circle.circleRect).forEach(([location, point]) => {
         if ((x < point.x + areaSize && x > point.x - areaSize) &&
           (y < point.y + areaSize && y > point.y - areaSize)) {
-          arrowIndexes.push({index: arrowIndex, pos});
-          dispatchEvent(new CustomEvent(`arrowSnap${arrowIndex}`, {detail: {index, location, pos}}));
+
+          if (!arrowIndexes.map(arrow => arrow.index).includes(arrowIndex)) {
+            arrowIndexes.push({index: arrowIndex, pos});
+          }
+          const circleRef = () => circle.circleRect[location];
+          dispatchEvent(new CustomEvent(`arrowSnap${arrowIndex}`, {detail: {pos, circleRef}}));
         }
       });
     }
 
     window.addEventListener("arrowMove", onArrowMove);
-
     return () => {
       window.removeEventListener("arrowMove", onArrowMove);
-      arrowIndexes.forEach(({index, pos}) => {
-        dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));
-      });
     }
   });
 
@@ -98,7 +98,14 @@
   <Popup x={circle.circleRect.top.x}
          y={circle.circleRect.top.y - 52.5}
          bind:shape={circle}
-         removeShape={removeCircle}
+         removeShape={() => {
+           // DO NOT CHANGE; prevents arrow positions from reading a deleted value since cleanup functions
+           // happen AFTER the splice occurs
+           arrowIndexes.forEach(({index, pos}) => {
+                dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));
+              });
+           removeCircle()
+         }}
          {isDragging}/>
 {/if}
 

@@ -7,15 +7,31 @@
 
   const areaSize = 20;
 
-  let {arrow = $bindable(), removeArrow, index, circles, offset} = $props();
+  let {arrow = $bindable(), removeArrow, index, offset} = $props();
 
-  // to fix arrow incorrect position, maybe make x and y derived variables
-  // this code sucks actually dick but fixing it would be a pain since state management is fucked
-  // will fix later
+
   let arrowPosBefore = {x1: 0, y1: 0, x2: 0, y2: 0};
   let movingStart = $state();
   let movingEnd = $state();
 
+  const moveCorner = (x, y, dx, dy, cornerSnappedVar, posString) => {
+    arrow[x] = arrowPosBefore[x] + dx;
+    arrow[y] = arrowPosBefore[y] + dy;
+
+    if (!(arrow[x] < arrow.position[x] + areaSize && arrow[x] > arrow.position[x] - areaSize) ||
+      !(arrow[y] < arrow.position[y] + areaSize && arrow[y] > arrow.position[y] - areaSize)) {
+      arrow[cornerSnappedVar] = null;
+    }
+
+    dispatchEvent(new CustomEvent("arrowMove", {
+      detail: {
+        x: arrow.position[x],
+        y: arrow.position[y],
+        index,
+        pos: posString
+      }
+    }));
+  }
   let moveArrow = new DraggableObject(
     () => {
       arrow.selected = true;
@@ -26,45 +42,17 @@
     },
     (dx, dy) => {
       if (movingStart) {
-        arrow.x1 = arrowPosBefore.x1 + dx;
-        arrow.y1 = arrowPosBefore.y1 + dy;
-
-        if (!(arrow.x1 < arrow.position.x1 + areaSize && arrow.x1 > arrow.position.x1 - areaSize) ||
-          !(arrow.y1 < arrow.position.y1 + areaSize && arrow.y1 > arrow.position.y1 - areaSize)) {
-          arrow.startSnapped = null;
-        }
-
-        dispatchEvent(new CustomEvent("arrowMove", {
-          detail: {
-            x: arrow.position.x1,
-            y: arrow.position.y1,
-            index,
-            pos: "front"
-          }
-        }));
+        moveCorner("x1", "y1", dx, dy, "startSnapped", "start")
       } else if (movingEnd) {
-        arrow.x2 = arrowPosBefore.x2 + dx;
-        arrow.y2 = arrowPosBefore.y2 + dy;
-
-        // shared code (?) with circle
-        if (!(arrow.x2 < arrow.position.x2 + areaSize && arrow.x2 > arrow.position.x2 - areaSize) ||
-          !(arrow.y2 < arrow.position.y2 + areaSize && arrow.y2 > arrow.position.y2 - areaSize)) {
-          arrow.endSnapped = null;
-        }
-
-        dispatchEvent(new CustomEvent("arrowMove", {
-          detail: {
-            x: arrow.position.x2,
-            y: arrow.position.y2,
-            index,
-            pos: "end"
-          }
-        }));
+        moveCorner("x2", "y2", dx, dy, "endSnapped", "end")
       } else {
         arrow.x1 = arrowPosBefore.x1 + dx;
         arrow.y1 = arrowPosBefore.y1 + dy;
         arrow.x2 = arrowPosBefore.x2 + dx;
         arrow.y2 = arrowPosBefore.y2 + dy;
+
+        arrow.startSnapped = null;
+        arrow.endSnapped = null;
       }
     });
 
@@ -73,29 +61,40 @@
       movingStart = false;
       movingEnd = false;
     }
+
+    if (arrow.startSnapped) {
+      arrow.x1 = arrow.startSnapped().x - offset.x;
+      arrow.y1 = arrow.startSnapped().y - offset.y;
+    }
+
+    if (arrow.endSnapped) {
+      arrow.x2 = arrow.endSnapped().x - offset.x;
+      arrow.y2 = arrow.endSnapped().y - offset.y;
+    }
   });
 
   onMount(() => {
-    const onArrowMove = ({detail: {index: circleIndex, location, pos}}) => {
-      // need to function to prevent detach unless you scroll or click arrow (idk)
-      if (pos === "front") {
-        arrow.startSnapped = () => circles[circleIndex]?.circleRect[location];
+    const snapArrow = ({detail: {pos, circleRef}}) => {
+      if (pos === "start") {
+        arrow.startSnapped = circleRef;
       } else if (pos === "end") {
-        arrow.endSnapped = () => circles[circleIndex]?.circleRect[location];
+        arrow.endSnapped = circleRef;
       }
     }
 
     const onCircleDelete = ({detail: {pos}}) => {
-      // when refactoring arrow snap, make it so that only one gets set to null and the other works fine
-      arrow.startSnapped = null;
-      arrow.endSnapped = null;
+      if (pos === "start") {
+        arrow.startSnapped = null;
+      } else if (pos === "end") {
+        arrow.endSnapped = null;
+      }
     }
 
-    window.addEventListener(`arrowSnap${index}`, onArrowMove);
+    window.addEventListener(`arrowSnap${index}`, snapArrow);
     window.addEventListener(`circleDelete${index}`, onCircleDelete)
 
     return () => {
-      window.removeEventListener(`arrowSnap${index}`, onArrowMove);
+      window.removeEventListener(`arrowSnap${index}`, snapArrow);
       window.removeEventListener(`circleDelete${index}`, onCircleDelete);
     }
   });

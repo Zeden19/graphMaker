@@ -2,7 +2,6 @@
   import {scale} from "svelte/transition";
 
   let {fontSize, color, selected, onmousedown, textContainer = $bindable()} = $props();
-  console.log(textContainer)
 </script>
 
 <div class="text-container" draggable="false" bind:this={textContainer} transition:scale={{duration: 120}}>
