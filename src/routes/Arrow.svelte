@@ -207,12 +207,6 @@
 
   {@render draggableCircle(arrow.position.x1, arrow.position.y1, () => movingStart = true)}
   {@render draggableCircle(arrow.position.x2, arrow.position.y2, () => movingEnd = true)}
-
-<!--  <Popup x={arrow.middle.x}-->
-<!--         y={arrow.middle.y - 55}-->
-<!--         bind:shape={arrow}-->
-<!--         removeShape={removeArrow}-->
-<!--         isDragging={moveArrow.isDragging}/>-->
 {/if}
 
 

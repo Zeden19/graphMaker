@@ -6,7 +6,7 @@ export class Arrow {
     this.x2 = $state(x2);
     this.y1 = $state(y1);
     this.y2 = $state(y2);
-    this.width = width
+    this.width = $state(width);
     this.color = $state(color);
     this.selected = $state(false);
 

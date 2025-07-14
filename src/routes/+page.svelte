@@ -169,6 +169,8 @@
     display: flex;
     flex-direction: column;
     padding-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
   }
 
   /*.materials-border {*/

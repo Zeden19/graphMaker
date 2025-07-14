@@ -93,19 +93,6 @@
         src="{resize}" alt="resize" width="30" draggable="false"/>
     </button>
   </foreignObject>
-
-<!--  <Popup x={circle.circleRect.top.x}-->
-<!--         y={circle.circleRect.top.y - 52.5}-->
-<!--         bind:shape={circle}-->
-<!--         removeShape={() => {-->
-<!--           // DO NOT CHANGE; prevents arrow positions from reading a deleted value since cleanup functions-->
-<!--           // happen AFTER the splice occurs-->
-<!--           arrowIndexes.forEach(({index, pos}) => {-->
-<!--                dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));-->
-<!--              });-->
-<!--           removeCircle()-->
-<!--         }}-->
-<!--         {isDragging}/>-->
 {/if}
 
 <style>

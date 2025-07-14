@@ -2,6 +2,7 @@
   import {colord} from "colord";
   import ColorPicker from "svelte-awesome-color-picker";
   import trash from "$lib/assets/trash.png";
+  import Input from "./Input.svelte";
 
 
   let {shape = $bindable()} = $props();
@@ -37,21 +38,18 @@
 
   <div class="basics">
     {#if shape.x}
-      <span>x: {shape.x}</span><br>
-      <span>y: {shape.y}</span><br>
-      <span>Radius: {Math.round(shape.r)}</span>
+      <div>x: <Input max={50000} type="number" bind:value={shape.x}/></div>
+      <div>y: <Input max={50000} type="number" bind:value={shape.y}/></div>
+      <div>Radius: <Input max={50000} type="number" bind:value={shape.r}/></div>
     {:else}
-      <span>x1: {shape.x1}</span>
-      <span>y1: {shape.y1}</span>
-      <br>
+      <div>x1: <Input max={50000} type="number" bind:value={shape.x1}/></div>
+      <div>y1: <Input max={50000} type="number" bind:value={shape.y1}/></div>
 
-      <span>x2: {shape.x2}</span>
-      <span>y1: {shape.y2}</span>
-      <br>
+      <div>x2: <Input max={50000} type="number" bind:value={shape.x2}/></div>
+      <div>y1: <Input max={50000} type="number" bind:value={shape.y2}/></div>
 
-      <span>width: {shape.width}</span>
+      <div>Width: <Input min={1} type="number" bind:value={shape.width}/></div>
     {/if}
-
   </div>
 
   <button class="trash" onclick={shape.delete}><img draggable="false" width="50" alt="trash" src="{trash}"/>
@@ -67,7 +65,7 @@
     background: var(--secondaryBg);
     padding: 8px;
     border-radius: 30px;
-    border: var(--mainBorder);
+    border: var(--darkBorder);
   }
 
   .color-pick {
@@ -89,6 +87,16 @@
     border-radius: 50%;
     background-image: var(--rainbowCircleGradient);
     z-index: 99;
+  }
+
+  /*mayve align this with the color container start?*/
+  .basics {
+    padding-top: 10px;
+    align-self: start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    justify-items: end;
   }
 
   .trash {
