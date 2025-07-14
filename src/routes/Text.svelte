@@ -9,10 +9,10 @@
 
 <div class="text-container" bind:this={textContainer} transition:scale={{duration: 120}}>
   <div class="no-select circle-text" draggable="false" {contenteditable} bind:this={text}
-       onfocus={contenteditable = true}
-       onmouseover={contenteditable = true}
+       onfocus={() => contenteditable = true}
+       onmouseover={() => contenteditable = true}
        onmouseleave={() => {
-         if (!text.hasFocus()) contenteditable = false
+         if (!(document.activeElement === text)) contenteditable = false
        }}
        onmousedown={(event) => onmousedown ? onmousedown(event) : null}
        style="font-size:{fontSize}em; pointer-events:{selected ? 'auto' : ''}; color: {color};"

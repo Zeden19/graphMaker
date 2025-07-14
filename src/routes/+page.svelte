@@ -7,14 +7,16 @@
   import Arrow from "./Arrow.svelte";
   import DraggableObject from "./DraggableObject.svelte.js";
   import Shape from "./Shape.svelte";
+  import EditShape from "./EditShape.svelte";
+  import {onMount} from "svelte";
+
+  extend([namesPlugin]);
 
   const INSERT_POSITION = 300;
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
   const CIRCLE_BASE_RADIUS = 80;
   const ARROW_BASE_WIDTH = 5;
-
-  extend([namesPlugin]);
 
   let offsetBefore = {x: 0, y: 0};
   let offset = $state({x: 0, y: 0});
@@ -26,14 +28,16 @@
       offsetBefore.y = offset.y;
     },
     (dx, dy) => {
-      if (!canMoveGrid) return;
+      if (selectedShape !== undefined) return;
       offset.x = offsetBefore.x + dx
       offset.y = offsetBefore.y + dy
     })
 
   let circles = $state([]);
   let arrows = $state([]);
-  let canMoveGrid = $derived(circles.every(circle => !circle.selected) && arrows.every(arrow => !arrow.selected));
+  let selectedShape = $derived([...circles, ...arrows].find(shape => shape.selected));
+  let editShapeContainerRef = $state();
+
 
   // negative 1 because offset is opposite of the canvas position
   const addCircle = () => {
@@ -63,6 +67,14 @@
     });
   }
 
+  onMount(() => {
+    // indexes in classes will change when deleting shapes
+    window.addEventListener("deleteShape", ({detail: {type, shape}}) => {
+      if (type === "arrow") removeObject(arrows, arrows.findIndex((arrow) => arrow === shape))
+      else if (type === "circle") removeObject(circles, circles.findIndex((circle) => circle === shape));
+    })
+  })
+
   const clear = () => {
     circles = [];
     arrows = [];
@@ -72,19 +84,23 @@
     canvasScale = event.target?.value ?? 1;
   }
 
-
 </script>
 
 <div class="container">
 
   <div class="materials">
-    <button class="button" onclick={addCircle}>Add Circle</button>
-    <button class="button" onclick={addArrow}>Add Arrow</button>
-    <button class="button" onclick="{clear}">Clear</button>
-    <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
-    <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
-    <input type="range" min="0.3" max="2" step="0.1"
-           oninput="{changeScale}">
+    <div>
+      <button class="button" onclick={addCircle}>Add Circle</button>
+      <button class="button" onclick={addArrow}>Add Arrow</button>
+      <button class="button" onclick="{clear}">Clear</button>
+      <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
+      <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
+      <input type="range" min="0.3" max="2" step="0.1" oninput="{changeScale}">
+    </div>
+
+    <div bind:this={editShapeContainerRef} class="edit-shape">
+      <EditShape bind:shape={selectedShape}/>
+    </div>
   </div>
 
 
@@ -101,13 +117,13 @@
 
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
     {#each circles as circle, index (circle)}
-      <Shape bind:shape={circles[index]}>
+      <Shape bind:shape={circles[index]} {editShapeContainerRef}>
         <Circle bind:circle={circles[index]} removeCircle={() => removeObject(circles,index)}/>
       </Shape>
     {/each}
 
     {#each arrows as arrow, index (arrow)}
-      <Shape bind:shape={arrows[index]}>
+      <Shape bind:shape={arrows[index]} {editShapeContainerRef}>
         <Arrow bind:arrow={arrows[index]} {offset} {index}
                removeArrow={() => removeObject(arrows,index)}/>
       </Shape>
@@ -117,7 +133,7 @@
   </svg>
 
   <div class="toolbox">
-    <p>CanMoveGrid: {canMoveGrid}</p>
+    <p>CanMoveGrid: {selectedShape === undefined}</p>
     <p>Offset: {offset.x}, {offset.y}</p>
     <p>Drag Position Before: {offsetBefore.x}, {offsetBefore.y}</p>
 
@@ -140,6 +156,19 @@
     border-right: var(--mainBorder);
     resize: horizontal;
     border-right: var(--mainBorder);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .materials > div {
+    height: 50%;
+  }
+
+  .edit-shape {
+    border-top: var(--mainBorder);
+    display: flex;
+    flex-direction: column;
+    padding-top: 15px;
   }
 
   /*.materials-border {*/

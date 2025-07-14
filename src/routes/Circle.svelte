@@ -1,7 +1,6 @@
 <script>
   import {scale, fade} from "svelte/transition";
   import resize from "$lib/assets/resize.png";
-  import Popup from "./Popup.svelte";
   import DraggableObject from "./DraggableObject.svelte.js";
   import {onMount} from "svelte";
   import Text from "./Text.svelte";
@@ -95,18 +94,18 @@
     </button>
   </foreignObject>
 
-  <Popup x={circle.circleRect.top.x}
-         y={circle.circleRect.top.y - 52.5}
-         bind:shape={circle}
-         removeShape={() => {
-           // DO NOT CHANGE; prevents arrow positions from reading a deleted value since cleanup functions
-           // happen AFTER the splice occurs
-           arrowIndexes.forEach(({index, pos}) => {
-                dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));
-              });
-           removeCircle()
-         }}
-         {isDragging}/>
+<!--  <Popup x={circle.circleRect.top.x}-->
+<!--         y={circle.circleRect.top.y - 52.5}-->
+<!--         bind:shape={circle}-->
+<!--         removeShape={() => {-->
+<!--           // DO NOT CHANGE; prevents arrow positions from reading a deleted value since cleanup functions-->
+<!--           // happen AFTER the splice occurs-->
+<!--           arrowIndexes.forEach(({index, pos}) => {-->
+<!--                dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));-->
+<!--              });-->
+<!--           removeCircle()-->
+<!--         }}-->
+<!--         {isDragging}/>-->
 {/if}
 
 <style>

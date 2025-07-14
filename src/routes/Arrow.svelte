@@ -1,6 +1,5 @@
 <script>
   import {scale, fade} from "svelte/transition";
-  import Popup from "./Popup.svelte";
   import DraggableObject from "./DraggableObject.svelte.js";
   import {onMount} from "svelte";
   import Text from "./Text.svelte";
@@ -147,7 +146,6 @@
       textOffset.y = dy + textPosBefore.y;
     });
 
-
 </script>
 
 <defs>
@@ -210,11 +208,11 @@
   {@render draggableCircle(arrow.position.x1, arrow.position.y1, () => movingStart = true)}
   {@render draggableCircle(arrow.position.x2, arrow.position.y2, () => movingEnd = true)}
 
-  <Popup x={arrow.middle.x}
-         y={arrow.middle.y - 55}
-         bind:shape={arrow}
-         removeShape={removeArrow}
-         isDragging={moveArrow.isDragging}/>
+<!--  <Popup x={arrow.middle.x}-->
+<!--         y={arrow.middle.y - 55}-->
+<!--         bind:shape={arrow}-->
+<!--         removeShape={removeArrow}-->
+<!--         isDragging={moveArrow.isDragging}/>-->
 {/if}
 
 

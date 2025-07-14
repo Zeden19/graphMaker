@@ -27,9 +27,16 @@ export class Arrow {
     });
 
     this.widthWithScale = $derived({marker: MARKER_SIZE * canvasScale(), line: this.width * canvasScale()});
-    this.middle = $derived({x: (this.position.x1 + this.position.x2) / 2, y: (this.position.y1 + this.position.y2) / 2});
+    this.middle = $derived({
+      x: (this.position.x1 + this.position.x2) / 2,
+      y: (this.position.y1 + this.position.y2) / 2
+    });
     this.length = $derived(Math.sqrt(((this.position.x2 - this.position.x1) ** 2) + ((this.position.y2 - this.position.y1) ** 2)))
     this.rotation = $derived(Math.atan((this.position.y2 - this.position.y1) / (this.position.x2 - this.position.x1)));
+  }
+
+  delete = () => {
+    dispatchEvent(new CustomEvent('deleteShape', {detail: {shape: this, type: "arrow"}}));
   }
 }
 

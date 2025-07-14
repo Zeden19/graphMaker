@@ -39,6 +39,13 @@ export class Circle {
     );
   }
 
+  // arrow function for "this" value
+  // see: https://svelte.dev/docs/svelte/$state#Passing-state-into-functions
+  //todo: definately need to figure out a way to combine classes into generic shape object
+  delete = () => {
+    dispatchEvent(new CustomEvent('deleteShape', {detail: {shape: this, type: "circle"}}));
+  }
+
   #createCornerPos(angle) {
     return {
       x: this.positionX + this.radiusWithScale * Math.cos(angle),

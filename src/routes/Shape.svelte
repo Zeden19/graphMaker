@@ -1,12 +1,12 @@
 <script>
   import {onDestroy, onMount} from "svelte";
 
-  let {shape = $bindable(), children} = $props();
+  let {shape = $bindable(), children, editShapeContainerRef} = $props();
 
   let gRef = $state();
 
   const deselect = (event) => {
-    if (gRef && !(gRef.contains(event.target))) {
+    if (gRef && !(gRef.contains(event.target)) && !(editShapeContainerRef.contains(event.target))) {
       shape.selected = false;
     }
   };
