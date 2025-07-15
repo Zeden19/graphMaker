@@ -1,52 +1,41 @@
 <script>
   import {fade} from "svelte/transition";
-  import trash from "$lib/assets/trash.png";
   import ColorPicker from "svelte-awesome-color-picker";
 
   import {colord} from "colord";
 
-  let {x, y, shape = $bindable(), removeShape, isDragging} = $props();
+  let {shape = $bindable()} = $props();
 
   let colors = ["white", "black", "red", "green", "blue", "yellow"].map((color) => colord(color));
   let hex = $derived(shape.color.toHex());
 </script>
 
 
-<foreignObject
-  x={x} y={y}
-  width="1"
-  height="1">
-  <div xmlns="http://www.w3.org/1999/xhtml" class="popup-wrapper no-select"
-       transition:fade={{duration: 110}} style="{isDragging ? 'opacity: 0.4' : ''}">
-    <div class="popup-content">
-      {#each colors as color}
-        <button class="color-pick {shape.color.toHex() === color.toHex() ? 'color-selected' : ''}"
-                style="background-color: {color.toHex()};"
-                onclick={() => shape.color = color}
-                aria-label="Change color to {color.toName()}">
-        </button>
-      {/each}
-      <div
-        class="color-picker {colors.every((color) => color.toHex() !== shape.color.toHex()) ? 'color-selected' : ''}">
-        <ColorPicker
-          bind:color={shape.color}
-          bind:hex
-          label=""
-          position="responsive"
-        />
-      </div>
-      <button onclick="{removeShape}" class="popup-button no-select"><img draggable="false" width="30" alt="trash"
-                                                                          src="{trash}"/></button>
+<div xmlns="http://www.w3.org/1999/xhtml" class="popup-wrapper no-select"
+     transition:fade={{duration: 110}}>
+  <div class="popup-content">
+    {#each colors as color}
+      <button class="color-pick {shape.color.toHex() === color.toHex() ? 'color-selected' : ''}"
+              style="background-color: {color.toHex()};"
+              onclick={() => shape.color = color}
+              aria-label="Change color to {color.toName()}">
+      </button>
+    {/each}
+    <div
+      class="color-picker {colors.every((color) => color.toHex() !== shape.color.toHex()) ? 'color-selected' : ''}">
+      <ColorPicker
+        bind:color={shape.color}
+        bind:hex
+        label=""
+        position="responsive"
+      />
     </div>
-    <div class="popup-arrow"></div>
   </div>
-</foreignObject>
+  <div class="popup-arrow"></div>
+</div>
 
 
 <style>
-  foreignObject {
-    overflow: visible;
-  }
 
   .popup-wrapper {
     display: flex;
@@ -90,15 +79,6 @@
     border-radius: 50%;
     background-image: var(--rainbowCircleGradient);
     margin-right: 5px;
-  }
-
-  .popup-button {
-    border-left: black 1px solid;
-    padding: 5px;
-  }
-
-  .popup-button:hover {
-    background-color: #d1d0d0;
   }
 
   .popup-arrow {

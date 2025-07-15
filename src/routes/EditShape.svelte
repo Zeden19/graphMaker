@@ -1,102 +1,86 @@
 <script>
-  import {colord} from "colord";
-  import ColorPicker from "svelte-awesome-color-picker";
   import trash from "$lib/assets/trash.png";
   import Input from "./Input.svelte";
-
+  import ChangeColor from "./ChangeColor.svelte";
+  import {onMount} from "svelte";
 
   let {shape = $bindable()} = $props();
 
-  let colors = ["white", "black", "red", "orange", "yellow", "lime", "green", "blue", "cyan", "pink", "purple"].map((color) => colord(color));
-  let hex = $derived(shape?.color.toHex());
+  let shown = $state(false);
+  let popupWindow = $state();
 
+  onMount(() =>
+    window.addEventListener("click", (event) => {
+      if (popupWindow && !(popupWindow.contains(event.target)))
+        shown = false;
+    }));
 </script>
 
 {#if shape !== undefined}
-  <div class="color-container">
-    {#each colors as color}
-      <button class="color-pick {shape.color.toHex() === color.toHex() ? 'color-selected' : ''}"
-              style="background-color: {color.toHex()};"
-              onclick={() => shape.color = color}
-              aria-label="Change color to {color.toName()}">
-      </button>
-    {/each}
-    <div
-      class="color-picker {colors.every((color) => color.toHex() !== shape.color.toHex()) ? 'color-selected' : ''}">
-      <ColorPicker
-        textInputModes={["hex"]}
-        --cp-bg-color="black"
-        --cp-border-color="white"
-        --cp-input-color="#333"
-        bind:color={shape.color}
-        bind:hex
-        label=""
-        position="responsive"
-      />
-    </div>
-  </div>
+  <ChangeColor bind:colorToChange={shape.color}/>
 
+  <!--  we should probably want this to be organized by type, so position is togther, size adjustment is togeher
+  etc. add labels and borders for each type-->
   <div class="basics">
     {#if shape.x}
-      <div>x: <Input max={50000} type="number" bind:value={shape.x}/></div>
-      <div>y: <Input max={50000} type="number" bind:value={shape.y}/></div>
-      <div>Radius: <Input max={50000} type="number" bind:value={shape.r}/></div>
+      <div>x <Input max={50000} type="number" bind:value={shape.x}/></div>
+      <div>y <Input max={50000} type="number" bind:value={shape.y}/></div>
+      <div>Radius <Input max={50000} type="number" bind:value={shape.r}/></div>
     {:else}
-      <div>x1: <Input max={50000} type="number" bind:value={shape.x1}/></div>
-      <div>y1: <Input max={50000} type="number" bind:value={shape.y1}/></div>
+      <div>x1 <Input max={50000} type="number" bind:value={shape.x1}/></div>
+      <div>y1 <Input max={50000} type="number" bind:value={shape.y1}/></div>
 
-      <div>x2: <Input max={50000} type="number" bind:value={shape.x2}/></div>
-      <div>y1: <Input max={50000} type="number" bind:value={shape.y2}/></div>
+      <div>x2 <Input max={50000} type="number" bind:value={shape.x2}/></div>
+      <div>y2 <Input max={50000} type="number" bind:value={shape.y2}/></div>
 
-      <div>Width: <Input min={1} type="number" bind:value={shape.width}/></div>
+      <div>Width <Input min={1} type="number" bind:value={shape.width}/></div>
     {/if}
   </div>
 
-  <button class="trash" onclick={shape.delete}><img draggable="false" width="50" alt="trash" src="{trash}"/>
+  <div class="basics">
+    {#if shape.strokeColor}
+      <div style="position: relative;" bind:this={popupWindow}>Color
+        <Input style="background-color: {shape.strokeColor.toHex()};"
+               onclick={() => shown = true} readonly={true}
+               aria-label="Change stroke color"/>
+        {#if shown}
+          <div class="show-stroke-popup">
+            <ChangeColor bind:colorToChange={shape.strokeColor}/>
+          </div>
+        {/if}
+      </div>
+      <div>Width <Input min={1} max={30} type="number" bind:value={shape.strokeWidth}/></div>
+    {/if}
+  </div>
+
+  <button class="trash" onclick={shape.delete}>
+    <img draggable="false" width="50" alt="trash" src="{trash}"/>
   </button>
 {:else}
   Select a shape to edit
 {/if}
 
 <style>
-  .color-container {
-    display: flex;
-    align-self: center;
-    background: var(--secondaryBg);
-    padding: 8px;
-    border-radius: 30px;
-    border: var(--darkBorder);
+  .show-stroke-popup {
+    position: absolute;
+    top: -35px; /*From 30px height size of circles from ChangeColor + 5px */
   }
 
-  .color-pick {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    margin: 4px;
-    border: 1px solid white;
-    transition: transform 0.2s ease-out;
-  }
-
-  .color-pick:hover, .color-selected {
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
-    transform: scale(1.05);
-  }
-
-  .color-picker {
-    margin: 2px;
-    border-radius: 50%;
-    background-image: var(--rainbowCircleGradient);
-    z-index: 99;
-  }
-
-  /*mayve align this with the color container start?*/
+  /*maybe align this with the color container start?*/
   .basics {
     padding-top: 10px;
     align-self: start;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    width: 50%;
+    gap: 5px 5px;
+  }
+
+  .basics > div {
+    display: flex;
+    flex-direction: column;
     gap: 5px;
-    justify-items: end;
+    font-size: 1em;
   }
 
   .trash {

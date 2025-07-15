@@ -1,3 +1,5 @@
+import {colord} from "colord";
+
 const bottomRightAngle = 45 * Math.PI / 180; // 45 degrees
 const bottomLeftAngle = 135 * Math.PI / 180; // 135 degrees
 const topRightAngle = 315 * Math.PI / 180; // 315 degrees
@@ -9,6 +11,8 @@ export class Circle {
     this.y = $state(y);
     this.r = $state(r);
     this.color = $state(color);
+    this.strokeColor = $state(colord("black"));
+    this.strokeWidth = $state(2)
     this.selected = $state(false);
 
     this.positionX = $derived(offset.x + this.x);

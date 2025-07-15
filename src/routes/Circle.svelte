@@ -31,8 +31,6 @@
       circle.r = Math.max(20, circle.r + distance);
     });
 
-  let isDragging = $derived(moveCircle.isDragging || resizeCircle.isDragging);
-
   const arrowIndexes = []
   onMount(() => {
     const areaSize = 20;
@@ -68,10 +66,10 @@
   cx="{circle.positionX}"
   cy="{circle.positionY}"
   fill="{circle.color.toHex()}"
-  stroke={"black"}
-  stroke-width="2"
-  role="presentation"
+  stroke={circle.strokeColor.toHex()}
+  stroke-width="{circle.strokeWidth}"
   style="transform-origin: {circle.positionX}px {circle.positionY}px;"
+  role="presentation"
 />
 
 
