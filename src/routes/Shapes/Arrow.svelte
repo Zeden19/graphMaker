@@ -175,19 +175,26 @@
         onmousedown={(event) => {arrow.selected = true; moveText.setDrag(event)}}/>
 </foreignObject>
 
-<line
+<!--use path instead for stroke (& will be useful for curved shit)-->
+<polyline
+  stroke="{arrow.strokeColor.toHex()}"
+  stroke-width="{arrow.strokeWidth + arrow.width}"
+  points="{arrow.position.x1},{arrow.position.y1}
+  {arrow.position.x2 - (15 * Math.cos(arrow.rotation))}, {arrow.position.y2 - (15 * Math.sin(arrow.rotation))}"
+></polyline>
+
+<polyline
   transition:scale={{duration: 120}}
+  points="{arrow.position.x1},{arrow.position.y1} {arrow.position.x2},{arrow.position.y2}"
+
   style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
   onmousedown="{moveArrow.setDrag}"
-  x1={arrow.position.x1}
-  y1={arrow.position.y1}
-  x2={arrow.position.x2}
-  y2={arrow.position.y2}
   stroke="{arrow.color.toHex()}"
-  stroke-width={arrow.widthWithScale.line}
+  stroke-width="{arrow.width}"
   marker-end="url(#arrowHead{index})"
   marker-start="url(#end{index})"
-  role="presentation"></line>
+  role="presentation"></polyline>
+
 
 {#if arrow.selected}
   {#snippet draggableCircle(cx, cy, setMoving)}
@@ -211,7 +218,7 @@
 
 
 <style>
-  line {
+  polyline {
     cursor: pointer;
     transition: stroke var(--shape-transition-timing);
   }

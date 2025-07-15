@@ -95,7 +95,7 @@
 <style>
   circle {
     cursor: grab;
-    transition: fill var(--shape-transition-timing);
+    transition: fill var(--shape-transition-timing), stroke var(--shape-transition-timing);
   }
 
   button {
