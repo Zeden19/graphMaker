@@ -58,13 +58,13 @@
     window.addEventListener("deleteShape", ({detail: {type, shape}}) => {
       if (type === "arrow") removeObject(arrows, arrows.findIndex((arrow) => arrow === shape))
       else if (type === "circle") {
-        const circle = circles[circles.findIndex((circle) => circle === shape)];
+        const circleIndex = circles.findIndex((circle) => circle === shape);
         // Goku code
-        circle.arrowsSnappedIndexes.forEach(({index, pos}) => {
+        circles[circleIndex].arrowsSnappedIndexes.forEach(({index, pos}) => {
                 dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));
               });
 
-        removeObject(circles, circles.findIndex((circle) => circle === shape));
+        removeObject(circles, circleIndex);
       }
     })
   })
@@ -83,7 +83,7 @@
 <div class="container">
 
   <div class="materials">
-    <div>
+    <div style="height: 30%">
       <button class="button" onclick={addCircle}>Add Circle</button>
       <button class="button" onclick={addArrow}>Add Arrow</button>
       <button class="button" onclick="{clear}">Clear</button>
@@ -154,11 +154,8 @@
     flex-direction: column;
   }
 
-  .materials > div {
-    height: 50%;
-  }
-
   .edit-shape {
+    height: 70%;
     border-top: var(--mainBorder);
     display: flex;
     flex-direction: column;

@@ -1,5 +1,5 @@
 <script>
-  import { blur } from "svelte/transition";
+  import {blur} from "svelte/transition";
   import ColorPicker from "svelte-awesome-color-picker";
   import {colord} from "colord";
 
@@ -31,10 +31,11 @@
     />
   </div>
 </div>
+
 <style>
   .color-container {
     display: flex;
-    align-self: center;
+    align-self: start;
     background: var(--secondaryBg);
     padding: 8px;
     border-radius: 30px;
