@@ -5,34 +5,40 @@ const bottomLeftAngle = 135 * Math.PI / 180; // 135 degrees
 const topRightAngle = 315 * Math.PI / 180; // 315 degrees
 const topLeftAngle = 225 * Math.PI / 180; // 225 degrees
 
+const DEFAULT_X = 350;
+const DEFAULT_Y = 250;
+const DEFAULT_RADIUS = 80;
+const DEFAULT_COLOR = colord("#FFFFFF");
+const DEFAULT_STROKE_COLOR = colord("black");
+const DEFAULT_STROKE_WIDTH = 2;
+
 export class Circle {
-  constructor(x, y, r, color, offset, canvasScale) {
-    this.x = $state(x);
-    this.y = $state(y);
-    this.r = $state(r);
-    this.color = $state(color);
-    this.strokeColor = $state(colord("black"));
-    this.strokeWidth = $state(2)
+  constructor(offset, canvasScale) {
+    this.x = $state(DEFAULT_X - offset.x);
+    this.y = $state(DEFAULT_Y - offset.y);
+    this.r = $state(DEFAULT_RADIUS);
+    this.color = $state(DEFAULT_COLOR);
+    this.strokeColor = $state(DEFAULT_STROKE_COLOR);
+    this.strokeWidth = $state(DEFAULT_STROKE_WIDTH);
     this.selected = $state(false);
 
-    this.positionX = $derived(offset.x + this.x);
-    this.positionY = $derived(offset.y + this.y);
+    this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
     this.radiusWithScale = $derived(canvasScale() * this.r);
 
 
     this.circleRect = $derived(
       {
         top: {
-          x: this.positionX, y: this.positionY - this.radiusWithScale,
+          x: this.position.x, y: this.position.y - this.radiusWithScale,
         },
         bottom: {
-          x: this.positionX, y: this.positionY + this.radiusWithScale,
+          x: this.position.x, y: this.position.y + this.radiusWithScale,
         },
         left: {
-          x: this.positionX - this.radiusWithScale, y: this.positionY,
+          x: this.position.x - this.radiusWithScale, y: this.position.y,
         },
         right: {
-          x: this.positionX + this.radiusWithScale, y: this.positionY,
+          x: this.position.x + this.radiusWithScale, y: this.position.y,
         },
 
         bottomRight: this.#createCornerPos(bottomRightAngle),
@@ -41,6 +47,8 @@ export class Circle {
         topRight: this.#createCornerPos(topRightAngle),
       }
     );
+
+    this.arrowsSnappedIndexes = [];
   }
 
   // arrow function for "this" value
@@ -52,8 +60,8 @@ export class Circle {
 
   #createCornerPos(angle) {
     return {
-      x: this.positionX + this.radiusWithScale * Math.cos(angle),
-      y: this.positionY + this.radiusWithScale * Math.sin(angle)
+      x: this.position.x + this.radiusWithScale * Math.cos(angle),
+      y: this.position.y + this.radiusWithScale * Math.sin(angle)
     };
   }
 }

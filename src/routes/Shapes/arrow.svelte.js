@@ -1,13 +1,24 @@
+import {colord} from "colord";
+
+const DEFAULT_X1 = 350;
+const DEFAULT_X2 = DEFAULT_X1 + 100
+const DEFAULT_Y = 250;
+const DEFAULT_WIDTH = 5;
+const DEFAULT_COLOR = colord("#FFFFFF");
+const DEFAULT_STROKE = 2;
+const DEFAULT_STROKE_COLOR = colord("black");
 const MARKER_SIZE = 4;
 
 export class Arrow {
-  constructor(x1, x2, y1, y2, width, color, offset, canvasScale) {
-    this.x1 = $state(x1);
-    this.x2 = $state(x2);
-    this.y1 = $state(y1);
-    this.y2 = $state(y2);
-    this.width = $state(width);
-    this.color = $state(color);
+  constructor(offset, canvasScale) {
+    this.x1 = $state(DEFAULT_X1 - offset.x);
+    this.x2 = $state(DEFAULT_X2 - offset.x);
+    this.y1 = $state(DEFAULT_Y - offset.y);
+    this.y2 = $state(DEFAULT_Y - offset.y);
+    this.width = $state(DEFAULT_WIDTH);
+    this.color = $state(DEFAULT_COLOR);
+    this.strokeWidth = $state(DEFAULT_STROKE);
+    this.strokeColor = $state(DEFAULT_STROKE_COLOR);
     this.selected = $state(false);
 
     this.startSnapped = $state(null);

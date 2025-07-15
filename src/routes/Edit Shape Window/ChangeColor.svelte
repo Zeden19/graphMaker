@@ -1,4 +1,5 @@
 <script>
+  import { blur } from "svelte/transition";
   import ColorPicker from "svelte-awesome-color-picker";
   import {colord} from "colord";
 
@@ -8,7 +9,7 @@
   let hex = $derived(colorToChange.toHex());
 </script>
 
-<div class="color-container">
+<div class="color-container" transition:blur={{duration: 200}}>
   {#each colors as color}
     <button class="color-pick {colorToChange.toHex() === color.toHex() ? 'color-selected' : ''}"
             style="background-color: {color.toHex()};"

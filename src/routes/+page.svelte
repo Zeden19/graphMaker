@@ -1,22 +1,19 @@
 <script>
-  import Circle from "./Circle.svelte";
-  import {Circle as CircleClass} from "./circle.svelte.js";
-  import {Arrow as ArrowClass} from "./arrow.svelte.js";
-  import {colord, extend} from "colord";
+  import Circle from "./Shapes/Circle.svelte";
+  import {Circle as CircleClass} from "./Shapes/circle.svelte.js";
+  import {Arrow as ArrowClass} from "./Shapes/arrow.svelte.js";
+  import {extend} from "colord";
   import namesPlugin from "colord/plugins/names";
-  import Arrow from "./Arrow.svelte";
-  import DraggableObject from "./DraggableObject.svelte.js";
-  import Shape from "./Shape.svelte";
-  import EditShape from "./EditShape.svelte";
+  import Arrow from "./Shapes/Arrow.svelte";
+  import DraggableObject from "./Shapes/DraggableObject.svelte.js";
+  import Shape from "./Shapes/Shape.svelte";
+  import EditShape from "./Edit Shape Window/EditShape.svelte";
   import {onMount} from "svelte";
 
   extend([namesPlugin]);
 
-  const INSERT_POSITION = 300;
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
-  const CIRCLE_BASE_RADIUS = 80;
-  const ARROW_BASE_WIDTH = 5;
 
   let offsetBefore = {x: 0, y: 0};
   let offset = $state({x: 0, y: 0});
@@ -39,24 +36,13 @@
   let editShapeContainerRef = $state();
 
 
-  // negative 1 because offset is opposite of the canvas position
   const addCircle = () => {
-    circles.push(new CircleClass(
-      INSERT_POSITION,
-      INSERT_POSITION,
-      CIRCLE_BASE_RADIUS,
-      colord("white"), offset, () => canvasScale) // need to function so it proxies
+    circles.push(new CircleClass(offset, () => canvasScale) // need to function so it captures variable
     );
   }
 
   const addArrow = () => {
-    arrows.push(new ArrowClass(
-      INSERT_POSITION,
-      INSERT_POSITION,
-      INSERT_POSITION + 100,
-      INSERT_POSITION,
-      ARROW_BASE_WIDTH,
-      colord("white"), offset, () => canvasScale))
+    arrows.push(new ArrowClass(offset, () => canvasScale))
   }
 
   const removeObject = (array, index) => {
@@ -71,7 +57,15 @@
     // indexes in classes will change when deleting shapes
     window.addEventListener("deleteShape", ({detail: {type, shape}}) => {
       if (type === "arrow") removeObject(arrows, arrows.findIndex((arrow) => arrow === shape))
-      else if (type === "circle") removeObject(circles, circles.findIndex((circle) => circle === shape));
+      else if (type === "circle") {
+        const circle = circles[circles.findIndex((circle) => circle === shape)];
+        // Goku code
+        circle.arrowsSnappedIndexes.forEach(({index, pos}) => {
+                dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));
+              });
+
+        removeObject(circles, circles.findIndex((circle) => circle === shape));
+      }
     })
   })
 

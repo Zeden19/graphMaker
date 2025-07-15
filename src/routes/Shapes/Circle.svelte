@@ -31,7 +31,6 @@
       circle.r = Math.max(20, circle.r + distance);
     });
 
-  const arrowIndexes = []
   onMount(() => {
     const areaSize = 20;
 
@@ -40,8 +39,8 @@
         if ((x < point.x + areaSize && x > point.x - areaSize) &&
           (y < point.y + areaSize && y > point.y - areaSize)) {
 
-          if (!arrowIndexes.map(arrow => arrow.index).includes(arrowIndex)) {
-            arrowIndexes.push({index: arrowIndex, pos});
+          if (!circle.arrowsSnappedIndexes.map(arrow => arrow.index).includes(arrowIndex)) {
+            circle.arrowsSnappedIndexes.push({index: arrowIndex, pos});
           }
           const circleRef = () => circle.circleRect[location];
           dispatchEvent(new CustomEvent(`arrowSnap${arrowIndex}`, {detail: {pos, circleRef}}));
@@ -63,12 +62,12 @@
   transition:scale={{duration: 120}}
   onmousedown={moveCircle.setDrag}
   r="{circle.radiusWithScale}"
-  cx="{circle.positionX}"
-  cy="{circle.positionY}"
+  cx="{circle.position.x}"
+  cy="{circle.position.y}"
   fill="{circle.color.toHex()}"
   stroke={circle.strokeColor.toHex()}
   stroke-width="{circle.strokeWidth}"
-  style="transform-origin: {circle.positionX}px {circle.positionY}px;"
+  style="transform-origin: {circle.position.x}px {circle.position.y}px;"
   role="presentation"
 />
 
