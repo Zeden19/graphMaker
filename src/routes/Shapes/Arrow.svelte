@@ -97,8 +97,6 @@
     }
   });
 
-  let fontSize = $state(0.8);
-  let textContainer = $state();
   let textOffset = $state({x: 0, y: 0});
 
   const determineTextPos = (min, x, max) => {
@@ -172,7 +170,7 @@
                                   {textPosition.y}px;"
                width="{arrow.length}" height="2em">
 
-  <Text {fontSize} color="white" selected={arrow.selected} bind:textContainer
+  <Text selected={arrow.selected}
         onmousedown={(event) => {arrow.selected = true; moveText.setDrag(event)}}/>
 </foreignObject>
 

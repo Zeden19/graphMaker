@@ -54,8 +54,6 @@
     }
   });
 
-  let fontSize = $state(0.8);
-
 </script>
 
 <circle
@@ -76,7 +74,7 @@
                width={circle.circleRect.topRight.x - circle.circleRect.topLeft.x}
                height={circle.circleRect.bottomLeft.y - circle.circleRect.topLeft.y}
 >
-  <Text {fontSize} selected={circle.selected} color="black"></Text>
+  <Text selected={circle.selected}></Text>
 </foreignObject>
 
 {#if circle.selected}
