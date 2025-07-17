@@ -141,7 +141,7 @@
     grid-template-rows: 65% 1fr;
     grid-template-areas:
       'materials canvas'
-      'toolbox toolbox';
+      'materials toolbox';
     height: 98vh;
   }
 

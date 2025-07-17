@@ -170,7 +170,7 @@
                                   {textPosition.y}px;"
                width="{arrow.length}" height="2em">
 
-  <Text selected={arrow.selected}
+  <Text selected={arrow.selected} text={arrow.text}
         onmousedown={(event) => {arrow.selected = true; moveText.setDrag(event)}}/>
 </foreignObject>
 

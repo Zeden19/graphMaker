@@ -1,4 +1,5 @@
 import {colord} from "colord";
+import {ShapeText} from "./ShapeText.svelte.js";
 
 const DEFAULT_X1 = 350;
 const DEFAULT_X2 = DEFAULT_X1 + 100
@@ -15,6 +16,7 @@ export class Arrow {
     this.y2 = $state(DEFAULT_Y - offset.y);
     this.width = $state(DEFAULT_WIDTH);
     this.color = $state(DEFAULT_COLOR);
+    this.text = new ShapeText("white");
 
     this.selected = $state(false);
 
@@ -45,6 +47,10 @@ export class Arrow {
 
   delete = () => {
     dispatchEvent(new CustomEvent('deleteShape', {detail: {shape: this, type: "arrow"}}));
+  }
+
+  toString() {
+    return "Arrow"
   }
 }
 

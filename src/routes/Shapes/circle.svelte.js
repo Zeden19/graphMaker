@@ -1,4 +1,5 @@
 import {colord} from "colord";
+import {ShapeText} from "./ShapeText.svelte.js";
 
 const bottomRightAngle = 45 * Math.PI / 180; // 45 degrees
 const bottomLeftAngle = 135 * Math.PI / 180; // 135 degrees
@@ -20,6 +21,7 @@ export class Circle {
     this.color = $state(DEFAULT_COLOR);
     this.strokeColor = $state(DEFAULT_STROKE_COLOR);
     this.strokeWidth = $state(DEFAULT_STROKE_WIDTH);
+    this.text = new ShapeText("black");
     this.selected = $state(false);
 
     this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
@@ -63,6 +65,10 @@ export class Circle {
       x: this.position.x + this.radiusWithScale * Math.cos(angle),
       y: this.position.y + this.radiusWithScale * Math.sin(angle)
     };
+  }
+
+  toString() {
+    return "Circle"
   }
 }
 

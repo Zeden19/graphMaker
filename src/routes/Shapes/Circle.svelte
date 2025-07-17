@@ -74,7 +74,7 @@
                width={circle.circleRect.topRight.x - circle.circleRect.topLeft.x}
                height={circle.circleRect.bottomLeft.y - circle.circleRect.topLeft.y}
 >
-  <Text selected={circle.selected}></Text>
+  <Text selected={circle.selected} text={circle.text}></Text>
 </foreignObject>
 
 {#if circle.selected}
