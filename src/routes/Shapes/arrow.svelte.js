@@ -5,8 +5,6 @@ const DEFAULT_X2 = DEFAULT_X1 + 100
 const DEFAULT_Y = 250;
 const DEFAULT_WIDTH = 5;
 const DEFAULT_COLOR = colord("#FFFFFF");
-const DEFAULT_STROKE = 2;
-const DEFAULT_STROKE_COLOR = colord("black");
 const MARKER_SIZE = 4;
 
 export class Arrow {
@@ -17,8 +15,7 @@ export class Arrow {
     this.y2 = $state(DEFAULT_Y - offset.y);
     this.width = $state(DEFAULT_WIDTH);
     this.color = $state(DEFAULT_COLOR);
-    this.strokeWidth = $state(DEFAULT_STROKE);
-    this.strokeColor = $state(DEFAULT_STROKE_COLOR);
+
     this.selected = $state(false);
 
     this.startSnapped = $state(null);

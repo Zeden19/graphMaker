@@ -41,10 +41,10 @@
     </div>
   </div>
 
-  <div class="basics-container">
-    <div class="title">Stroke</div>
-    <div class="basics">
-      {#if shape.strokeColor}
+  {#if shape.strokeColor}
+    <div class="basics-container">
+      <div class="title">Stroke</div>
+      <div class="basics">
         <div style="position: relative;" bind:this={popupWindow}>Color
           <Input style="background-color: {shape.strokeColor.toHex()};"
                  onclick={() => shown = true} readonly={true}
@@ -56,9 +56,9 @@
           {/if}
         </div>
         <div>Width <Input min={1} max={30} type="number" bind:value={shape.strokeWidth}/></div>
-      {/if}
+      </div>
     </div>
-  </div>
+  {/if}
 
   <button class="trash" onclick={shape.delete}>
     <img draggable="false" width="50" alt="trash" src="{trash}"/>

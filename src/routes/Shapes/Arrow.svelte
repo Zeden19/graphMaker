@@ -153,7 +153,8 @@
           markerWidth="{arrow.widthWithScale.marker}"
           markerHeight="{arrow.widthWithScale.marker}"
           orient="auto-start-reverse" viewBox="0 0 10 10">
-    <path fill="{arrow.color.toHex()}" d="M 0 0 L 10 5 L 0 10 z"/>
+    <path fill="{arrow.color.toHex()}"
+          d="M 0 0 L 10 5 L 0 10 z"/>
   </marker>
 
   <marker id="end{index}" refX="{5}" refY="{5}"
@@ -177,16 +178,8 @@
 
 <!--use path instead for stroke (& will be useful for curved shit)-->
 <polyline
-  stroke="{arrow.strokeColor.toHex()}"
-  stroke-width="{arrow.strokeWidth + arrow.width}"
-  points="{arrow.position.x1},{arrow.position.y1}
-  {arrow.position.x2 - (15 * Math.cos(arrow.rotation))}, {arrow.position.y2 - (15 * Math.sin(arrow.rotation))}"
-></polyline>
-
-<polyline
   transition:scale={{duration: 120}}
   points="{arrow.position.x1},{arrow.position.y1} {arrow.position.x2},{arrow.position.y2}"
-
   style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
   onmousedown="{moveArrow.setDrag}"
   stroke="{arrow.color.toHex()}"
