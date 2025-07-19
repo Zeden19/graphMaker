@@ -17,32 +17,38 @@
 </script>
 
 {#if shape !== undefined}
-  <div class="title">{shape}</div>
 
+  <div class="title">{shape}</div>
   <div class="edit-content-container">
     <div class="basics-container">
       <div class="type-title">Basic</div>
       <div class="basics">
-        {#if shape.x}
-          <div> Color
-            <ChangeColorPopup bind:colorToChange={shape.color}/>
-          </div>
-          <div>Radius <Input max={50000} type="number" bind:value={shape.r}/></div>
-          <div>x <Input max={50000} type="number" bind:value={shape.x}/></div>
-          <div>y <Input max={50000} type="number" bind:value={shape.y}/></div>
 
-        {:else}
+        {#if shape.color !== undefined && shape.bold === undefined}
           <div>Color
             <ChangeColorPopup bind:colorToChange={shape.color}/>
           </div>
-          <div>Width <Input min={1} type="number" bind:value={shape.width}/></div>
+        {/if}
+
+        {#if shape.r !== undefined}
+          <div>Radius <Input max={200} type="number" bind:value={shape.r}/></div>
+        {/if}
+
+        {#if shape.x !== undefined}
+          <div>x <Input max={50000} type="number" bind:value={shape.x}/></div>
+          <div>y <Input max={50000} type="number" bind:value={shape.y}/></div>
+        {/if}
+
+        {#if shape.x1 !== undefined}
           <div>x1 <Input max={50000} type="number" bind:value={shape.x1}/></div>
           <div>y1 <Input max={50000} type="number" bind:value={shape.y1}/></div>
 
           <div>x2 <Input max={50000} type="number" bind:value={shape.x2}/></div>
           <div>y2 <Input max={50000} type="number" bind:value={shape.y2}/></div>
+        {/if}
 
-
+        {#if shape.width !== undefined}
+          <div>Width: <Input max={500} type="number" bind:value={shape.width}/></div>
         {/if}
       </div>
     </div>
@@ -59,17 +65,27 @@
       </div>
     {/if}
 
-    {#if shape.text}
+    {#if shape.italic !== undefined || shape.text }
       <div class="basics-container">
         <div class="type-title">Text</div>
         <div class="basics">
-          <div>Color
-            <ChangeColorPopup bind:colorToChange={shape.text.color}/>
-          </div>
-          <div>Font Size:<Input type="number" min="1" bind:value={shape.text.fontSize}/></div>
-          <div>Bold: <Input type="checkbox" bind:checked={shape.text.bold}/></div>
-          <div>Italic: <Input type="checkbox" bind:checked={shape.text.italic}/></div>
-          <div>Underline: <Input type="checkbox" bind:checked={shape.text.underline}/></div>
+          {#if shape.text}
+            <div>Color
+              <ChangeColorPopup bind:colorToChange={shape.text.color}/>
+            </div>
+            <div>Font Size:<Input type="number" min="1" bind:value={shape.text.fontSize}/></div>
+            <div>Bold: <Input type="checkbox" bind:checked={shape.text.bold}/></div>
+            <div>Italic: <Input type="checkbox" bind:checked={shape.text.italic}/></div>
+            <div>Underline: <Input type="checkbox" bind:checked={shape.text.underline}/></div>
+          {:else}
+            <div>Color
+              <ChangeColorPopup bind:colorToChange={shape.color}/>
+            </div>
+            <div>Font Size:<Input type="number" min="1" bind:value={shape.fontSize}/></div>
+            <div>Bold: <Input type="checkbox" bind:checked={shape.bold}/></div>
+            <div>Italic: <Input type="checkbox" bind:checked={shape.italic}/></div>
+            <div>Underline: <Input type="checkbox" bind:checked={shape.underline}/></div>
+          {/if}
         </div>
       </div>
     {/if}

@@ -9,6 +9,8 @@
   import Shape from "./Shapes/Shape.svelte";
   import EditShape from "./Edit Shape Window/EditShape.svelte";
   import {onMount} from "svelte";
+  import {GraphText as GraphTextClass} from "./Shapes/Text/Text.svelte.js";
+  import GraphText from "./Shapes/Text/GraphText.svelte";
 
   extend([namesPlugin]);
 
@@ -30,9 +32,11 @@
       offset.y = offsetBefore.y + dy
     })
 
+  // use a object with lists instead of separate lists?
   let circles = $state([]);
   let arrows = $state([]);
-  let selectedShape = $derived([...circles, ...arrows].find(shape => shape.selected));
+  let texts = $state([]);
+  let selectedShape = $derived([...circles, ...arrows, ...texts].find(shape => shape.selected));
   let editShapeContainerRef = $state();
 
 
@@ -43,6 +47,10 @@
 
   const addArrow = () => {
     arrows.push(new ArrowClass(offset, () => canvasScale))
+  }
+
+  const addText = () => {
+    texts.push(new GraphTextClass(offset, () => canvasScale))
   }
 
   const removeObject = (array, index) => {
@@ -56,7 +64,8 @@
   onMount(() => {
     // indexes in classes will change when deleting shapes
     window.addEventListener("deleteShape", ({detail: {type, shape}}) => {
-      if (type === "arrow") removeObject(arrows, arrows.findIndex((arrow) => arrow === shape))
+      if (type === "arrow") removeObject(arrows, arrows.findIndex((arrow) => arrow === shape));
+      else if (type === "text") removeObject(texts, texts.findIndex((text) => text === text));
       else if (type === "circle") {
         const circleIndex = circles.findIndex((circle) => circle === shape);
         // Goku code
@@ -86,6 +95,7 @@
     <div style="height: 30%">
       <button class="button" onclick={addCircle}>Add Circle</button>
       <button class="button" onclick={addArrow}>Add Arrow</button>
+      <button class="button" onclick={addText}>Add Text</button>
       <button class="button" onclick="{clear}">Clear</button>
       <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
       <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
@@ -120,6 +130,13 @@
       <Shape bind:shape={arrows[index]} {editShapeContainerRef}>
         <Arrow bind:arrow={arrows[index]} {offset} {index}
                removeArrow={() => removeObject(arrows,index)}/>
+      </Shape>
+    {/each}
+
+    {#each texts as text, index (text)}
+      <Shape bind:shape={texts[index]} {editShapeContainerRef}>
+        <GraphText bind:text={texts[index]} {offset}
+               removeText={() => removeObject(texts,index)}/>
       </Shape>
     {/each}
 

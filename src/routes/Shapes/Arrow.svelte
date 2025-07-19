@@ -2,7 +2,7 @@
   import {scale, fade} from "svelte/transition";
   import DraggableObject from "./DraggableObject.svelte.js";
   import {onMount} from "svelte";
-  import Text from "./Text.svelte";
+  import ShapeText from "./Text/ShapeText.svelte";
 
   const areaSize = 20;
 
@@ -170,8 +170,8 @@
                                   {textPosition.y}px;"
                width="{arrow.length}" height="2em">
 
-  <Text selected={arrow.selected} text={arrow.text}
-        onmousedown={(event) => {arrow.selected = true; moveText.setDrag(event)}}/>
+  <ShapeText selected={arrow.selected} text={arrow.text}
+             onmousedown={(event) => {arrow.selected = true; moveText.setDrag(event)}}/>
 </foreignObject>
 
 <!--use path instead for stroke (& will be useful for curved shit)-->

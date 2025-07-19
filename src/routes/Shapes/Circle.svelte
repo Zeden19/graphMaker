@@ -3,7 +3,7 @@
   import resize from "$lib/assets/resize.png";
   import DraggableObject from "./DraggableObject.svelte.js";
   import {onMount} from "svelte";
-  import Text from "./Text.svelte";
+  import ShapeText from "./Text/ShapeText.svelte";
 
   let {circle = $bindable(), removeCircle} = $props();
 
@@ -74,7 +74,7 @@
                width={circle.circleRect.topRight.x - circle.circleRect.topLeft.x}
                height={circle.circleRect.bottomLeft.y - circle.circleRect.topLeft.y}
 >
-  <Text selected={circle.selected} text={circle.text}></Text>
+  <ShapeText selected={circle.selected} text={circle.text}></ShapeText>
 </foreignObject>
 
 {#if circle.selected}
