@@ -1,6 +1,6 @@
 <script>
   import {scale, fade} from "svelte/transition";
-  import DraggableObject from "./DraggableObject.svelte.js";
+  import DraggableObject, {DraggableShape} from "./DraggableObject.svelte.js";
   import {onMount} from "svelte";
   import ShapeText from "./Text/ShapeText.svelte";
 
@@ -89,7 +89,7 @@
     }
 
     window.addEventListener(`arrowSnap${index}`, snapArrow);
-    window.addEventListener(`circleDelete${index}`, onCircleDelete)
+    window.addEventListener(`circleDelete${index}`, onCircleDelete);
 
     return () => {
       window.removeEventListener(`arrowSnap${index}`, snapArrow);
@@ -133,17 +133,7 @@
     }
   );
 
-  let textPosBefore = {x: 0, y: 0}
-  let moveText = new DraggableObject(
-    () => {
-      textPosBefore.x = textOffset.x;
-      textPosBefore.y = textOffset.y;
-    },
-    (dx, dy) => {
-      textOffset.x = dx + textPosBefore.x;
-      textOffset.y = dy + textPosBefore.y;
-    });
-
+  let moveText = new DraggableShape(() => textOffset);
 </script>
 
 <defs>

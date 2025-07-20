@@ -17,10 +17,10 @@
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
 
-  let offsetBefore = {x: 0, y: 0};
   let offset = $state({x: 0, y: 0});
   let canvasScale = $state(1);
 
+  let offsetBefore = {x: 0, y: 0};
   const moveGrid = new DraggableObject(
     () => {
       offsetBefore.x = offset.x;
@@ -40,43 +40,17 @@
   let editShapeContainerRef = $state();
 
 
-  const addCircle = () => {
-    circles.push(new CircleClass(offset, () => canvasScale) // need to function so it captures variable
-    );
+  const addShape = (array, ShapeClassRef) => {
+    array.push(new ShapeClassRef(offset, () => canvasScale, () => array));
   }
 
-  const addArrow = () => {
-    arrows.push(new ArrowClass(offset, () => canvasScale))
-  }
-
-  const addText = () => {
-    texts.push(new GraphTextClass(offset, () => canvasScale))
-  }
-
-  const removeObject = (array, index) => {
+  export const removeObject = (array, index) => {
     // need selected to be false so popup transition out plays
     array[index].selected = false;
     setTimeout(() => { // idk why but we also need timemeout
       array.splice(index, 1);
     });
   }
-
-  onMount(() => {
-    // indexes in classes will change when deleting shapes
-    window.addEventListener("deleteShape", ({detail: {type, shape}}) => {
-      if (type === "arrow") removeObject(arrows, arrows.findIndex((arrow) => arrow === shape));
-      else if (type === "text") removeObject(texts, texts.findIndex((text) => text === text));
-      else if (type === "circle") {
-        const circleIndex = circles.findIndex((circle) => circle === shape);
-        // Goku code
-        circles[circleIndex].arrowsSnappedIndexes.forEach(({index, pos}) => {
-                dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));
-              });
-
-        removeObject(circles, circleIndex);
-      }
-    })
-  })
 
   const clear = () => {
     circles = [];
@@ -93,18 +67,16 @@
 
   <div class="materials">
     <div style="height: 30%">
-      <button class="button" onclick={addCircle}>Add Circle</button>
-      <button class="button" onclick={addArrow}>Add Arrow</button>
-      <button class="button" onclick={addText}>Add Text</button>
+      <button class="button" onclick={() => addShape(circles, CircleClass)}>Add Circle</button>
+      <button class="button" onclick={() => addShape(arrows, ArrowClass)}>Add Arrow</button>
+      <button class="button" onclick={() => addShape(texts, GraphTextClass)}>Add Text</button>
       <button class="button" onclick="{clear}">Clear</button>
       <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
       <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
       <input type="range" min="0.3" max="2" step="0.1" oninput="{changeScale}">
     </div>
 
-    <div bind:this={editShapeContainerRef} class="edit-shape">
-      <EditShape bind:shape={selectedShape}/>
-    </div>
+      <EditShape bind:container={editShapeContainerRef} bind:shape={selectedShape}/>
   </div>
 
 
@@ -147,7 +119,6 @@
     <p>CanMoveGrid: {selectedShape === undefined}</p>
     <p>Offset: {offset.x}, {offset.y}</p>
     <p>Drag Position Before: {offsetBefore.x}, {offsetBefore.y}</p>
-
   </div>
 </div>
 
@@ -169,16 +140,6 @@
     border-right: var(--mainBorder);
     display: flex;
     flex-direction: column;
-  }
-
-  .edit-shape {
-    height: 70%;
-    border-top: var(--mainBorder);
-    display: flex;
-    flex-direction: column;
-    padding-top: 15px;
-    padding-left: 15px;
-    padding-right: 15px;
   }
 
   /*.materials-border {*/

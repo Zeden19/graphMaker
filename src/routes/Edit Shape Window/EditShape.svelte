@@ -4,7 +4,7 @@
   import ChangeColorPopup from "./ChangeColorPopup.svelte";
   import {onMount} from "svelte";
 
-  let {shape = $bindable()} = $props();
+  let {shape = $bindable(), container = $bindable()} = $props();
 
   let shown = $state(false);
   let popupWindow = $state();
@@ -16,10 +16,9 @@
     }));
 </script>
 
-{#if shape !== undefined}
-
-  <div class="title">{shape}</div>
-  <div class="edit-content-container">
+<div class="container" bind:this={container}>
+  {#if shape !== undefined}
+    <div class="title">{shape}</div>
     <div class="basics-container">
       <div class="type-title">Basic</div>
       <div class="basics">
@@ -89,25 +88,30 @@
         </div>
       </div>
     {/if}
-  </div>
 
-  <button class="trash" onclick={shape.delete}>
-    <img draggable="false" width="50" alt="trash" src="{trash}"/>
-  </button>
-{:else}
-  Select a shape to edit
-{/if}
+    <!--Must be arrow function: https://svelte.dev/docs/svelte/$state#Classes-->
+    <button class="trash" onclick={() => shape.delete()}>
+      <img draggable="false" width="50" alt="trash" src="{trash}"/>
+    </button>
+  {:else}
+    Select a shape to edit
+  {/if}
+</div>
 
 <style>
-  .title {
-    align-self: center;
-  }
-
-  .edit-content-container {
+  .container {
+    height: 70%;
+    border-top: var(--mainBorder);
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    width: 50%;
+    flex-wrap: wrap;
+    padding-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .title {
+    align-self: center;
   }
 
   .type-title {

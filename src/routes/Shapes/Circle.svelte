@@ -7,18 +7,6 @@
 
   let {circle = $bindable(), removeCircle} = $props();
 
-  let circlePosBefore = {x: 0, y: 0};
-  const moveCircle = new DraggableObject(
-    () => {
-      circle.selected = true;
-      circlePosBefore.x = circle.x;
-      circlePosBefore.y = circle.y;
-    },
-    (dx, dy) => {
-      circle.x = circlePosBefore.x + dx;
-      circle.y = circlePosBefore.y + dy;
-    });
-
   const resizeCircle = new DraggableObject(
     () => {
     },
@@ -58,7 +46,7 @@
 
 <circle
   transition:scale={{duration: 120}}
-  onmousedown={moveCircle.setDrag}
+  onmousedown={circle.setDrag}
   r="{circle.radiusWithScale}"
   cx="{circle.position.x}"
   cy="{circle.position.y}"

@@ -1,4 +1,5 @@
 import {colord} from "colord";
+import {Shape} from "../shape.svelte.js";
 
 export class ShapeText {
   constructor(color) {
@@ -10,26 +11,14 @@ export class ShapeText {
   }
 }
 
-const DEFAULT_X = 350;
-const DEFAULT_Y = 250;
 const DEFAULT_WIDTH = 100;
-
-export class GraphText extends ShapeText {
-  constructor(offset, canvasScale) {
-    super(colord("white"));
-    this.x = $state(DEFAULT_X - offset.x);
-    this.y = $state(DEFAULT_Y - offset.y);
-    this.selected = $state(false);
+export class GraphText extends Shape {
+  constructor(offset, canvasScale, getShapeArray) {
+    super(offset, "Text", colord("white"), getShapeArray);
+    this.fontSize = $state(12);
+    this.bold = $state(false);
+    this.italic = $state(false);
+    this.underline = $state(false);
     this.width = $state(DEFAULT_WIDTH);
-
-    this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
-  }
-
-  delete = () => {
-    dispatchEvent(new CustomEvent('deleteShape', {detail: {shape: this, type: 'text'}}))
-  }
-
-  toString() {
-    return "Text";
   }
 }

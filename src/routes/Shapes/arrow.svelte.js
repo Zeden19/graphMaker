@@ -9,7 +9,7 @@ const DEFAULT_COLOR = colord("#FFFFFF");
 const MARKER_SIZE = 4;
 
 export class Arrow {
-  constructor(offset, canvasScale) {
+  constructor(offset, canvasScale, getShapeArray) {
     this.x1 = $state(DEFAULT_X1 - offset.x);
     this.x2 = $state(DEFAULT_X2 - offset.x);
     this.y1 = $state(DEFAULT_Y - offset.y);
@@ -17,6 +17,7 @@ export class Arrow {
     this.width = $state(DEFAULT_WIDTH);
     this.color = $state(DEFAULT_COLOR);
     this.text = new ShapeText("white");
+    this.getShapeArray = getShapeArray;
 
     this.selected = $state(false);
 
@@ -45,8 +46,11 @@ export class Arrow {
     this.rotation = $derived(Math.atan((this.position.y2 - this.position.y1) / (this.position.x2 - this.position.x1)));
   }
 
-  delete = () => {
-    dispatchEvent(new CustomEvent('deleteShape', {detail: {shape: this, type: "arrow"}}));
+  delete() {
+    const shapeArray = this.getShapeArray();
+    setTimeout(() => {
+      shapeArray.splice(shapeArray.findIndex((shape) => shape === this), 1)
+    });
   }
 
   toString() {

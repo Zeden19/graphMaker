@@ -28,4 +28,24 @@ class DraggableObject {
   };
 }
 
+export class DraggableShape {
+  constructor(shape) {
+    this.shapePosBefore = {x: 0, y: 0};
+    this.shape = new DraggableObject(
+      () => {
+        shape().selected = true;
+        this.shapePosBefore.x = shape().x;
+        this.shapePosBefore.y = shape().y;
+      },
+      (dx, dy) => {
+        shape().x = dx + this.shapePosBefore.x;
+        shape().y = dy + this.shapePosBefore.y;
+      });
+  }
+
+  setDrag = (event) => {
+    this.shape.setDrag(event);
+  }
+}
+
 export default DraggableObject;
