@@ -3,8 +3,10 @@ import {colord} from "colord";
 
 const DEFAULT_X = 350;
 const DEFAULT_Y = 250;
-export class Shape {
+
+export class Shape extends DraggableShape {
   constructor(offset, shapeString, color, getShapeArray) {
+    super(() => this)
     this.selected = $state(false);
     this.x = $state(DEFAULT_X - offset.x);
     this.y = $state(DEFAULT_Y - offset.y);
@@ -13,13 +15,7 @@ export class Shape {
 
     this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
 
-    this.moveShape = new DraggableShape(() => this);
-
     this.getShapeArray = getShapeArray;
-  }
-
-  setDrag = (event) => {
-    this.moveShape.setDrag(event)
   }
 
   delete() {

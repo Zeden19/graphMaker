@@ -3,6 +3,7 @@
   import Input from "./Input.svelte";
   import ChangeColorPopup from "./ChangeColorPopup.svelte";
   import {onMount} from "svelte";
+  import ArrowEndpointSelect from "./ArrowEndpointSelect.svelte";
 
   let {shape = $bindable(), container = $bindable()} = $props();
 
@@ -72,7 +73,7 @@
             <div>Color
               <ChangeColorPopup bind:colorToChange={shape.text.color}/>
             </div>
-            <div>Font Size:<Input type="number" min="1" bind:value={shape.text.fontSize}/></div>
+            <div>Font Size: <Input type="number" min="1" bind:value={shape.text.fontSize}/></div>
             <div>Bold: <Input type="checkbox" bind:checked={shape.text.bold}/></div>
             <div>Italic: <Input type="checkbox" bind:checked={shape.text.italic}/></div>
             <div>Underline: <Input type="checkbox" bind:checked={shape.text.underline}/></div>
@@ -85,6 +86,20 @@
             <div>Italic: <Input type="checkbox" bind:checked={shape.italic}/></div>
             <div>Underline: <Input type="checkbox" bind:checked={shape.underline}/></div>
           {/if}
+        </div>
+      </div>
+    {/if}
+
+    {#if shape.start !== undefined}
+      <div class="basics-container">
+        <div class="type-title">End Points</div>
+        <div class="basics">
+          <div>Start:
+            <ArrowEndpointSelect endpointString="start" bind:arrow={shape}/>
+          </div>
+          <div>End:
+            <ArrowEndpointSelect endpointString="end" bind:arrow={shape}/>
+          </div>
         </div>
       </div>
     {/if}

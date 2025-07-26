@@ -44,7 +44,11 @@ export class Arrow {
     });
     this.length = $derived(Math.sqrt(((this.position.x2 - this.position.x1) ** 2) + ((this.position.y2 - this.position.y1) ** 2)))
     this.rotation = $derived(Math.atan((this.position.y2 - this.position.y1) / (this.position.x2 - this.position.x1)));
+
+    this.start = $state(`<path fill=${this.color.toHex()} d="M 0 0 L 10 5 L 0 10 z"/>`);
+    this.end = $state("");
   }
+
 
   delete() {
     const shapeArray = this.getShapeArray();

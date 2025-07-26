@@ -8,7 +8,6 @@
   import DraggableObject from "./Shapes/DraggableObject.svelte.js";
   import Shape from "./Shapes/Shape.svelte";
   import EditShape from "./Edit Shape Window/EditShape.svelte";
-  import {onMount} from "svelte";
   import {GraphText as GraphTextClass} from "./Shapes/Text/Text.svelte.js";
   import GraphText from "./Shapes/Text/GraphText.svelte";
 

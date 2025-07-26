@@ -137,19 +137,22 @@
 </script>
 
 <defs>
-  <marker id="arrowHead{index}" refX="{5}" refY="{5}"
+  <marker id="start{index}" refX="{5}" refY="{5}"
           markerWidth="{arrow.widthWithScale.marker}"
           markerHeight="{arrow.widthWithScale.marker}"
           orient="auto-start-reverse" viewBox="0 0 10 10">
-    <path fill="{arrow.color.toHex()}"
-          d="M 0 0 L 10 5 L 0 10 z"/>
+    {#key arrow.color}
+      {@html arrow.start}
+    {/key}
   </marker>
 
   <marker id="end{index}" refX="{5}" refY="{5}"
           markerWidth="{arrow.widthWithScale.marker}"
           markerHeight="{arrow.widthWithScale.marker}"
-          orient="auto-start-reverse">
-    <!-- put other arrow options for ending (as well as front)   -->
+          orient="auto-start-reverse" viewBox="0 0 10 10">
+    {#key arrow.color}
+      {@html arrow.end}
+    {/key}
   </marker>
 </defs>
 
@@ -172,8 +175,8 @@
   onmousedown="{moveArrow.setDrag}"
   stroke="{arrow.color.toHex()}"
   stroke-width="{arrow.width}"
-  marker-end="url(#arrowHead{index})"
-  marker-start="url(#end{index})"
+  marker-end="url(#end{index})"
+  marker-start="url(#start{index})"
   role="presentation"></polyline>
 
 
