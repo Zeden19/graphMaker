@@ -141,18 +141,14 @@
           markerWidth="{arrow.widthWithScale.marker}"
           markerHeight="{arrow.widthWithScale.marker}"
           orient="auto-start-reverse" viewBox="0 0 10 10">
-    {#key arrow.color}
-      {@html arrow.start}
-    {/key}
+    {@html arrow.start}
   </marker>
 
   <marker id="end{index}" refX="{5}" refY="{5}"
           markerWidth="{arrow.widthWithScale.marker}"
           markerHeight="{arrow.widthWithScale.marker}"
           orient="auto-start-reverse" viewBox="0 0 10 10">
-    {#key arrow.color}
-      {@html arrow.end}
-    {/key}
+    {@html arrow.end}
   </marker>
 </defs>
 

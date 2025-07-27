@@ -9,13 +9,15 @@ const DEFAULT_COLOR = colord("#FFFFFF");
 const MARKER_SIZE = 4;
 
 export class Arrow {
+  #color = $state(DEFAULT_COLOR);
+
   constructor(offset, canvasScale, getShapeArray) {
     this.x1 = $state(DEFAULT_X1 - offset.x);
     this.x2 = $state(DEFAULT_X2 - offset.x);
     this.y1 = $state(DEFAULT_Y - offset.y);
     this.y2 = $state(DEFAULT_Y - offset.y);
     this.width = $state(DEFAULT_WIDTH);
-    this.color = $state(DEFAULT_COLOR);
+
     this.text = new ShapeText("white");
     this.getShapeArray = getShapeArray;
 
@@ -45,8 +47,18 @@ export class Arrow {
     this.length = $derived(Math.sqrt(((this.position.x2 - this.position.x1) ** 2) + ((this.position.y2 - this.position.y1) ** 2)))
     this.rotation = $derived(Math.atan((this.position.y2 - this.position.y1) / (this.position.x2 - this.position.x1)));
 
-    this.start = $state(`<path fill=${this.color.toHex()} d="M 0 0 L 10 5 L 0 10 z"/>`);
+    this.start = $state(`<path fill="${this.#color.toHex()}" d="M 0 0 L 10 5 L 0 10 z"/>`);
     this.end = $state("");
+  }
+
+  set color(color) {
+    this.#color = color;
+    this.start = this.start.replace(/#[0-9a-f]{6}/, color.toHex());
+    this.end = this.end.replace(/#[0-9a-f]{6}/, color.toHex());
+  }
+
+  get color() {
+    return this.#color;
   }
 
 
@@ -60,6 +72,7 @@ export class Arrow {
   toString() {
     return "Arrow"
   }
+
 }
 
 
