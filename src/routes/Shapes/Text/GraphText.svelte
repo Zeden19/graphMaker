@@ -1,6 +1,6 @@
 <script>
   import { scale } from "svelte/transition";
-  let {text = $bindable(), offset} = $props();
+  let {text = $bindable()} = $props();
 </script>
 
 <foreignObject onmousedown={text.setDrag}

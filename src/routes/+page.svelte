@@ -2,13 +2,15 @@
   import Circle from "./Shapes/Circle.svelte";
   import {Circle as CircleClass} from "./Shapes/circle.svelte.js";
   import {Arrow as ArrowClass} from "./Shapes/arrow.svelte.js";
+  import {GraphText as GraphTextClass} from "./Shapes/Text/Text.svelte.js";
+  import {Square as SquareClass} from "./Shapes/Square.svelte.js";
+  import Square from "./Shapes/Square.svelte";
   import {extend} from "colord";
   import namesPlugin from "colord/plugins/names";
   import Arrow from "./Shapes/Arrow.svelte";
   import DraggableObject from "./Shapes/DraggableObject.svelte.js";
   import Shape from "./Shapes/Shape.svelte";
   import EditShape from "./Edit Shape Window/EditShape.svelte";
-  import {GraphText as GraphTextClass} from "./Shapes/Text/Text.svelte.js";
   import GraphText from "./Shapes/Text/GraphText.svelte";
 
   extend([namesPlugin]);
@@ -34,8 +36,9 @@
   // use a object with lists instead of separate lists?
   let circles = $state([]);
   let arrows = $state([]);
+  let squares = $state([]);
   let texts = $state([]);
-  let selectedShape = $derived([...circles, ...arrows, ...texts].find(shape => shape.selected));
+  let selectedShape = $derived([...circles, ...arrows, ...texts, ...squares].find(shape => shape.selected));
   let editShapeContainerRef = $state();
 
 
@@ -69,13 +72,14 @@
       <button class="button" onclick={() => addShape(circles, CircleClass)}>Add Circle</button>
       <button class="button" onclick={() => addShape(arrows, ArrowClass)}>Add Arrow</button>
       <button class="button" onclick={() => addShape(texts, GraphTextClass)}>Add Text</button>
+      <button class="button" onclick={() => addShape(squares, SquareClass)}>Add Square</button>
       <button class="button" onclick="{clear}">Clear</button>
       <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
       <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
       <input type="range" min="0.3" max="2" step="0.1" oninput="{changeScale}">
     </div>
 
-      <EditShape bind:container={editShapeContainerRef} bind:shape={selectedShape}/>
+    <EditShape bind:container={editShapeContainerRef} bind:shape={selectedShape}/>
   </div>
 
 
@@ -106,8 +110,14 @@
 
     {#each texts as text, index (text)}
       <Shape bind:shape={texts[index]} {editShapeContainerRef}>
-        <GraphText bind:text={texts[index]} {offset}
-               removeText={() => removeObject(texts,index)}/>
+        <GraphText bind:text={texts[index]}
+                   removeText={() => removeObject(texts,index)}/>
+      </Shape>
+    {/each}
+
+    {#each squares as square, index (square)}
+      <Shape bind:shape={squares[index]} {editShapeContainerRef}>
+        <Square bind:square={squares[index]} removeSquare={() => removeObject(squares,index)}/>
       </Shape>
     {/each}
 

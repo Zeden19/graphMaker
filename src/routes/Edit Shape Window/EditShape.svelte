@@ -16,7 +16,7 @@
         shown = false;
     }));
 </script>
-
+<!--instead of if's maybe go thru each porperty and determine type?-->
 <div class="container" bind:this={container}>
   {#if shape !== undefined}
     <div class="title">{shape}</div>
@@ -49,6 +49,10 @@
 
         {#if shape.width !== undefined}
           <div>Width: <Input max={500} type="number" bind:value={shape.width}/></div>
+        {/if}
+
+        {#if shape.height !== undefined}
+          <div>Height: <Input max={500} type="number" bind:value={shape.height}/></div>
         {/if}
       </div>
     </div>

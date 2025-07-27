@@ -8,7 +8,6 @@ const topRightAngle = 315 * Math.PI / 180; // 315 degrees
 const topLeftAngle = 225 * Math.PI / 180; // 225 degrees
 
 const DEFAULT_RADIUS = 80;
-const DEFAULT_COLOR = colord("#FFFFFF");
 const DEFAULT_STROKE_COLOR = colord("black");
 const DEFAULT_STROKE_WIDTH = 2;
 
@@ -16,7 +15,6 @@ export class Circle extends Shape {
   constructor(offset, canvasScale, getShapeArray) {
     super(offset, "Circle", colord("white"), getShapeArray);
     this.r = $state(DEFAULT_RADIUS);
-    this.color = $state(DEFAULT_COLOR);
     this.strokeColor = $state(DEFAULT_STROKE_COLOR);
     this.strokeWidth = $state(DEFAULT_STROKE_WIDTH);
     this.text = new ShapeText("black");
