@@ -41,8 +41,6 @@ export class Circle extends Shape {
         topRight: this.#createCornerPos(topRightAngle),
       }
     );
-
-    this.arrowsSnappedIndexes = [];
   }
 
   #createCornerPos(angle) {

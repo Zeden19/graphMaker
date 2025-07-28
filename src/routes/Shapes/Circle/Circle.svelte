@@ -33,13 +33,11 @@
   role="presentation"
 />
 
-
-<foreignObject style="pointer-events: none" x={circle.rect.topLeft.x} y={circle.rect.topLeft.y}
-               width={circle.rect.topRight.x - circle.rect.topLeft.x}
-               height={circle.rect.bottomLeft.y - circle.rect.topLeft.y}
->
-  <ShapeText selected={circle.selected} text={circle.text}></ShapeText>
-</foreignObject>
+<ShapeText selected={circle.selected} text={circle.text}
+           style="pointer-events: none"
+           x={circle.rect.topLeft.x} y={circle.rect.topLeft.y}
+           width={circle.rect.topRight.x - circle.rect.topLeft.x}
+           height={circle.rect.bottomLeft.y - circle.rect.topLeft.y}></ShapeText>
 
 {#if circle.selected}
   <ResizeCircle x={circle.rect.bottomRight.x}

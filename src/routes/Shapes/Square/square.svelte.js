@@ -3,7 +3,7 @@ import {colord} from "colord";
 import {ShapeText} from "../Text/Text.svelte.js";
 
 const DEFAULT_SIZE = 200
-const MAX_SIZE = 10;
+const MIN_SIZE = 10;
 
 export class Square extends Shape {
   #width = $state(DEFAULT_SIZE);
@@ -76,8 +76,6 @@ export class Square extends Shape {
         }
       },
     });
-
-    this.arrowsSnappedIndexes = [];
   }
 
   #changeRight(dx, sizeBeforeWidth) {
@@ -110,11 +108,11 @@ export class Square extends Shape {
   }
 
   set width(width) {
-    this.#width = Math.max(width, MAX_SIZE);
+    this.#width = Math.max(width, MIN_SIZE);
   }
 
   set height(height) {
-    this.#height = Math.max(height, MAX_SIZE);
+    this.#height = Math.max(height, MIN_SIZE);
   }
 
   get height() {

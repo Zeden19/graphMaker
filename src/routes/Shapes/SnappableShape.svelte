@@ -2,6 +2,7 @@
   import {onMount} from "svelte";
 
   let {shape, children} = $props();
+  shape.arrowsSnappedIndexes = [];
 
   onMount(() => {
     const areaSize = 20;

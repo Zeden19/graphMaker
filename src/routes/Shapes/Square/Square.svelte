@@ -19,13 +19,12 @@
   stroke-width="{square.strokeWidth}"
   role="presentation"></rect>
 
-<foreignObject style="pointer-events: none"
-               x={square.position.x} y={square.position.y}
-               width={square.widthWithScale} height={square.heightWithScale}
->
-  <ShapeText selected={square.selected} text={square.text}></ShapeText>
-</foreignObject>
+<ShapeText selected={square.selected} text={square.text}
+           style="pointer-events: none"
+           x={square.position.x} y={square.position.y}
+           width={square.widthWithScale} height={square.heightWithScale}></ShapeText>
 
+<!--<ResizeFromEdges shape={square}/> in +page-->
 {#if square.selected}
   {#each Object.values(square.rect) as corner}
     <SquareResize square={square} x={corner.x} y={corner.y}

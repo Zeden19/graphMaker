@@ -153,16 +153,15 @@
   </marker>
 </defs>
 
-<foreignObject x={textPosition.x}
-               y={textPosition.y}
-               style="overflow:visible; transform: rotate({arrow.rotation}rad);
-                transform-origin: {textPosition.x}px
-                                  {textPosition.y}px;"
-               width="{arrow.length}" height="2em">
 
-  <ShapeText selected={arrow.selected} text={arrow.text}
-             onmousedown={(event) => {arrow.selected = true; moveText.setDrag(event)}}/>
-</foreignObject>
+<ShapeText selected={arrow.selected} text={arrow.text}
+           onmousedown={(event) => {arrow.selected = true; moveText.setDrag(event)}}
+           x={textPosition.x} y={textPosition.y}
+           style="overflow:visible;
+           transform: rotate({arrow.rotation}rad);
+                      transform-origin: {textPosition.x}px
+                                        {textPosition.y}px;"
+           width={arrow.length} height="auto"/>
 
 <!--use path instead for stroke (& will be useful for curved shit)-->
 <polyline
@@ -198,9 +197,5 @@
   polyline {
     cursor: pointer;
     transition: stroke var(--shape-transition-timing);
-  }
-
-  circle {
-    cursor: grab;
   }
 </style>
