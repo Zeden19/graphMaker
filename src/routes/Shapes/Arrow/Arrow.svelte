@@ -72,11 +72,11 @@
   });
 
   onMount(() => {
-    const snapArrow = ({detail: {pos, circleRef}}) => {
+    const snapArrow = ({detail: {pos, edgeRef}}) => {
       if (pos === "start") {
-        arrow.startSnapped = circleRef;
+        arrow.startSnapped = edgeRef;
       } else if (pos === "end") {
-        arrow.endSnapped = circleRef;
+        arrow.endSnapped = edgeRef;
       }
     }
 
@@ -89,11 +89,11 @@
     }
 
     window.addEventListener(`arrowSnap${index}`, snapArrow);
-    window.addEventListener(`circleDelete${index}`, onCircleDelete);
+    window.addEventListener(`shapeDelete${index}`, onCircleDelete);
 
     return () => {
       window.removeEventListener(`arrowSnap${index}`, snapArrow);
-      window.removeEventListener(`circleDelete${index}`, onCircleDelete);
+      window.removeEventListener(`shapeDelete${index}`, onCircleDelete);
     }
   });
 

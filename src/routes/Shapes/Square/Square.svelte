@@ -4,8 +4,6 @@
   import SquareResize from "./SquareResize.svelte";
 
   let {square, removeSquare} = $props();
-
-  $inspect(square.height).with(console.trace)
 </script>
 
 <rect

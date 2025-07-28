@@ -20,7 +20,7 @@ export class Circle extends Shape {
     this.text = new ShapeText("black");
 
     this.radiusWithScale = $derived(canvasScale() * this.r);
-    this.circleRect = $derived(
+    this.rect = $derived(
       {
         top: {
           x: this.position.x, y: this.position.y - this.radiusWithScale,
@@ -53,9 +53,8 @@ export class Circle extends Shape {
   }
 
   delete() {
-    // Goku code
     this.arrowsSnappedIndexes.forEach(({index, pos}) => {
-      dispatchEvent(new CustomEvent(`circleDelete${index}`, {detail: {pos}}));
+      dispatchEvent(new CustomEvent(`shapeDelete${index}`, {detail: {pos}}));
     });
     super.delete();
   }

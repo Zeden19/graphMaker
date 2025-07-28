@@ -76,6 +76,8 @@ export class Square extends Shape {
         }
       },
     });
+
+    this.arrowsSnappedIndexes = [];
   }
 
   #changeRight(dx, sizeBeforeWidth) {
@@ -98,6 +100,13 @@ export class Square extends Shape {
     this.height = sizeBeforeHeight - dy;
     const changeInHeight = oldHeight - this.#height;
     this.y += changeInHeight;
+  }
+
+  delete() {
+    this.arrowsSnappedIndexes.forEach(({index, pos}) => {
+      dispatchEvent(new CustomEvent(`shapeDelete${index}`, {detail: {pos}}));
+    });
+    super.delete();
   }
 
   set width(width) {

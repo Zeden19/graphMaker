@@ -12,6 +12,7 @@
   import Shape from "./Shapes/Shape.svelte";
   import EditShape from "./Edit Shape Window/EditShape.svelte";
   import GraphText from "./Shapes/Text/GraphText.svelte";
+  import SnappableShape from "./Shapes/SnappableShape.svelte";
 
   extend([namesPlugin]);
 
@@ -97,7 +98,9 @@
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
     {#each circles as circle, index (circle)}
       <Shape bind:shape={circles[index]} {editShapeContainerRef}>
-        <Circle bind:circle={circles[index]} removeCircle={() => removeObject(circles,index)}/>
+        <SnappableShape shape={circle}>
+          <Circle bind:circle={circles[index]} removeCircle={() => removeObject(circles,index)}/>
+        </SnappableShape>
       </Shape>
     {/each}
 
@@ -117,7 +120,9 @@
 
     {#each squares as square, index (square)}
       <Shape bind:shape={squares[index]} {editShapeContainerRef}>
-        <Square bind:square={squares[index]} removeSquare={() => removeObject(squares,index)}/>
+        <SnappableShape shape={square}>
+          <Square bind:square={squares[index]} removeSquare={() => removeObject(squares,index)}/>
+        </SnappableShape>
       </Shape>
     {/each}
 

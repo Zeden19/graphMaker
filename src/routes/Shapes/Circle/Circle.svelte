@@ -2,7 +2,6 @@
   import {scale, fade} from "svelte/transition";
   import resize from "$lib/assets/resize.png";
   import DraggableObject from "../DraggableObject.svelte.js";
-  import {onMount} from "svelte";
   import ShapeText from "../Text/ShapeText.svelte";
 
   let {circle = $bindable(), removeCircle} = $props();
@@ -18,29 +17,6 @@
       }
       circle.r = Math.max(20, circle.r + distance);
     });
-
-  onMount(() => {
-    const areaSize = 20;
-
-    const onArrowMove = ({detail: {x, y, index: arrowIndex, pos}}) => {
-      Object.entries(circle.circleRect).forEach(([location, point]) => {
-        if ((x < point.x + areaSize && x > point.x - areaSize) &&
-          (y < point.y + areaSize && y > point.y - areaSize)) {
-
-          if (!circle.arrowsSnappedIndexes.map(arrow => arrow.index).includes(arrowIndex)) {
-            circle.arrowsSnappedIndexes.push({index: arrowIndex, pos});
-          }
-          const circleRef = () => circle.circleRect[location];
-          dispatchEvent(new CustomEvent(`arrowSnap${arrowIndex}`, {detail: {pos, circleRef}}));
-        }
-      });
-    }
-
-    window.addEventListener("arrowMove", onArrowMove);
-    return () => {
-      window.removeEventListener("arrowMove", onArrowMove);
-    }
-  });
 
 </script>
 
@@ -58,17 +34,17 @@
 />
 
 
-<foreignObject style="pointer-events: none" x={circle.circleRect.topLeft.x} y={circle.circleRect.topLeft.y}
-               width={circle.circleRect.topRight.x - circle.circleRect.topLeft.x}
-               height={circle.circleRect.bottomLeft.y - circle.circleRect.topLeft.y}
+<foreignObject style="pointer-events: none" x={circle.rect.topLeft.x} y={circle.rect.topLeft.y}
+               width={circle.rect.topRight.x - circle.rect.topLeft.x}
+               height={circle.rect.bottomLeft.y - circle.rect.topLeft.y}
 >
   <ShapeText selected={circle.selected} text={circle.text}></ShapeText>
 </foreignObject>
 
 {#if circle.selected}
   <foreignObject
-    x="{circle.circleRect.bottomRight.x}"
-    y="{circle.circleRect.bottomRight.y}"
+    x="{circle.rect.bottomRight.x}"
+    y="{circle.rect.bottomRight.y}"
     width="40"
     height="40">
     <button class="no-select" transition:fade={{duration: 130}} onmousedown="{resizeCircle.setDrag}">
