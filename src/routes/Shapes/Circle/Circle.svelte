@@ -1,8 +1,8 @@
 <script>
-  import {scale, fade} from "svelte/transition";
-  import resize from "$lib/assets/resize.png";
+  import {scale} from "svelte/transition";
   import DraggableObject from "../DraggableObject.svelte.js";
   import ShapeText from "../Text/ShapeText.svelte";
+  import ResizeCircle from "../ResizeCircle.svelte";
 
   let {circle = $bindable(), removeCircle} = $props();
 
@@ -42,25 +42,15 @@
 </foreignObject>
 
 {#if circle.selected}
-  <foreignObject
-    x="{circle.rect.bottomRight.x}"
-    y="{circle.rect.bottomRight.y}"
-    width="40"
-    height="40">
-    <button class="no-select" transition:fade={{duration: 130}} onmousedown="{resizeCircle.setDrag}">
-      <img
-        src="{resize}" alt="resize" width="30" draggable="false"/>
-    </button>
-  </foreignObject>
+  <ResizeCircle x={circle.rect.bottomRight.x}
+                y={circle.rect.bottomRight.y}
+                setDrag={resizeCircle.setDrag}
+                cursor="nwse-resize"/>
 {/if}
 
 <style>
   circle {
     cursor: grab;
     transition: fill var(--shape-transition-timing), stroke var(--shape-transition-timing);
-  }
-
-  button {
-    cursor: nwse-resize;
   }
 </style>

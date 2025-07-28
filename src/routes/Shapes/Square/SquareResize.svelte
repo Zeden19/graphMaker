@@ -1,8 +1,8 @@
 <script>
-  import {fade} from "svelte/transition";
   import DraggableObject from "../DraggableObject.svelte.js";
+  import ResizeCircle from "../ResizeCircle.svelte";
 
-  let {square = $bindable(), x, y, changeSizeFnc, cursor} = $props();
+  let {square = $bindable(), x, y, changeSizeFnc, cursor="nwse-resize"} = $props();
 
   let sizeBefore = $state({width: square.width, height: square.height});
   const resize = new DraggableObject(
@@ -16,13 +16,4 @@
   )
 </script>
 
-<circle
-  transition:fade={{duration: 120}}
-  onmousedown="{resize.setDrag}"
-  style="transform-origin: {x}px {y}px; cursor: {cursor}"
-  cx="{x}" cy="{y}"
-  r="4"
-  fill="white"
-  stroke="black"
-  role="presentation">
-</circle>
+<ResizeCircle {x} {y} {cursor} setDrag={resize.setDrag}/>

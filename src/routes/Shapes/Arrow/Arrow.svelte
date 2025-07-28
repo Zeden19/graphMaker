@@ -3,6 +3,7 @@
   import DraggableObject, {DraggableShape} from "../DraggableObject.svelte.js";
   import {onMount} from "svelte";
   import ShapeText from "../Text/ShapeText.svelte";
+  import ResizeCircle from "../ResizeCircle.svelte";
 
   const areaSize = 20;
 
@@ -177,23 +178,19 @@
 
 
 {#if arrow.selected}
-  {#snippet draggableCircle(cx, cy, setMoving)}
-    <circle
-      transition:fade={{duration: 120}}
-      style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
-      {cx} {cy}
-      onmousedown={(event) => {
-        moveArrow.setDrag(event)
-        setMoving()
-      }}
-      r="4"
-      fill="white"
-      stroke="black"
-      role="presentation"></circle>
-  {/snippet}
+  <ResizeCircle
+    x={arrow.position.x1}
+    y={arrow.position.y1}
+    cursor="move"
+    setDrag={(event) => {moveArrow.setDrag(event); movingStart = true;}}
+  />
 
-  {@render draggableCircle(arrow.position.x1, arrow.position.y1, () => movingStart = true)}
-  {@render draggableCircle(arrow.position.x2, arrow.position.y2, () => movingEnd = true)}
+  <ResizeCircle
+    x={arrow.position.x2}
+    y={arrow.position.y2}
+    cursor="move"
+    setDrag={(event) => {moveArrow.setDrag(event); movingEnd = true;}}
+  />
 {/if}
 
 

@@ -67,7 +67,6 @@
 </script>
 
 <div class="container">
-
   <div class="materials">
     <div style="height: 30%">
       <button class="button" onclick={() => addShape(circles, CircleClass)}>Add Circle</button>
