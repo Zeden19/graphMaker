@@ -1,5 +1,5 @@
 import {colord} from "colord";
-import {ShapeText} from "./Text/Text.svelte.js";
+import {ShapeText} from "../Text/Text.svelte.js";
 
 const DEFAULT_X1 = 350;
 const DEFAULT_X2 = DEFAULT_X1 + 100

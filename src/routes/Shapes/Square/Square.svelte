@@ -1,8 +1,11 @@
 <script>
   import {scale} from "svelte/transition";
-  import ShapeText from "./Text/ShapeText.svelte";
+  import ShapeText from "../Text/ShapeText.svelte";
+  import SquareResize from "./SquareResize.svelte";
 
   let {square, removeSquare} = $props();
+
+  $inspect(square.height).with(console.trace)
 </script>
 
 <rect
@@ -24,6 +27,14 @@
 >
   <ShapeText selected={square.selected} text={square.text}></ShapeText>
 </foreignObject>
+
+{#if square.selected}
+  {#each Object.values(square.rect) as corner}
+    <SquareResize square={square} x={corner.x} y={corner.y}
+                  changeSizeFnc={corner.changeSizeFnc}
+                  cursor={corner.cursor}/>
+  {/each}
+{/if}
 
 <style>
   rect {

@@ -13,6 +13,8 @@ export class Shape extends DraggableShape {
     this.color = $state(colord(color))
     this.shapeString = shapeString;
 
+    // remove position all-together thru getters and setters?
+    // https://svelte.dev/tutorial/svelte/getters-and-setters
     this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
 
     this.getShapeArray = getShapeArray;

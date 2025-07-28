@@ -1,8 +1,8 @@
 <script>
   import {scale, fade} from "svelte/transition";
-  import DraggableObject, {DraggableShape} from "./DraggableObject.svelte.js";
+  import DraggableObject, {DraggableShape} from "../DraggableObject.svelte.js";
   import {onMount} from "svelte";
-  import ShapeText from "./Text/ShapeText.svelte";
+  import ShapeText from "../Text/ShapeText.svelte";
 
   const areaSize = 20;
 
