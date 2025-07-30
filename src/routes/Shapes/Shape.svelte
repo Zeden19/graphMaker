@@ -1,7 +1,7 @@
 <script>
   import {onDestroy, onMount} from "svelte";
 
-  let {shape = $bindable(), children, editShapeContainerRef} = $props();
+  let {shape = $bindable(), children, editShapeContainerRef, snappable, resizeFromEdges} = $props();
 
   let gRef = $state();
 
@@ -21,6 +21,7 @@
 
 
 </script>
+
 <g bind:this={gRef}>
   {@render children()}
 </g>

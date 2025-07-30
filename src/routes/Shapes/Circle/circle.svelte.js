@@ -1,5 +1,5 @@
 import {colord} from "colord";
-import {ShapeText} from "../Text/Text.svelte.js";
+import {ShapeText} from "../Boxes/Text/Text.svelte.js";
 import Shape from "../shape.svelte.js";
 
 const bottomRightAngle = 45 * Math.PI / 180; // 45 degrees

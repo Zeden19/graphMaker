@@ -2,16 +2,16 @@
   import Circle from "./Shapes/Circle/Circle.svelte";
   import {Circle as CircleClass} from "./Shapes/Circle/circle.svelte.js";
   import {Arrow as ArrowClass} from "./Shapes/Arrow/arrow.svelte.js";
-  import {GraphText as GraphTextClass} from "./Shapes/Text/Text.svelte.js";
-  import {Square as SquareClass} from "./Shapes/Square/square.svelte.js";
-  import Square from "./Shapes/Square/Square.svelte";
+  import {GraphText as GraphTextClass} from "./Shapes/Boxes/Text/Text.svelte.js";
+  import {Square as SquareClass} from "./Shapes/Boxes/Square/square.svelte.js";
+  import Square from "./Shapes/Boxes/Square/Square.svelte";
   import {extend} from "colord";
   import namesPlugin from "colord/plugins/names";
   import Arrow from "./Shapes/Arrow/Arrow.svelte";
   import DraggableObject from "./Shapes/DraggableObject.svelte.js";
   import Shape from "./Shapes/Shape.svelte";
   import EditShape from "./Edit Shape Window/EditShape.svelte";
-  import GraphText from "./Shapes/Text/GraphText.svelte";
+  import GraphText from "./Shapes/Boxes/Text/GraphText.svelte";
   import SnappableShape from "./Shapes/SnappableShape.svelte";
   import ResizeFromEdges from "./Shapes/ResizeFromEdges.svelte";
 
@@ -98,14 +98,14 @@
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
     {#each circles as circle, index (circle)}
       <Shape bind:shape={circles[index]} {editShapeContainerRef}>
-        <SnappableShape shape={circle}>
-          <Circle bind:circle={circles[index]} removeCircle={() => removeObject(circles,index)}/>
-        </SnappableShape>
+        <SnappableShape shape={circle}/>
+        <Circle bind:circle={circles[index]} removeCircle={() => removeObject(circles,index)}/>
       </Shape>
     {/each}
 
     {#each arrows as arrow, index (arrow)}
       <Shape bind:shape={arrows[index]} {editShapeContainerRef}>
+        <SnappableShape shape={arrow} {index}/>
         <Arrow bind:arrow={arrows[index]} {offset} {index}
                removeArrow={() => removeObject(arrows,index)}/>
       </Shape>
@@ -113,20 +113,18 @@
 
     {#each texts as text, index (text)}
       <Shape bind:shape={texts[index]} {editShapeContainerRef}>
-        <SnappableShape shape={text}>
-          <GraphText bind:text={texts[index]}
-                     removeText={() => removeObject(texts,index)}/>
-          <ResizeFromEdges shape={text}/>
-        </SnappableShape>
+        <SnappableShape shape={text}/>
+        <GraphText bind:text={texts[index]}
+                   removeText={() => removeObject(texts,index)}/>
+        <ResizeFromEdges shape={text}/>
       </Shape>
     {/each}
 
     {#each squares as square, index (square)}
       <Shape bind:shape={squares[index]} {editShapeContainerRef}>
-        <SnappableShape shape={square}>
-          <Square bind:square={squares[index]} removeSquare={() => removeObject(squares,index)}/>
-          <ResizeFromEdges shape={square}/>
-        </SnappableShape>
+        <SnappableShape shape={square}/>
+        <Square bind:square={squares[index]} removeSquare={() => removeObject(squares,index)}/>
+        <ResizeFromEdges shape={square}/>
       </Shape>
     {/each}
 

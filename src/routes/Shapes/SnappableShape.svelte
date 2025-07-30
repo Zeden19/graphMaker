@@ -1,13 +1,14 @@
 <script>
   import {onMount} from "svelte";
 
-  let {shape, children} = $props();
+  let {shape, index = undefined} = $props();
   shape.arrowsSnappedIndexes = [];
 
   onMount(() => {
     const areaSize = 20;
 
     const onArrowMove = ({detail: {x, y, index: arrowIndex, pos}}) => {
+      if (index === arrowIndex) return;
       Object.entries(shape.rect).forEach(([location, point]) => {
         if ((x < point.x + areaSize && x > point.x - areaSize) &&
           (y < point.y + areaSize && y > point.y - areaSize)) {
@@ -27,5 +28,3 @@
     }
   });
 </script>
-
-{@render children()}

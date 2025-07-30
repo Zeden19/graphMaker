@@ -1,4 +1,4 @@
-import Shape from "./shape.svelte.js";
+import Shape from "../shape.svelte.js";
 
 const MIN_SIZE = 10;
 

@@ -1,5 +1,5 @@
 import {colord} from "colord";
-import {ShapeText} from "../Text/Text.svelte.js";
+import {ShapeText} from "../Boxes/Text/Text.svelte.js";
 
 const DEFAULT_X1 = 350;
 const DEFAULT_X2 = DEFAULT_X1 + 100
@@ -49,6 +49,11 @@ export class Arrow {
 
     this.start = $state(`<path fill="${this.#color.toHex()}" d="M 0 0 L 10 5 L 0 10 z"/>`);
     this.end = $state("");
+
+    this.rect = $derived({
+      start: {x: this.position.x1, y: this.position.y1},
+      end: {x: this.position.x2, y: this.position.y2},
+    })
   }
 
   set color(color) {
