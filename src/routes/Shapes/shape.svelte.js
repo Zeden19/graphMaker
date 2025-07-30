@@ -4,7 +4,7 @@ import {colord} from "colord";
 const DEFAULT_X = 350;
 const DEFAULT_Y = 250;
 
-export class Shape extends DraggableShape {
+export default class Shape extends DraggableShape {
   constructor(offset, shapeString, color, getShapeArray) {
     super(() => this)
     this.selected = $state(false);

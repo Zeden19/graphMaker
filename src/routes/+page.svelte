@@ -13,6 +13,7 @@
   import EditShape from "./Edit Shape Window/EditShape.svelte";
   import GraphText from "./Shapes/Text/GraphText.svelte";
   import SnappableShape from "./Shapes/SnappableShape.svelte";
+  import ResizeFromEdges from "./Shapes/ResizeFromEdges.svelte";
 
   extend([namesPlugin]);
 
@@ -112,8 +113,11 @@
 
     {#each texts as text, index (text)}
       <Shape bind:shape={texts[index]} {editShapeContainerRef}>
-        <GraphText bind:text={texts[index]}
-                   removeText={() => removeObject(texts,index)}/>
+        <SnappableShape shape={text}>
+          <GraphText bind:text={texts[index]}
+                     removeText={() => removeObject(texts,index)}/>
+          <ResizeFromEdges shape={text}/>
+        </SnappableShape>
       </Shape>
     {/each}
 
@@ -121,6 +125,7 @@
       <Shape bind:shape={squares[index]} {editShapeContainerRef}>
         <SnappableShape shape={square}>
           <Square bind:square={squares[index]} removeSquare={() => removeObject(squares,index)}/>
+          <ResizeFromEdges shape={square}/>
         </SnappableShape>
       </Shape>
     {/each}

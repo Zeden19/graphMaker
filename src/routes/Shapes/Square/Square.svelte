@@ -1,7 +1,6 @@
 <script>
   import {scale} from "svelte/transition";
   import ShapeText from "../Text/ShapeText.svelte";
-  import SquareResize from "./SquareResize.svelte";
 
   let {square, removeSquare} = $props();
 </script>
@@ -23,15 +22,6 @@
            style="pointer-events: none"
            x={square.position.x} y={square.position.y}
            width={square.widthWithScale} height={square.heightWithScale}></ShapeText>
-
-<!--<ResizeFromEdges shape={square}/> in +page-->
-{#if square.selected}
-  {#each Object.values(square.rect) as corner}
-    <SquareResize square={square} x={corner.x} y={corner.y}
-                  changeSizeFnc={corner.changeSizeFnc}
-                  cursor={corner.cursor}/>
-  {/each}
-{/if}
 
 <style>
   rect {

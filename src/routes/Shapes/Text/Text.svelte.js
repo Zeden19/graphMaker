@@ -1,5 +1,5 @@
 import {colord} from "colord";
-import {Shape} from "../shape.svelte.js";
+import {Box} from "../Box.svelte.js";
 
 export class ShapeText {
   constructor(color) {
@@ -12,13 +12,14 @@ export class ShapeText {
 }
 
 const DEFAULT_WIDTH = 100;
-export class GraphText extends Shape {
+const DEFAULT_HEIGHT = 20;
+
+export class GraphText extends Box {
   constructor(offset, canvasScale, getShapeArray) {
-    super(offset, "Text", colord("white"), getShapeArray);
+    super(offset, "Text", colord("white"), getShapeArray, canvasScale, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     this.fontSize = $state(12);
     this.bold = $state(false);
     this.italic = $state(false);
     this.underline = $state(false);
-    this.width = $state(DEFAULT_WIDTH);
   }
 }
