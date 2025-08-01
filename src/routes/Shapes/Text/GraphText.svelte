@@ -2,6 +2,7 @@
   import {scale} from "svelte/transition";
 
   let {text = $bindable()} = $props();
+  let textStyles = $derived(text.text)
 
   const PADDING = 5;
   let textRef = $state();
@@ -17,11 +18,11 @@
        width: calc(100%) - {PADDING * 2}px;
        height: calc({text.height}px - {PADDING * 2}px);
        transform-origin: {text.position.x}px {text.position.y}px;
-       font-size:{text.fontSize}px;
-       color: {text.color.toHex()};
-       font-weight: {text.bold ? 'bold' : ''};
-       text-decoration: {text.underline ? 'underline' : ''};
-       font-style: {text.italic ? 'italic' : ''};">
+       font-size:{textStyles.fontSize}px;
+       color: {textStyles.color.toHex()};
+       font-weight: {textStyles.bold ? 'bold' : ''};
+       text-decoration: {textStyles.underline ? 'underline' : ''};
+       font-style: {textStyles.italic ? 'italic' : ''};">
     Text
   </div>
 

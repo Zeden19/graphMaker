@@ -24,7 +24,7 @@
       <div class="type-title">Basic</div>
       <div class="basics">
 
-        {#if shape.color !== undefined && shape.bold === undefined}
+        {#if shape.color !== undefined && shape.toString() !== "GraphText"}
           <div>Color
             <ChangeColorPopup bind:colorToChange={shape.color}/>
           </div>
@@ -73,23 +73,13 @@
       <div class="basics-container">
         <div class="type-title">Text</div>
         <div class="basics">
-          {#if shape.text}
-            <div>Color
-              <ChangeColorPopup bind:colorToChange={shape.text.color}/>
-            </div>
-            <div>Font Size: <Input type="number" min="1" bind:value={shape.text.fontSize}/></div>
-            <div>Bold: <Input type="checkbox" bind:checked={shape.text.bold}/></div>
-            <div>Italic: <Input type="checkbox" bind:checked={shape.text.italic}/></div>
-            <div>Underline: <Input type="checkbox" bind:checked={shape.text.underline}/></div>
-          {:else}
-            <div>Color
-              <ChangeColorPopup bind:colorToChange={shape.color}/>
-            </div>
-            <div>Font Size:<Input type="number" min="1" bind:value={shape.fontSize}/></div>
-            <div>Bold: <Input type="checkbox" bind:checked={shape.bold}/></div>
-            <div>Italic: <Input type="checkbox" bind:checked={shape.italic}/></div>
-            <div>Underline: <Input type="checkbox" bind:checked={shape.underline}/></div>
-          {/if}
+          <div>Color
+            <ChangeColorPopup bind:colorToChange={shape.text.color}/>
+          </div>
+          <div>Font Size: <Input type="number" min="1" bind:value={shape.text.fontSize}/></div>
+          <div>Bold: <Input type="checkbox" bind:checked={shape.text.bold}/></div>
+          <div>Italic: <Input type="checkbox" bind:checked={shape.text.italic}/></div>
+          <div>Underline: <Input type="checkbox" bind:checked={shape.text.underline}/></div>
         </div>
       </div>
     {/if}

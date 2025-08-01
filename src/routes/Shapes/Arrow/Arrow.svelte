@@ -2,7 +2,7 @@
   import {scale} from "svelte/transition";
   import DraggableObject, {DraggableShape} from "../DraggableObject.svelte.js";
   import {onMount} from "svelte";
-  import ShapeText from "../Boxes/Text/ShapeText.svelte";
+  import ShapeText from "../Text/ShapeText.svelte";
   import ResizeCircle from "../ResizeCircle.svelte";
 
   const areaSize = 20;

@@ -1,4 +1,3 @@
-// this might be able to render if i put this into a component instead of js file. test later.
 class DraggableObject {
   constructor(setFunc, moveFunc) {
     this.mousePosBefore = {x: 0, y: 0};
@@ -29,7 +28,6 @@ class DraggableObject {
 }
 
 export class DraggableShape extends DraggableObject {
-  shapePosBefore = {x: 0, y: 0};
   constructor(shape) {
     super(
       () => {
@@ -41,6 +39,7 @@ export class DraggableShape extends DraggableObject {
         shape().x = dx + this.shapePosBefore.x;
         shape().y = dy + this.shapePosBefore.y;
       })
+    this.shapePosBefore = {};
   }
 }
 

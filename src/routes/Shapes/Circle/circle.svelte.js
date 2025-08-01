@@ -1,5 +1,5 @@
 import {colord} from "colord";
-import {ShapeText} from "../Boxes/Text/Text.svelte.js";
+import {ShapeText} from "../Text/Text.svelte.js";
 import Shape from "../shape.svelte.js";
 
 const bottomRightAngle = 45 * Math.PI / 180; // 45 degrees
@@ -12,8 +12,8 @@ const DEFAULT_STROKE_COLOR = colord("black");
 const DEFAULT_STROKE_WIDTH = 2;
 
 export class Circle extends Shape {
-  constructor(offset, canvasScale, getShapeArray) {
-    super(offset, "Circle", colord("white"), getShapeArray);
+  constructor(offset, getShapeArray, canvasScale) {
+    super(offset, getShapeArray);
     this.r = $state(DEFAULT_RADIUS);
     this.strokeColor = $state(DEFAULT_STROKE_COLOR);
     this.strokeWidth = $state(DEFAULT_STROKE_WIDTH);

@@ -1,7 +1,7 @@
 <script>
   import {scale} from "svelte/transition";
   import DraggableObject from "../DraggableObject.svelte.js";
-  import ShapeText from "../Boxes/Text/ShapeText.svelte";
+  import ShapeText from "../Text/ShapeText.svelte";
   import ResizeCircle from "../ResizeCircle.svelte";
 
   let {circle = $bindable(), removeCircle} = $props();

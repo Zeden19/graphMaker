@@ -1,5 +1,5 @@
 import {colord} from "colord";
-import {ShapeText} from "../Boxes/Text/Text.svelte.js";
+import {ShapeText} from "../Text/Text.svelte.js";
 
 const DEFAULT_X1 = 350;
 const DEFAULT_X2 = DEFAULT_X1 + 100
@@ -11,7 +11,9 @@ const MARKER_SIZE = 4;
 export class Arrow {
   #color = $state(DEFAULT_COLOR);
 
-  constructor(offset, canvasScale, getShapeArray) {
+  constructor(offset, getShapeArray, canvasScale) {
+    // consider point object that DraggableShape would use to determine movement
+    // can also use to define rect
     this.x1 = $state(DEFAULT_X1 - offset.x);
     this.x2 = $state(DEFAULT_X2 - offset.x);
     this.y1 = $state(DEFAULT_Y - offset.y);

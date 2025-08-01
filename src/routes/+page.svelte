@@ -2,16 +2,16 @@
   import Circle from "./Shapes/Circle/Circle.svelte";
   import {Circle as CircleClass} from "./Shapes/Circle/circle.svelte.js";
   import {Arrow as ArrowClass} from "./Shapes/Arrow/arrow.svelte.js";
-  import {GraphText as GraphTextClass} from "./Shapes/Boxes/Text/Text.svelte.js";
-  import {Square as SquareClass} from "./Shapes/Boxes/Square/square.svelte.js";
-  import Square from "./Shapes/Boxes/Square/Square.svelte";
+  import {GraphText as GraphTextClass} from "./Shapes/Text/Text.svelte.js";
+  import {Square as SquareClass} from "./Shapes/Square/square.svelte.js";
+  import Square from "./Shapes/Square/Square.svelte";
   import {extend} from "colord";
   import namesPlugin from "colord/plugins/names";
   import Arrow from "./Shapes/Arrow/Arrow.svelte";
   import DraggableObject from "./Shapes/DraggableObject.svelte.js";
   import Shape from "./Shapes/Shape.svelte";
   import EditShape from "./Edit Shape Window/EditShape.svelte";
-  import GraphText from "./Shapes/Boxes/Text/GraphText.svelte";
+  import GraphText from "./Shapes/Text/GraphText.svelte";
   import SnappableShape from "./Shapes/SnappableShape.svelte";
   import ResizeFromEdges from "./Shapes/ResizeFromEdges.svelte";
 
@@ -45,7 +45,7 @@
 
 
   const addShape = (array, ShapeClassRef) => {
-    array.push(new ShapeClassRef(offset, () => canvasScale, () => array));
+    array.push(new ShapeClassRef(offset, () => array, () => canvasScale));
   }
 
   export const removeObject = (array, index) => {

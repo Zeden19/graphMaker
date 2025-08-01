@@ -1,4 +1,4 @@
-import Shape from "../shape.svelte.js";
+import Shape from "./shape.svelte.js";
 
 const MIN_SIZE = 10;
 
@@ -6,8 +6,8 @@ export class Box extends Shape {
   #width = $state();
   #height = $state();
 
-  constructor(offset, shapeString, color, getShapeArray, canvasScale, width, height) {
-    super(offset, shapeString, color, getShapeArray);
+  constructor(offset, getShapeArray, canvasScale, width, height) {
+    super(offset, getShapeArray);
     this.#width = width;
     this.#height = height;
 

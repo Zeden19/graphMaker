@@ -13,13 +13,10 @@ export class ShapeText {
 
 const DEFAULT_WIDTH = 100;
 const DEFAULT_HEIGHT = 20;
-
+const DEFAULT_COLOR = colord("white");
 export class GraphText extends Box {
-  constructor(offset, canvasScale, getShapeArray) {
-    super(offset, "Text", colord("white"), getShapeArray, canvasScale, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    this.fontSize = $state(12);
-    this.bold = $state(false);
-    this.italic = $state(false);
-    this.underline = $state(false);
+  constructor(offset, getShapeArray, canvasScale) {
+    super(offset, getShapeArray, canvasScale, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    this.text.color = DEFAULT_COLOR;
   }
 }
