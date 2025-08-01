@@ -1,44 +1,30 @@
+import {Shape} from "../shape.svelte.js";
+import DraggableObject from "../DraggableObject.svelte.js";
 import {colord} from "colord";
-import {ShapeText} from "../Text/Text.svelte.js";
 
 const DEFAULT_X1 = 350;
 const DEFAULT_X2 = DEFAULT_X1 + 100
 const DEFAULT_Y = 250;
 const DEFAULT_WIDTH = 5;
-const DEFAULT_COLOR = colord("#FFFFFF");
 const MARKER_SIZE = 4;
+const AREA_SIZE = 40;
 
-export class Arrow {
-  #color = $state(DEFAULT_COLOR);
+export class Arrow extends Shape {
+  #color = $state(colord("white"));
 
   constructor(offset, getShapeArray, canvasScale) {
-    // consider point object that DraggableShape would use to determine movement
-    // can also use to define rect
+    super(getShapeArray);
     this.x1 = $state(DEFAULT_X1 - offset.x);
     this.x2 = $state(DEFAULT_X2 - offset.x);
     this.y1 = $state(DEFAULT_Y - offset.y);
     this.y2 = $state(DEFAULT_Y - offset.y);
     this.width = $state(DEFAULT_WIDTH);
 
-    this.text = new ShapeText("white");
-    this.getShapeArray = getShapeArray;
-
-    this.selected = $state(false);
-
-    this.startSnapped = $state(null);
-    this.endSnapped = $state(null);
-
-    this.position = $derived.by(() => {
-      let start;
-      let end;
-
-      if (this.startSnapped) start = {x1: this.startSnapped().x, y1: this.startSnapped().y};
-      else start = {x1: this.x1 + offset.x, y1: this.y1 + offset.y};
-
-      if (this.endSnapped) end = {x2: this.endSnapped().x, y2: this.endSnapped().y};
-      else end = {x2: this.x2 + offset.x, y2: this.y2 + offset.y};
-
-      return {...start, ...end}
+    this.position = $derived({
+      x1: this.x1 + offset.x,
+      y1: this.y1 + offset.y,
+      x2: this.x2 + offset.x,
+      y2: this.y2 + offset.y
     });
 
     this.widthWithScale = $derived({marker: MARKER_SIZE * canvasScale(), line: this.width * canvasScale()});
@@ -55,7 +41,64 @@ export class Arrow {
     this.rect = $derived({
       start: {x: this.position.x1, y: this.position.y1},
       end: {x: this.position.x2, y: this.position.y2},
-    })
+    });
+
+    let arrowPosBefore = {x1: 0, y1: 0, x2: 0, y2: 0};
+    this.movingStart = $state();
+    this.movingEnd = $state();
+
+    this.startSnapped = $state(false);
+    this.endSnapped = $state(false);
+    const moveCorner = (posString, dx, dy) => {
+      const x = posString === "start" ? "x1" : "x2";
+      const y = posString === "start" ? "y1" : "y2";
+      const cornerSnapped = posString === "start" ? "startSnapped" : "endSnapped";
+
+      this[x] = arrowPosBefore[x] + dx;
+      this[y] = arrowPosBefore[y] + dy;
+
+      const index = getShapeArray().findIndex((arrow) => arrow === this);
+      if (!(this[x] < this.position[x] + AREA_SIZE && this[x] > this.position[x] - AREA_SIZE) ||
+        !(this[y] < this.position[y] + AREA_SIZE && this[y] > this.position[y] - AREA_SIZE)) {
+        if (this[cornerSnapped]) {
+          dispatchEvent(new CustomEvent("arrowUnsnap", {detail: {index, pos: posString}}))
+          this[cornerSnapped] = false;
+        }
+      }
+
+      dispatchEvent(new CustomEvent("arrowMove", {
+        detail: {
+          x: this.position[x],
+          y: this.position[y],
+          index,
+          pos: posString
+        }
+      }));
+    }
+
+    this.drag = new DraggableObject(
+      () => {
+        this.selected = true;
+        arrowPosBefore.x1 = this.x1;
+        arrowPosBefore.y1 = this.y1;
+        arrowPosBefore.x2 = this.x2;
+        arrowPosBefore.y2 = this.y2;
+      },
+      (dx, dy) => {
+        if (this.movingStart) {
+          moveCorner("start", dx, dy);
+        } else if (this.movingEnd) {
+          moveCorner("end", dx, dy);
+        } else {
+          this.x1 = arrowPosBefore.x1 + dx;
+          this.y1 = arrowPosBefore.y1 + dy;
+          this.x2 = arrowPosBefore.x2 + dx;
+          this.y2 = arrowPosBefore.y2 + dy;
+
+          this.startSnapped = false;
+          this.endSnapped = false;
+        }
+      });
   }
 
   set color(color) {
@@ -65,21 +108,12 @@ export class Arrow {
   }
 
   get color() {
-    return this.#color;
+    return this.#color
   }
 
-
-  delete() {
-    const shapeArray = this.getShapeArray();
-    setTimeout(() => {
-      shapeArray.splice(shapeArray.findIndex((shape) => shape === this), 1)
-    });
+  setDrag = (event) => {
+    this.drag.setDrag(event)
   }
-
-  toString() {
-    return "Arrow"
-  }
-
 }
 
 

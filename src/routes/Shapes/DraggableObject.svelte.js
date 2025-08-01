@@ -31,14 +31,15 @@ export class DraggableShape extends DraggableObject {
   constructor(shape) {
     super(
       () => {
-        shape().selected = true;
-        this.shapePosBefore.x = shape().x;
-        this.shapePosBefore.y = shape().y;
+        shape.selected = true;
+        this.shapePosBefore.x = shape.x;
+        this.shapePosBefore.y = shape.y;
       },
       (dx, dy) => {
-        shape().x = dx + this.shapePosBefore.x;
-        shape().y = dy + this.shapePosBefore.y;
-      })
+        shape.x = dx + this.shapePosBefore.x;
+        shape.y = dy + this.shapePosBefore.y;
+      });
+
     this.shapePosBefore = {};
   }
 }

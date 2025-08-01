@@ -1,8 +1,8 @@
-import Shape from "./shape.svelte.js";
+import BasicShape from "./shape.svelte.js";
 
 const MIN_SIZE = 10;
 
-export class Box extends Shape {
+export class Box extends BasicShape {
   #width = $state();
   #height = $state();
 

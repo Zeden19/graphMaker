@@ -1,6 +1,5 @@
 import {colord} from "colord";
-import {ShapeText} from "../Text/Text.svelte.js";
-import Shape from "../shape.svelte.js";
+import BasicShape from "../shape.svelte.js";
 
 const bottomRightAngle = 45 * Math.PI / 180; // 45 degrees
 const bottomLeftAngle = 135 * Math.PI / 180; // 135 degrees
@@ -11,13 +10,12 @@ const DEFAULT_RADIUS = 80;
 const DEFAULT_STROKE_COLOR = colord("black");
 const DEFAULT_STROKE_WIDTH = 2;
 
-export class Circle extends Shape {
+export class Circle extends BasicShape {
   constructor(offset, getShapeArray, canvasScale) {
     super(offset, getShapeArray);
     this.r = $state(DEFAULT_RADIUS);
     this.strokeColor = $state(DEFAULT_STROKE_COLOR);
     this.strokeWidth = $state(DEFAULT_STROKE_WIDTH);
-    this.text = new ShapeText("black");
 
     this.radiusWithScale = $derived(canvasScale() * this.r);
     this.rect = $derived(
@@ -48,13 +46,6 @@ export class Circle extends Shape {
       x: this.position.x + this.radiusWithScale * Math.cos(angle),
       y: this.position.y + this.radiusWithScale * Math.sin(angle)
     };
-  }
-
-  delete() {
-    this.arrowsSnappedIndexes.forEach(({index, pos}) => {
-      dispatchEvent(new CustomEvent(`shapeDelete${index}`, {detail: {pos}}));
-    });
-    super.delete();
   }
 }
 

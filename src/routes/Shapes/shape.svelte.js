@@ -1,23 +1,19 @@
 import {DraggableShape} from "./DraggableObject.svelte.js";
-import {colord} from "colord";
+import {colord, extend} from "colord";
 import {ShapeText} from "./Text/Text.svelte.js";
+import namesPlugin from "colord/plugins/names";
 
-const DEFAULT_X = 350;
-const DEFAULT_Y = 250;
+extend([namesPlugin]);
+
 const DEFAULT_COLOR = colord("white");
-const DEFAULT_TEXT_COLOR =  colord("white");
+const DEFAULT_TEXT_COLOR = colord("black");
 
-export default class Shape extends DraggableShape {
-  constructor(offset, getShapeArray) {
-    super(() => this)
+
+export class Shape {
+  constructor(getShapeArray) {
     this.selected = $state(false);
-    this.x = $state(DEFAULT_X - offset.x);
-    this.y = $state(DEFAULT_Y - offset.y);
-    this.color = $state(DEFAULT_COLOR)
+    this.color = $state(DEFAULT_COLOR);
     this.text = $state(new ShapeText(DEFAULT_TEXT_COLOR));
-
-    this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
-
     this.getShapeArray = getShapeArray;
   }
 
@@ -31,5 +27,22 @@ export default class Shape extends DraggableShape {
 
   toString() {
     return this.constructor.name;
+  }
+}
+
+const DEFAULT_X = 350;
+const DEFAULT_Y = 250;
+export default class BasicShape extends Shape {
+  constructor(offset, getShapeArray) {
+    super(getShapeArray);
+    this.x = $state(DEFAULT_X - offset.x);
+    this.y = $state(DEFAULT_Y - offset.y);
+    this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
+
+    this.drag = new DraggableShape(this);
+  }
+
+  setDrag = (event) => {
+    this.drag.setDrag(event);
   }
 }

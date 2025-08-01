@@ -5,96 +5,32 @@
   import ShapeText from "../Text/ShapeText.svelte";
   import ResizeCircle from "../ResizeCircle.svelte";
 
-  const areaSize = 20;
-
   let {arrow = $bindable(), removeArrow, index, offset} = $props();
 
-  let arrowPosBefore = {x1: 0, y1: 0, x2: 0, y2: 0};
-  let movingStart = $state();
-  let movingEnd = $state();
-
-  const moveCorner = (x, y, dx, dy, cornerSnappedVar, posString) => {
-    arrow[x] = arrowPosBefore[x] + dx;
-    arrow[y] = arrowPosBefore[y] + dy;
-
-    if (!(arrow[x] < arrow.position[x] + areaSize && arrow[x] > arrow.position[x] - areaSize) ||
-      !(arrow[y] < arrow.position[y] + areaSize && arrow[y] > arrow.position[y] - areaSize)) {
-      arrow[cornerSnappedVar] = null;
-    }
-
-    dispatchEvent(new CustomEvent("arrowMove", {
-      detail: {
-        x: arrow.position[x],
-        y: arrow.position[y],
-        index,
-        pos: posString
-      }
-    }));
-  }
-  let moveArrow = new DraggableObject(
-    () => {
-      arrow.selected = true;
-      arrowPosBefore.x1 = arrow.x1;
-      arrowPosBefore.y1 = arrow.y1;
-      arrowPosBefore.x2 = arrow.x2;
-      arrowPosBefore.y2 = arrow.y2;
-    },
-    (dx, dy) => {
-      if (movingStart) {
-        moveCorner("x1", "y1", dx, dy, "startSnapped", "start")
-      } else if (movingEnd) {
-        moveCorner("x2", "y2", dx, dy, "endSnapped", "end")
-      } else {
-        arrow.x1 = arrowPosBefore.x1 + dx;
-        arrow.y1 = arrowPosBefore.y1 + dy;
-        arrow.x2 = arrowPosBefore.x2 + dx;
-        arrow.y2 = arrowPosBefore.y2 + dy;
-
-        arrow.startSnapped = null;
-        arrow.endSnapped = null;
-      }
-    });
-
   $effect(() => {
-    if (moveArrow.isDragging === false) {
-      movingStart = false;
-      movingEnd = false;
-    }
-
-    if (arrow.startSnapped) {
-      arrow.x1 = arrow.startSnapped().x - offset.x;
-      arrow.y1 = arrow.startSnapped().y - offset.y;
-    }
-
-    if (arrow.endSnapped) {
-      arrow.x2 = arrow.endSnapped().x - offset.x;
-      arrow.y2 = arrow.endSnapped().y - offset.y;
+    if (arrow.drag.isDragging === false) {
+      arrow.movingStart = false;
+      arrow.movingEnd = false;
     }
   });
 
   onMount(() => {
-    const snapArrow = ({detail: {pos, edgeRef}}) => {
+    const moveArrow = ({detail: {pos, ref}}) => {
       if (pos === "start") {
-        arrow.startSnapped = edgeRef;
+        arrow.x1 = ref().x - offset.x;
+        arrow.y1 = ref().y - offset.y;
+        arrow.startSnapped = true;
       } else if (pos === "end") {
-        arrow.endSnapped = edgeRef;
+        arrow.x2 = ref().x - offset.x;
+        arrow.y2 = ref().y - offset.y;
+        arrow.endSnapped = true;
       }
     }
 
-    const onCircleDelete = ({detail: {pos}}) => {
-      if (pos === "start") {
-        arrow.startSnapped = null;
-      } else if (pos === "end") {
-        arrow.endSnapped = null;
-      }
-    }
-
-    window.addEventListener(`arrowSnap${index}`, snapArrow);
-    window.addEventListener(`shapeDelete${index}`, onCircleDelete);
+    window.addEventListener(`moveArrow${index}`, moveArrow);
 
     return () => {
-      window.removeEventListener(`arrowSnap${index}`, snapArrow);
-      window.removeEventListener(`shapeDelete${index}`, onCircleDelete);
+      window.removeEventListener(`moveArrow${index}`, moveArrow);
     }
   });
 
@@ -134,9 +70,8 @@
     }
   );
 
-  let moveText = new DraggableShape(() => textOffset);
+  let moveText = new DraggableShape(textOffset);
 
-  $inspect(arrow.arrowsSnappedIndexes)
 </script>
 
 <defs>
@@ -170,7 +105,7 @@
   transition:scale={{duration: 120}}
   points="{arrow.position.x1},{arrow.position.y1} {arrow.position.x2},{arrow.position.y2}"
   style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
-  onmousedown="{moveArrow.setDrag}"
+  onmousedown="{arrow.setDrag}"
   stroke="{arrow.color.toHex()}"
   stroke-width="{arrow.width}"
   marker-end="url(#end{index})"
@@ -183,14 +118,14 @@
     x={arrow.position.x1}
     y={arrow.position.y1}
     cursor="move"
-    setDrag={(event) => {moveArrow.setDrag(event); movingStart = true;}}
+    setDrag={(event) => {arrow.setDrag(event); arrow.movingStart = true;}}
   />
 
   <ResizeCircle
     x={arrow.position.x2}
     y={arrow.position.y2}
     cursor="move"
-    setDrag={(event) => {moveArrow.setDrag(event); movingEnd = true;}}
+    setDrag={(event) => {arrow.setDrag(event); arrow.movingEnd = true;}}
   />
 {/if}
 

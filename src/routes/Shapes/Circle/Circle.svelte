@@ -17,7 +17,6 @@
       }
       circle.r = Math.max(20, circle.r + distance);
     });
-
 </script>
 
 <circle

@@ -15,8 +15,6 @@
   import SnappableShape from "./Shapes/SnappableShape.svelte";
   import ResizeFromEdges from "./Shapes/ResizeFromEdges.svelte";
 
-  extend([namesPlugin]);
-
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
 
