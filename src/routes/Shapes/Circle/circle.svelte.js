@@ -1,5 +1,5 @@
 import {colord} from "colord";
-import BasicShape from "../shape.svelte.js";
+import {BasicShape} from "../shape.svelte.js";
 
 const bottomRightAngle = 45 * Math.PI / 180; // 45 degrees
 const bottomLeftAngle = 135 * Math.PI / 180; // 135 degrees

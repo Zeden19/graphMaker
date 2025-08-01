@@ -1,6 +1,6 @@
 import {DraggableShape} from "./DraggableObject.svelte.js";
 import {colord, extend} from "colord";
-import {ShapeText} from "./Text/Text.svelte.js";
+import {ShapeText} from "./Text/ShapeText.svelte.js";
 import namesPlugin from "colord/plugins/names";
 
 extend([namesPlugin]);
@@ -32,7 +32,7 @@ export class Shape {
 
 const DEFAULT_X = 350;
 const DEFAULT_Y = 250;
-export default class BasicShape extends Shape {
+export class BasicShape extends Shape {
   constructor(offset, getShapeArray) {
     super(getShapeArray);
     this.x = $state(DEFAULT_X - offset.x);

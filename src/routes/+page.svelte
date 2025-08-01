@@ -2,11 +2,9 @@
   import Circle from "./Shapes/Circle/Circle.svelte";
   import {Circle as CircleClass} from "./Shapes/Circle/circle.svelte.js";
   import {Arrow as ArrowClass} from "./Shapes/Arrow/arrow.svelte.js";
-  import {GraphText as GraphTextClass} from "./Shapes/Text/Text.svelte.js";
+  import {GraphText as GraphTextClass} from "./Shapes/Text/GraphText.svelte.js";
   import {Square as SquareClass} from "./Shapes/Square/square.svelte.js";
   import Square from "./Shapes/Square/Square.svelte";
-  import {extend} from "colord";
-  import namesPlugin from "colord/plugins/names";
   import Arrow from "./Shapes/Arrow/Arrow.svelte";
   import DraggableObject from "./Shapes/DraggableObject.svelte.js";
   import Shape from "./Shapes/Shape.svelte";
