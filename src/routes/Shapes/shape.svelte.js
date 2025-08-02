@@ -19,10 +19,9 @@ export class Shape {
 
   toJSON() {
     return {
-      toString: this.toString(),
-      isShape: true,
       color: this.color.toHex(),
       text: JSON.stringify(this.text),
+      toString: this.toString(),
     }
   }
 

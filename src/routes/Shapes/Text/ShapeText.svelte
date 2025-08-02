@@ -8,13 +8,11 @@
 </script>
 
 <foreignObject {...foreignObjectProps}>
-  <div transition:scale={{duration: 120}} class="no-select text" draggable="false" {contenteditable}
+  <div transition:scale={{duration: 120}} class="no-select text" draggable="false"
+       contenteditable
        bind:this={textRef}
-       onfocus={() => contenteditable = true}
-       onmouseover={() => contenteditable = true}
-       onmouseleave={() => {
-         if (!(document.activeElement === textRef)) contenteditable = false}}
        {onmousedown}
+       bind:innerHTML={text.value}
        style="
            font-size:{text.fontSize}px;
            pointer-events:{selected ? 'auto' : ''};

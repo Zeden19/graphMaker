@@ -69,7 +69,7 @@
       </div>
     {/if}
 
-    {#if shape.italic !== undefined || shape.text }
+    {#if shape.text }
       <div class="basics-container">
         <div class="type-title">Text</div>
         <div class="basics">
@@ -80,6 +80,7 @@
           <div>Bold: <Input type="checkbox" bind:checked={shape.text.bold}/></div>
           <div>Italic: <Input type="checkbox" bind:checked={shape.text.italic}/></div>
           <div>Underline: <Input type="checkbox" bind:checked={shape.text.underline}/></div>
+          <div>Value: <Input type="text" bind:value={shape.text.value}/></div>
         </div>
       </div>
     {/if}

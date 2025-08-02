@@ -14,6 +14,7 @@ export class Arrow extends Shape {
 
   constructor(offset, getShapeArray, canvasScale) {
     super(getShapeArray);
+    this.text.color = colord("white");
     this.x1 = $state(DEFAULT_X1 - offset.x);
     this.x2 = $state(DEFAULT_X2 - offset.x);
     this.y1 = $state(DEFAULT_Y - offset.y);
@@ -126,6 +127,7 @@ export class Arrow extends Shape {
       y2: this.y2
     };
   }
+
 }
 
 

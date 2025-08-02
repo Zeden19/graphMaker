@@ -12,7 +12,7 @@
   import GraphText from "./Shapes/Text/GraphText.svelte";
   import SnappableShape from "./Shapes/SnappableShape.svelte";
   import ResizeFromEdges from "./Shapes/ResizeFromEdges.svelte";
-  import {onMount} from "svelte";
+  import Clipboard from "./Clipboard.svelte";
 
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
@@ -40,6 +40,12 @@
   let selectedShape = $derived([...circles, ...arrows, ...texts, ...squares].find(shape => shape.selected));
   let editShapeContainerRef = $state();
 
+  const test = {a: 1, b: 2, c: 3, d: 4};
+  function test1(a, b, c, d) {
+    console.log(a, b, c, d)
+  }
+  (test1(...Object.values(test)));
+
 
   const addShape = (array, ShapeClassRef) => {
     array.push(new ShapeClassRef(offset, () => array, () => canvasScale));
@@ -56,6 +62,8 @@
   const clear = () => {
     circles = [];
     arrows = [];
+    texts = [];
+    squares = [];
   }
 
   const changeScale = (event) => {
@@ -71,21 +79,16 @@
       case "square":
         return {array: squares, class: SquareClass};
       case "graphtext":
-        return {array: GraphText, class: GraphText};
+        return {array: texts, class: GraphTextClass};
     }
   }
 
-  //todo add proper properties to class constructors
-  onMount(() => {
-    document.addEventListener("paste", async () => {
-      const clipboard = JSON.parse(await navigator.clipboard.readText());
-      if (!clipboard.isShape) return;
-      const shapeAdding = mapShapeToArray(clipboard.toString)
-      addShape(shapeAdding.array, shapeAdding.class);
-    })
-  })
-
 </script>
+
+<Clipboard {selectedShape} addShape={(shapeString) => {
+  const shapeAdder = mapShapeToArray(shapeString);
+  addShape(shapeAdder.array, shapeAdder.class);
+}}/>
 
 <div class="container">
   <div class="materials">

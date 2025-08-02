@@ -1,23 +1,27 @@
 <script>
-  let {value = $bindable(), checked = $bindable(), type, ...inputProps} = $props();
+  let {value = $bindable(), checked = $bindable(), type = "text", ...inputProps} = $props();
 </script>
 
 {#if type === "checkbox"}
   <input type="checkbox" bind:checked {...inputProps}/>
-{:else if type === "number"}
+{:else if type === "number" || type === "text"}
   <input {type} bind:value {...inputProps}/>
 {:else if type === "color"}
   <input {...inputProps}/>
 {/if}
 
 <style>
-  input[type=number], input[readonly] {
+  input[type=number], input[readonly], input[type=text] {
     border-radius: 8px;
     background: var(--secondaryBg);
     border: var(--darkBorder);
     padding: 7px 10px;
     color: white;
     width: 4em;
+  }
+
+  input[type=text] {
+    width: 8em;
   }
 
   input[type=checkbox] {

@@ -1,6 +1,6 @@
 <script>
   import {scale} from "svelte/transition";
-  import DraggableObject, {DraggableShape} from "../DraggableObject.svelte.js";
+  import {DraggableShape} from "../DraggableObject.svelte.js";
   import {onMount} from "svelte";
   import ShapeText from "../Text/ShapeText.svelte";
   import ResizeCircle from "../ResizeCircle.svelte";
@@ -98,7 +98,7 @@
            transform: rotate({arrow.rotation}rad);
                       transform-origin: {textPosition.x}px
                                         {textPosition.y}px;"
-           width={arrow.length} height="auto"/>
+           width={arrow.length} height="1.5em"/>
 
 <!--use path instead for stroke (& will be useful for curved shit)-->
 <polyline

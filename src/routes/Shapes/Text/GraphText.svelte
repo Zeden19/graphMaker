@@ -2,7 +2,7 @@
   import {scale} from "svelte/transition";
 
   let {text = $bindable()} = $props();
-  let textStyles = $derived(text.text)
+  let textStyles = $derived(text.text);
 
   const PADDING = 5;
   let textRef = $state();
@@ -12,7 +12,7 @@
                x="{text.position.x}" y="{text.position.y}"
                width="{text.width}" height="{text.height}" role="presentation">
   <div contenteditable="true" transition:scale={{duration: 130}} draggable="false"
-       bind:this={textRef}
+       bind:this={textRef} bind:innerHTML={textStyles.value}
        style="
        padding: {PADDING}px;
        width: calc(100%) - {PADDING * 2}px;

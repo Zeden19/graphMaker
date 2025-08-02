@@ -8,6 +8,7 @@ export class ShapeText {
     this.bold = $state(false);
     this.italic = $state(false);
     this.underline = $state(false);
+    this.value = $state("Text here");
   }
 
   toJSON() {
