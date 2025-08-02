@@ -17,6 +17,15 @@ export class Shape {
     this.getShapeArray = getShapeArray;
   }
 
+  toJSON() {
+    return {
+      toString: this.toString(),
+      isShape: true,
+      color: this.color.toHex(),
+      text: JSON.stringify(this.text),
+    }
+  }
+
   delete() {
     this.selected = false;
     const shapeArray = this.getShapeArray();
@@ -32,6 +41,7 @@ export class Shape {
 
 const DEFAULT_X = 350;
 const DEFAULT_Y = 250;
+
 export class BasicShape extends Shape {
   constructor(offset, getShapeArray) {
     super(getShapeArray);
@@ -40,6 +50,10 @@ export class BasicShape extends Shape {
     this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
 
     this.drag = new DraggableShape(this);
+  }
+
+  toJSON() {
+    return {...super.toJSON(), x: this.x, y: this.y};
   }
 
   setDrag = (event) => {

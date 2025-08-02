@@ -47,6 +47,10 @@ export class Circle extends BasicShape {
       y: this.position.y + this.radiusWithScale * Math.sin(angle)
     };
   }
+
+  toJSON() {
+    return {...super.toJSON(), r: this.r, strokeColor: this.strokeColor.toHex(), strokeWidth: this.strokeWidth};
+  }
 }
 
 

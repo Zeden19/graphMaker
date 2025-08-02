@@ -118,4 +118,8 @@ export class Box extends BasicShape {
   get width() {
     return this.#width;
   }
+
+  toJSON() {
+    return {...super.toJSON(), width: this.width, height: this.height};
+  }
 }

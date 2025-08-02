@@ -12,6 +12,7 @@
   import GraphText from "./Shapes/Text/GraphText.svelte";
   import SnappableShape from "./Shapes/SnappableShape.svelte";
   import ResizeFromEdges from "./Shapes/ResizeFromEdges.svelte";
+  import {onMount} from "svelte";
 
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
@@ -60,6 +61,29 @@
   const changeScale = (event) => {
     canvasScale = event.target?.value ?? 1;
   }
+
+  const mapShapeToArray = (shapeString) => {
+    switch (shapeString.toLowerCase()) {
+      case "circle":
+        return {array: circles, class: CircleClass};
+      case "arrow":
+        return {array: arrows, class: ArrowClass};
+      case "square":
+        return {array: squares, class: SquareClass};
+      case "graphtext":
+        return {array: GraphText, class: GraphText};
+    }
+  }
+
+  //todo add proper properties to class constructors
+  onMount(() => {
+    document.addEventListener("paste", async () => {
+      const clipboard = JSON.parse(await navigator.clipboard.readText());
+      if (!clipboard.isShape) return;
+      const shapeAdding = mapShapeToArray(clipboard.toString)
+      addShape(shapeAdding.array, shapeAdding.class);
+    })
+  })
 
 </script>
 

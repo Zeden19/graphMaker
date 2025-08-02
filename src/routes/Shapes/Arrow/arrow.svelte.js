@@ -114,6 +114,18 @@ export class Arrow extends Shape {
   setDrag = (event) => {
     this.drag.setDrag(event)
   }
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      color: this.color.toHex(),
+      width: this.width,
+      x1: this.x1,
+      y1: this.y1,
+      x2: this.x2,
+      y2: this.y2
+    };
+  }
 }
 
 

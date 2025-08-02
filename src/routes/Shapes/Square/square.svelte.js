@@ -9,4 +9,8 @@ export class Square extends Box {
     this.strokeColor = $state(colord("black"));
     this.strokeWidth = $state(2);
   }
+
+  toJSON() {
+    return {...super.toJSON(), strokeColor: this.strokeColor.toHex(), strokeWidth: this.strokeWidth};
+  }
 }
