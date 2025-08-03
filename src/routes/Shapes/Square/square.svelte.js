@@ -9,11 +9,11 @@ export class Square extends Box {
   constructor(offset, getShapeArray, canvasScale,
               {
                 width = DEFAULT_SIZE, height = DEFAULT_Y,
-                color = "white", textColor = "black",
+                color = "white", text,
                 x = DEFAULT_X - offset.x, y = DEFAULT_Y - offset.y,
                 strokeColor = "black", strokeWidth = 2
               }) {
-    super(offset, getShapeArray, canvasScale, {width, height, color, textColor, x, y});
+    super(offset, getShapeArray, canvasScale, {width, height, color, text, x, y});
     this.strokeColor = $state(colord(strokeColor));
     this.strokeWidth = $state(strokeWidth);
   }

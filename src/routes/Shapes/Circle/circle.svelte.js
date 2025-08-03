@@ -12,14 +12,14 @@ const DEFAULT_Y = 250;
 export class Circle extends BasicShape {
   constructor(offset, getShapeArray, canvasScale, {
     color = "white",
-    textColor = "black",
+    text,
     x = DEFAULT_X - offset.x,
     y = DEFAULT_Y - offset.y,
     r = 80,
     strokeColor = "black",
     strokeWidth = 2
   }) {
-    super(offset, getShapeArray, {color, textColor, x, y});
+    super(offset, getShapeArray, {color, text, x, y});
     this.r = $state(r);
     this.strokeColor = $state(colord(strokeColor));
     this.strokeWidth = $state(strokeWidth);

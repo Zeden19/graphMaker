@@ -2,7 +2,7 @@ import {colord} from "colord";
 
 export class ShapeText {
   constructor({
-                color = "white",
+                color = "black",
                 fontSize = 12,
                 bold = false,
                 italic = false,

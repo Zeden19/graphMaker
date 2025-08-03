@@ -14,15 +14,14 @@ export class Arrow extends Shape {
 
   constructor(offset, getShapeArray, canvasScale,
               {
-                color = "white", textColor = "white",
+                color = "white", text = {color: "white"},
                 x1 = DEFAULT_X1 - offset.x, x2 = DEFAULT_X2 - offset.x,
                 y1 = DEFAULT_Y - offset.y, y2 = DEFAULT_Y - offset.y,
                 width = DEFAULT_WIDTH,
                 start, end
               }) {
-    super(getShapeArray, {color, textColor});
+    super(getShapeArray, {color, text});
     this.#color = colord(color);
-    this.text.color = colord(textColor);
     this.x1 = $state(x1);
     this.x2 = $state(x2);
     this.y1 = $state(y1);

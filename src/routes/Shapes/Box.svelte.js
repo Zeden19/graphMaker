@@ -11,11 +11,11 @@ export class Box extends BasicShape {
 
   constructor(offset, getShapeArray, canvasScale, {
     width, height,
-    color = "white", textColor = "black",
+    color = "white", text,
     x = DEFAULT_X - offset.x,
     y = DEFAULT_Y - offset.y,
   }) {
-    super(offset, getShapeArray, {color, textColor, x, y});
+    super(offset, getShapeArray, {color, text, x, y});
     this.#width = width;
     this.#height = height;
 

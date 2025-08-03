@@ -7,17 +7,17 @@ extend([namesPlugin]);
 
 export class Shape {
   //todo look up way to spread constructor parent arguments onto children?
-  constructor(getShapeArray, {color = "white", textColor = "black"}) {
+  constructor(getShapeArray, {color = "white", text}) {
     this.selected = $state(false);
     this.color = $state(colord(color));
-    this.text = $state(new ShapeText({color: textColor}));
+    this.text = $state(new ShapeText(text));
     this.getShapeArray = getShapeArray;
   }
 
   toJSON() {
     return {
       color: this.color.toHex(),
-      text: JSON.stringify(this.text),
+      text: JSON.parse(JSON.stringify(this.text)),
       toString: this.toString(),
     }
   }
@@ -42,11 +42,11 @@ export class BasicShape extends Shape {
   constructor(offset, getShapeArray,
               {
                 color = "white",
-                textColor = "black",
+                text = {},
                 x = DEFAULT_X - offset.x,
                 y = DEFAULT_Y - offset.y,
               }) {
-    super(getShapeArray, {color, textColor});
+    super(getShapeArray, {color, text});
     this.x = $state(x);
     this.y = $state(y);
     this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
