@@ -1,13 +1,21 @@
 import {BasicShape} from "./shape.svelte.js";
+import {colord} from "colord";
 
 const MIN_SIZE = 10;
 
+const DEFAULT_X = 350;
+const DEFAULT_Y = 250;
 export class Box extends BasicShape {
   #width = $state();
   #height = $state();
 
-  constructor(offset, getShapeArray, canvasScale, width, height) {
-    super(offset, getShapeArray);
+  constructor(offset, getShapeArray, canvasScale, {
+    width, height,
+    color = "white", textColor = "black",
+    x = DEFAULT_X - offset.x,
+    y = DEFAULT_Y - offset.y,
+  }) {
+    super(offset, getShapeArray, {color, textColor, x, y});
     this.#width = width;
     this.#height = height;
 

@@ -10,16 +10,31 @@ const MARKER_SIZE = 4;
 const AREA_SIZE = 40;
 
 export class Arrow extends Shape {
-  #color = $state(colord("white"));
+  #color = $state();
 
-  constructor(offset, getShapeArray, canvasScale) {
-    super(getShapeArray);
-    this.text.color = colord("white");
-    this.x1 = $state(DEFAULT_X1 - offset.x);
-    this.x2 = $state(DEFAULT_X2 - offset.x);
-    this.y1 = $state(DEFAULT_Y - offset.y);
-    this.y2 = $state(DEFAULT_Y - offset.y);
-    this.width = $state(DEFAULT_WIDTH);
+  constructor(offset, getShapeArray, canvasScale,
+              {
+                color = "white", textColor = "white",
+                x1 = DEFAULT_X1 - offset.x, x2 = DEFAULT_X2 - offset.x,
+                y1 = DEFAULT_Y - offset.y, y2 = DEFAULT_Y - offset.y,
+                width = DEFAULT_WIDTH,
+                start, end
+              }) {
+    super(getShapeArray, {color, textColor});
+    this.#color = colord(color);
+    this.text.color = colord(textColor);
+    this.x1 = $state(x1);
+    this.x2 = $state(x2);
+    this.y1 = $state(y1);
+    this.y2 = $state(y2);
+    this.width = $state(width);
+
+    this.start = $state(`<path fill="${this.#color.toHex()}" d="M 0 0 L 10 5 L 0 10 z"/>`);
+    this.end = $state("");
+
+    this.movingStart = $state(false);
+    this.movingEnd = $state(false);
+
 
     this.position = $derived({
       x1: this.x1 + offset.x,
@@ -36,18 +51,12 @@ export class Arrow extends Shape {
     this.length = $derived(Math.sqrt(((this.position.x2 - this.position.x1) ** 2) + ((this.position.y2 - this.position.y1) ** 2)))
     this.rotation = $derived(Math.atan((this.position.y2 - this.position.y1) / (this.position.x2 - this.position.x1)));
 
-    this.start = $state(`<path fill="${this.#color.toHex()}" d="M 0 0 L 10 5 L 0 10 z"/>`);
-    this.end = $state("");
-
     this.rect = $derived({
       start: {x: this.position.x1, y: this.position.y1},
       end: {x: this.position.x2, y: this.position.y2},
     });
 
     let arrowPosBefore = {x1: 0, y1: 0, x2: 0, y2: 0};
-    this.movingStart = $state();
-    this.movingEnd = $state();
-
     this.startSnapped = $state(false);
     this.endSnapped = $state(false);
     const moveCorner = (posString, dx, dy) => {
@@ -124,7 +133,9 @@ export class Arrow extends Shape {
       x1: this.x1,
       y1: this.y1,
       x2: this.x2,
-      y2: this.y2
+      y2: this.y2,
+      start: this.start,
+      end: this.end,
     };
   }
 

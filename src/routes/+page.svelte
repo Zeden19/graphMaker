@@ -40,15 +40,8 @@
   let selectedShape = $derived([...circles, ...arrows, ...texts, ...squares].find(shape => shape.selected));
   let editShapeContainerRef = $state();
 
-  const test = {a: 1, b: 2, c: 3, d: 4};
-  function test1(a, b, c, d) {
-    console.log(a, b, c, d)
-  }
-  (test1(...Object.values(test)));
-
-
-  const addShape = (array, ShapeClassRef) => {
-    array.push(new ShapeClassRef(offset, () => array, () => canvasScale));
+  const addShape = (array, ShapeClassRef, shapeProperties = {}) => {
+    array.push(new ShapeClassRef(offset, () => array, () => canvasScale, shapeProperties));
   }
 
   export const removeObject = (array, index) => {
@@ -85,9 +78,9 @@
 
 </script>
 
-<Clipboard {selectedShape} addShape={(shapeString) => {
+<Clipboard {selectedShape} addShape={(shapeString, shapeProperties) => {
   const shapeAdder = mapShapeToArray(shapeString);
-  addShape(shapeAdder.array, shapeAdder.class);
+  addShape(shapeAdder.array, shapeAdder.class, shapeProperties);
 }}/>
 
 <div class="container">

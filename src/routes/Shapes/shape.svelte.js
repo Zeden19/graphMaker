@@ -5,15 +5,12 @@ import namesPlugin from "colord/plugins/names";
 
 extend([namesPlugin]);
 
-const DEFAULT_COLOR = colord("white");
-const DEFAULT_TEXT_COLOR = colord("black");
-
-
 export class Shape {
-  constructor(getShapeArray) {
+  //todo look up way to spread constructor parent arguments onto children?
+  constructor(getShapeArray, {color = "white", textColor = "black"}) {
     this.selected = $state(false);
-    this.color = $state(DEFAULT_COLOR);
-    this.text = $state(new ShapeText(DEFAULT_TEXT_COLOR));
+    this.color = $state(colord(color));
+    this.text = $state(new ShapeText({color: textColor}));
     this.getShapeArray = getShapeArray;
   }
 
@@ -42,10 +39,16 @@ const DEFAULT_X = 350;
 const DEFAULT_Y = 250;
 
 export class BasicShape extends Shape {
-  constructor(offset, getShapeArray) {
-    super(getShapeArray);
-    this.x = $state(DEFAULT_X - offset.x);
-    this.y = $state(DEFAULT_Y - offset.y);
+  constructor(offset, getShapeArray,
+              {
+                color = "white",
+                textColor = "black",
+                x = DEFAULT_X - offset.x,
+                y = DEFAULT_Y - offset.y,
+              }) {
+    super(getShapeArray, {color, textColor});
+    this.x = $state(x);
+    this.y = $state(y);
     this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
 
     this.drag = new DraggableShape(this);

@@ -6,16 +6,23 @@ const bottomLeftAngle = 135 * Math.PI / 180; // 135 degrees
 const topRightAngle = 315 * Math.PI / 180; // 315 degrees
 const topLeftAngle = 225 * Math.PI / 180; // 225 degrees
 
-const DEFAULT_RADIUS = 80;
-const DEFAULT_STROKE_COLOR = colord("black");
-const DEFAULT_STROKE_WIDTH = 2;
+const DEFAULT_X = 350;
+const DEFAULT_Y = 250;
 
 export class Circle extends BasicShape {
-  constructor(offset, getShapeArray, canvasScale) {
-    super(offset, getShapeArray);
-    this.r = $state(DEFAULT_RADIUS);
-    this.strokeColor = $state(DEFAULT_STROKE_COLOR);
-    this.strokeWidth = $state(DEFAULT_STROKE_WIDTH);
+  constructor(offset, getShapeArray, canvasScale, {
+    color = "white",
+    textColor = "black",
+    x = DEFAULT_X - offset.x,
+    y = DEFAULT_Y - offset.y,
+    r = 80,
+    strokeColor = "black",
+    strokeWidth = 2
+  }) {
+    super(offset, getShapeArray, {color, textColor, x, y});
+    this.r = $state(r);
+    this.strokeColor = $state(colord(strokeColor));
+    this.strokeWidth = $state(strokeWidth);
 
     this.radiusWithScale = $derived(canvasScale() * this.r);
     this.rect = $derived(

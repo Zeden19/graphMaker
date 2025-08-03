@@ -1,14 +1,20 @@
 import {colord} from "colord";
 
-//todo implement text property
 export class ShapeText {
-  constructor(color) {
+  constructor({
+                color = "white",
+                fontSize = 12,
+                bold = false,
+                italic = false,
+                underline = false,
+                value = "Text Here"
+              }) {
     this.color = $state(colord(color));
-    this.fontSize = $state(12);
-    this.bold = $state(false);
-    this.italic = $state(false);
-    this.underline = $state(false);
-    this.value = $state("Text here");
+    this.fontSize = $state(fontSize);
+    this.bold = $state(bold);
+    this.italic = $state(italic);
+    this.underline = $state(underline);
+    this.value = $state(value);
   }
 
   toJSON() {
@@ -18,6 +24,7 @@ export class ShapeText {
       bold: this.bold,
       italic: this.italic,
       underline: this.underline,
+      value: this.value,
     }
   }
 }
