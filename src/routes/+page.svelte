@@ -32,12 +32,13 @@
       offset.y = offsetBefore.y + dy
     })
 
-  // use a object with lists instead of separate lists?
-  let circles = $state([]);
-  let arrows = $state([]);
-  let squares = $state([]);
-  let texts = $state([]);
-  let selectedShape = $derived([...circles, ...arrows, ...texts, ...squares].find(shape => shape.selected));
+  let shapes = $state({
+    circles: [],
+    arrows: [],
+    squares: [],
+    texts: [],
+  })
+  let selectedShape = $derived(Object.values(shapes).flat(4).find(shape => shape.selected))
   let editShapeContainerRef = $state();
 
   const addShape = (array, ShapeClassRef, shapeProperties = {}) => {
@@ -53,10 +54,9 @@
   }
 
   const clear = () => {
-    circles = [];
-    arrows = [];
-    texts = [];
-    squares = [];
+    Object.keys(shapes).forEach(shapeArray => {
+      shapes[shapeArray] = [];
+    })
   }
 
   const changeScale = (event) => {
@@ -66,13 +66,13 @@
   const mapShapeToArray = (shapeString) => {
     switch (shapeString.toLowerCase()) {
       case "circle":
-        return {array: circles, class: CircleClass};
+        return {array: shapes.circles, class: CircleClass};
       case "arrow":
-        return {array: arrows, class: ArrowClass};
+        return {array: shapes.arrows, class: ArrowClass};
       case "square":
-        return {array: squares, class: SquareClass};
+        return {array: shapes.squares, class: SquareClass};
       case "graphtext":
-        return {array: texts, class: GraphTextClass};
+        return {array: shapes.texts, class: GraphTextClass};
     }
   }
 
@@ -86,10 +86,10 @@
 <div class="container">
   <div class="materials">
     <div style="height: 30%">
-      <button class="button" onclick={() => addShape(circles, CircleClass)}>Add Circle</button>
-      <button class="button" onclick={() => addShape(arrows, ArrowClass)}>Add Arrow</button>
-      <button class="button" onclick={() => addShape(texts, GraphTextClass)}>Add Text</button>
-      <button class="button" onclick={() => addShape(squares, SquareClass)}>Add Square</button>
+      <button class="button" onclick={() => addShape(shapes.circles, CircleClass)}>Add Circle</button>
+      <button class="button" onclick={() => addShape(shapes.arrows, ArrowClass)}>Add Arrow</button>
+      <button class="button" onclick={() => addShape(shapes.texts, GraphTextClass)}>Add Text</button>
+      <button class="button" onclick={() => addShape(shapes.squares, SquareClass)}>Add Square</button>
       <button class="button" onclick="{clear}">Clear</button>
       <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
       <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
@@ -112,34 +112,35 @@
   >
 
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
-    {#each circles as circle, index (circle)}
-      <Shape bind:shape={circles[index]} {editShapeContainerRef}>
+    <!--    todo: use nested each-->
+    {#each shapes.circles as circle, index (circle)}
+      <Shape bind:shape={shapes.circles[index]} {editShapeContainerRef}>
         <SnappableShape shape={circle}/>
-        <Circle bind:circle={circles[index]} removeCircle={() => removeObject(circles,index)}/>
+        <Circle bind:circle={shapes.circles[index]} removeCircle={() => removeObject(shapes.circles,index)}/>
       </Shape>
     {/each}
 
-    {#each arrows as arrow, index (arrow)}
-      <Shape bind:shape={arrows[index]} {editShapeContainerRef}>
+    {#each shapes.arrows as arrow, index (arrow)}
+      <Shape bind:shape={shapes.arrows[index]} {editShapeContainerRef}>
         <SnappableShape shape={arrow} {index}/>
-        <Arrow bind:arrow={arrows[index]} {offset} {index}
-               removeArrow={() => removeObject(arrows,index)}/>
+        <Arrow bind:arrow={shapes.arrows[index]} {offset} {index}
+               removeArrow={() => removeObject(shapes.arrows,index)}/>
       </Shape>
     {/each}
 
-    {#each texts as text, index (text)}
-      <Shape bind:shape={texts[index]} {editShapeContainerRef}>
+    {#each shapes.texts as text, index (text)}
+      <Shape bind:shape={shapes.texts[index]} {editShapeContainerRef}>
         <SnappableShape shape={text}/>
-        <GraphText bind:text={texts[index]}
-                   removeText={() => removeObject(texts,index)}/>
+        <GraphText bind:text={shapes.texts[index]}
+                   removeText={() => removeObject(shapes.texts,index)}/>
         <ResizeFromEdges shape={text}/>
       </Shape>
     {/each}
 
-    {#each squares as square, index (square)}
-      <Shape bind:shape={squares[index]} {editShapeContainerRef}>
+    {#each shapes.squares as square, index (square)}
+      <Shape bind:shape={shapes.squares[index]} {editShapeContainerRef}>
         <SnappableShape shape={square}/>
-        <Square bind:square={squares[index]} removeSquare={() => removeObject(squares,index)}/>
+        <Square bind:square={shapes.squares[index]} removeSquare={() => removeObject(shapes.squares,index)}/>
         <ResizeFromEdges shape={square}/>
       </Shape>
     {/each}

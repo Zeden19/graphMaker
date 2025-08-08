@@ -24,7 +24,7 @@
       if (!clipboard) return;
       const shapeProperties = clipboard;
       shapeProperties.color = colord(shapeProperties.color);
-      addShape(clipboard.toString, shapeProperties);
+      addShape(shapeProperties.toString, shapeProperties);
       event.preventDefault();
     });
   })

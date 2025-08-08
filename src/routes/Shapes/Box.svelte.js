@@ -1,5 +1,4 @@
 import {BasicShape} from "./shape.svelte.js";
-import {colord} from "colord";
 
 const MIN_SIZE = 10;
 
