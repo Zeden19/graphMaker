@@ -19,11 +19,9 @@
       if (pos === "start") {
         arrow.x1 = ref().x - offset.x;
         arrow.y1 = ref().y - offset.y;
-        arrow.startSnapped = true;
       } else if (pos === "end") {
         arrow.x2 = ref().x - offset.x;
         arrow.y2 = ref().y - offset.y;
-        arrow.endSnapped = true;
       }
     }
 

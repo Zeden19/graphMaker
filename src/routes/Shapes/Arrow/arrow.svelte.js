@@ -56,8 +56,6 @@ export class Arrow extends Shape {
     });
 
     let arrowPosBefore = {x1: 0, y1: 0, x2: 0, y2: 0};
-    this.startSnapped = $state(false);
-    this.endSnapped = $state(false);
     const moveCorner = (posString, dx, dy) => {
       const x = posString === "start" ? "x1" : "x2";
       const y = posString === "start" ? "y1" : "y2";
@@ -67,20 +65,14 @@ export class Arrow extends Shape {
       this[y] = arrowPosBefore[y] + dy;
 
       const index = getShapeArray().findIndex((arrow) => arrow === this);
-      if (!(this[x] < this.position[x] + AREA_SIZE && this[x] > this.position[x] - AREA_SIZE) ||
-        !(this[y] < this.position[y] + AREA_SIZE && this[y] > this.position[y] - AREA_SIZE)) {
-        if (this[cornerSnapped]) {
-          dispatchEvent(new CustomEvent("arrowUnsnap", {detail: {index, pos: posString}}))
-          this[cornerSnapped] = false;
-        }
-      }
 
       dispatchEvent(new CustomEvent("arrowMove", {
         detail: {
           x: this.position[x],
           y: this.position[y],
           index,
-          pos: posString
+          pos: posString,
+          cornerSnapped: this[cornerSnapped]
         }
       }));
     }
@@ -103,9 +95,11 @@ export class Arrow extends Shape {
           this.y1 = arrowPosBefore.y1 + dy;
           this.x2 = arrowPosBefore.x2 + dx;
           this.y2 = arrowPosBefore.y2 + dy;
-
-          this.startSnapped = false;
-          this.endSnapped = false;
+          dispatchEvent(new CustomEvent("completelyUnsnapArrow", {
+            detail: {
+              index: this.index
+            }
+          }))
         }
       });
   }
