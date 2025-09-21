@@ -41,7 +41,7 @@
   let selectedShape = $derived(Object.values(shapes).flat(4).find(shape => shape.selected))
   let editShapeContainerRef = $state();
 
-  const addShape = (array, ShapeClassRef, shapeProperties = {}) => {
+  const addShape = (array, ShapeClassRef, shapeProperties) => {
     array.push(new ShapeClassRef(offset, () => array, () => canvasScale, shapeProperties));
   }
 

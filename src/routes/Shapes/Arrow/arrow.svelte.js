@@ -7,33 +7,24 @@ const DEFAULT_X2 = DEFAULT_X1 + 100
 const DEFAULT_Y = 250;
 const DEFAULT_WIDTH = 5;
 const MARKER_SIZE = 4;
-const AREA_SIZE = 40;
 
 export class Arrow extends Shape {
   #color = $state();
 
-  constructor(offset, getShapeArray, canvasScale,
-              {
-                color = "white", text = {color: "white"},
-                x1 = DEFAULT_X1 - offset.x, x2 = DEFAULT_X2 - offset.x,
-                y1 = DEFAULT_Y - offset.y, y2 = DEFAULT_Y - offset.y,
-                width = DEFAULT_WIDTH,
-                start, end
-              }) {
-    super(getShapeArray, {color, text});
-    this.#color = colord(color);
-    this.x1 = $state(x1);
-    this.x2 = $state(x2);
-    this.y1 = $state(y1);
-    this.y2 = $state(y2);
-    this.width = $state(width);
+  constructor(offset, getShapeArray, canvasScale, properties = {text: {color: "white"}}) {
+    super(getShapeArray, properties);
+    this.#color = colord(properties.color ?? "white");
+    this.x1 = $state(properties.x1 ?? DEFAULT_X1 - offset.x);
+    this.x2 = $state(properties.x2 ?? DEFAULT_X2 - offset.x);
+    this.y1 = $state(properties.y1 ?? DEFAULT_Y - offset.y);
+    this.y2 = $state(properties.y2 ?? DEFAULT_Y - offset.y);
+    this.width = $state(properties.width ?? DEFAULT_WIDTH);
 
-    this.start = $state(`<path fill="${this.#color.toHex()}" d="M 0 0 L 10 5 L 0 10 z"/>`);
-    this.end = $state("");
+    this.start = $state(properties.start ?? `<path fill="${this.#color.toHex()}" d="M 0 0 L 10 5 L 0 10 z"/>`);
+    this.end = $state(properties.end ?? "");
 
     this.movingStart = $state(false);
     this.movingEnd = $state(false);
-
 
     this.position = $derived({
       x1: this.x1 + offset.x,
