@@ -13,6 +13,7 @@
   import SnappableShape from "./Shapes/SnappableShape.svelte";
   import ResizeFromEdges from "./Shapes/ResizeFromEdges.svelte";
   import Clipboard from "./Clipboard.svelte";
+  import {fade} from "svelte/transition";
 
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
@@ -20,17 +21,34 @@
   let offset = $state({x: 0, y: 0});
   let canvasScale = $state(1);
 
+  let materialsRef = $state();
+
   let offsetBefore = {x: 0, y: 0};
+  let highlightSelection = $state(false);
+  let highlightDimensions = $state({x1: 0, y1: 0, x2: 0, y2: 0});
   const moveGrid = new DraggableObject(
-    () => {
+    (event) => {
+      highlightSelection = event.shiftKey;
       offsetBefore.x = offset.x;
       offsetBefore.y = offset.y;
+
+      highlightDimensions.x1 = highlightDimensions.x2 = event.clientX - materialsRef.offsetWidth;
+      highlightDimensions.y1 = highlightDimensions.y2 = event.clientY;
     },
     (dx, dy) => {
-      if (selectedShape !== undefined) return;
-      offset.x = offsetBefore.x + dx
-      offset.y = offsetBefore.y + dy
-    })
+      // we want to select things whilst still being able to move the highlight
+      if (highlightSelection) {
+        highlightDimensions.x2 = highlightDimensions.x1 + dx;
+        highlightDimensions.y2 = highlightDimensions.y1 + dy;
+        return;
+      }
+      if (selectedShapes.length !== 0) return;
+      offset.x = offsetBefore.x + dx;
+      offset.y = offsetBefore.y + dy;
+    },
+    () => {
+      highlightSelection = false;
+    });
 
   let shapes = $state({
     circles: [],
@@ -38,7 +56,7 @@
     squares: [],
     texts: [],
   })
-  let selectedShape = $derived(Object.values(shapes).flat(4).find(shape => shape.selected))
+  let selectedShapes = $derived(Object.values(shapes).flat(4).filter(shape => shape.selected))
   let editShapeContainerRef = $state();
 
   const addShape = (array, ShapeClassRef, shapeProperties) => {
@@ -78,13 +96,13 @@
 
 </script>
 
-<Clipboard {selectedShape} addShape={(shapeString, shapeProperties) => {
+<Clipboard {selectedShapes} addShape={(shapeString, shapeProperties) => {
   const shapeAdder = mapShapeToArray(shapeString);
   addShape(shapeAdder.array, shapeAdder.class, shapeProperties);
 }}/>
 
 <div class="container">
-  <div class="materials">
+  <div class="materials" bind:this={materialsRef}>
     <div style="height: 30%">
       <button class="button" onclick={() => addShape(shapes.circles, CircleClass)}>Add Circle</button>
       <button class="button" onclick={() => addShape(shapes.arrows, ArrowClass)}>Add Arrow</button>
@@ -96,7 +114,7 @@
       <input type="range" min="0.3" max="2" step="0.1" oninput="{changeScale}">
     </div>
 
-    <EditShape bind:container={editShapeContainerRef} bind:shape={selectedShape}/>
+    <EditShape bind:container={editShapeContainerRef} bind:shapes={selectedShapes}/>
   </div>
 
 
@@ -114,14 +132,16 @@
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
     <!--    todo: use nested each-->
     {#each shapes.circles as circle, index (circle)}
-      <Shape bind:shape={shapes.circles[index]} {editShapeContainerRef}>
+      <Shape bind:shape={shapes.circles[index]} {editShapeContainerRef} {highlightSelection} {highlightDimensions}
+             {selectedShapes}>
         <SnappableShape shape={circle}/>
         <Circle bind:circle={shapes.circles[index]} removeCircle={() => removeObject(shapes.circles,index)}/>
       </Shape>
     {/each}
 
     {#each shapes.arrows as arrow, index (arrow)}
-      <Shape bind:shape={shapes.arrows[index]} {editShapeContainerRef}>
+      <Shape bind:shape={shapes.arrows[index]} {editShapeContainerRef} {highlightSelection} {highlightDimensions}
+             {selectedShapes}>
         <SnappableShape shape={arrow} {index}/>
         <Arrow bind:arrow={shapes.arrows[index]} {offset} {index}
                removeArrow={() => removeObject(shapes.arrows,index)}/>
@@ -129,27 +149,40 @@
     {/each}
 
     {#each shapes.texts as text, index (text)}
-      <Shape bind:shape={shapes.texts[index]} {editShapeContainerRef}>
+      <Shape bind:shape={shapes.texts[index]} {editShapeContainerRef} {highlightSelection} {highlightDimensions}
+             {selectedShapes}>
         <SnappableShape shape={text}/>
         <GraphText bind:text={shapes.texts[index]}
                    removeText={() => removeObject(shapes.texts,index)}/>
-        <ResizeFromEdges shape={text}/>
+        <ResizeFromEdges bind:shape={shapes.texts[index]}/>
       </Shape>
     {/each}
 
     {#each shapes.squares as square, index (square)}
-      <Shape bind:shape={shapes.squares[index]} {editShapeContainerRef}>
+      <Shape bind:shape={shapes.squares[index]} {editShapeContainerRef} {highlightSelection} {highlightDimensions}
+             {selectedShapes}>
         <SnappableShape shape={square}/>
         <Square bind:square={shapes.squares[index]} removeSquare={() => removeObject(shapes.squares,index)}/>
-        <ResizeFromEdges shape={square}/>
+        <ResizeFromEdges bind:shape={shapes.squares[index]}/>
       </Shape>
     {/each}
 
     <circle cx="{offset.x}" cy="{offset.y}" r="2" fill="red"></circle>
+
+    {#if highlightSelection === true}
+      <polyline out:fade={{duration: 150}}
+                points="
+          {highlightDimensions.x1} {highlightDimensions.y1}
+          {highlightDimensions.x2} {highlightDimensions.y1}
+          {highlightDimensions.x2} {highlightDimensions.y2}
+          {highlightDimensions.x1} {highlightDimensions.y2}
+          {highlightDimensions.x1} {highlightDimensions.y1}"
+                fill="#FFFFFF44" stroke="#CCC"></polyline>
+    {/if}
   </svg>
 
   <div class="toolbox">
-    <p>CanMoveGrid: {selectedShape === undefined}</p>
+    <p>CanMoveGrid: {selectedShapes.length !== 0}</p>
     <p>Offset: {offset.x}, {offset.y}</p>
     <p>Drag Position Before: {offsetBefore.x}, {offsetBefore.y}</p>
   </div>

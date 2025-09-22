@@ -89,7 +89,7 @@
 </defs>
 
 
-<ShapeText selected={arrow.selected} text={arrow.text}
+<ShapeText selected={arrow.selected} text={arrow.text} shape={arrow}
            onmousedown={(event) => {arrow.selected = true; moveText.setDrag(event)}}
            x={textPosition.x} y={textPosition.y}
            style="overflow:visible;
@@ -103,12 +103,10 @@
   transition:scale={{duration: 120}}
   points="{arrow.position.x1},{arrow.position.y1} {arrow.position.x2},{arrow.position.y2}"
   style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
-  onmousedown="{arrow.setDrag}"
   stroke="{arrow.color.toHex()}"
   stroke-width="{arrow.width}"
   marker-end="url(#end{index})"
-  marker-start="url(#start{index})"
-  role="presentation"></polyline>
+  marker-start="url(#start{index})"></polyline>
 
 
 {#if arrow.selected}

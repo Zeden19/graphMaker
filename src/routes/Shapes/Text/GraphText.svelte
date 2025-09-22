@@ -2,17 +2,22 @@
   import {scale} from "svelte/transition";
 
   let {text = $bindable()} = $props();
-  let textStyles = $derived(text.text);
+  let textStyles = $derived(text?.text);
 
   const PADDING = 5;
   let textRef = $state();
+
+
 </script>
 
-<foreignObject onmousedown={text.setDrag}
-               x="{text.position.x}" y="{text.position.y}"
-               width="{text.width}" height="{text.height}" role="presentation">
+<!--todo fix deselecting when clicking on empty space, make the content editable portion only the size of the text-->
+<foreignObject
+  x="{text.position.x}" y="{text.position.y}"
+  width="{text.width}" height="{text.height}">
   <div contenteditable="true" transition:scale={{duration: 130}} draggable="false"
        bind:this={textRef} bind:innerHTML={textStyles.value}
+       onclick="{() => text.isEditing = true}"
+       onblur="{() => text.isEditing = false}"
        style="
        padding: {PADDING}px;
        width: calc(100%) - {PADDING * 2}px;
@@ -22,7 +27,8 @@
        color: {textStyles.color.toHex()};
        font-weight: {textStyles.bold ? 'bold' : ''};
        text-decoration: {textStyles.underline ? 'underline' : ''};
-       font-style: {textStyles.italic ? 'italic' : ''};">
+       font-style: {textStyles.italic ? 'italic' : ''};"
+       role="presentation">
     Text
   </div>
 

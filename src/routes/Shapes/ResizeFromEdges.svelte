@@ -6,12 +6,17 @@
 
   let cornerResizes = $derived(Object.values(shape.rect).map((corner) => {
     let sizeBefore = $state({width: shape.width, height: shape.height})
-    let resize = new DraggableObject(() => {
+    let resize = new DraggableObject(
+      () => {
+        shape.isEditing = true;
         sizeBefore.width = shape.width;
         sizeBefore.height = shape.height;
       },
       (dx, dy) => {
         corner.changeSizeFnc(dx, dy, sizeBefore.width, sizeBefore.height);
+      },
+      () => {
+        shape.isEditing = false;
       })
     return {setDrag: resize.setDrag, ...corner}
   }));

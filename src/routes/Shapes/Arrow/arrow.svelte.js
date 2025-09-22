@@ -123,6 +123,28 @@ export class Arrow extends Shape {
     };
   }
 
+  isInside(x1, y1, x2, y2) {
+    if (x2 < x1) {
+      [x1, x2] = [x2, x1];
+    }
+
+    if (y2 < y1) {
+      [y1, y2] = [y2, y1];
+    }
+
+    let arrowX1 = this.rect.start.x;
+    let arrowY1 = this.rect.start.y;
+    let arrowX2 = this.rect.end.x;
+    let arrowY2 = this.rect.end.y;
+    return (
+      // start is inside the box
+      (arrowX1 > x1 && arrowY1 > y1 &&
+        arrowX1 < x2 && arrowY1 < y2) ||
+      // end is inside box
+      (arrowX2 > x1 && arrowY2 > y1 &&
+      arrowX2 < x2 && arrowY2 > y2)
+    );
+  }
 }
 
 

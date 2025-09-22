@@ -8,6 +8,7 @@
 
   const resizeCircle = new DraggableObject(
     () => {
+      circle.isEditing = true;
     },
     (dx, dy) => {
       const isNegative = dx < 0 || dy < 0;
@@ -16,12 +17,14 @@
         distance *= -1;
       }
       circle.r = Math.max(20, circle.r + distance);
+    },
+    () => {
+      circle.isEditing = false;
     });
 </script>
 
 <circle
   transition:scale={{duration: 120}}
-  onmousedown={circle.setDrag}
   r="{circle.radiusWithScale}"
   cx="{circle.position.x}"
   cy="{circle.position.y}"
@@ -32,7 +35,7 @@
   role="presentation"
 />
 
-<ShapeText selected={circle.selected} text={circle.text}
+<ShapeText selected={circle.selected} text={circle.text} shape={circle}
            style="pointer-events: none"
            x={circle.rect.topLeft.x} y={circle.rect.topLeft.y}
            width={circle.rect.topRight.x - circle.rect.topLeft.x}

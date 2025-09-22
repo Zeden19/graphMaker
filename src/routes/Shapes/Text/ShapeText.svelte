@@ -1,17 +1,17 @@
 <script>
   import {scale} from "svelte/transition";
 
-  let {selected, onmousedown = () => "", text, ...foreignObjectProps} = $props();
+  let {selected, text, shape = $bindable(), ...foreignObjectProps} = $props();
 
-  let contenteditable = $state(false);
   let textRef = $state();
 </script>
 
 <foreignObject {...foreignObjectProps}>
   <div transition:scale={{duration: 120}} class="no-select text" draggable="false"
        contenteditable
+       onclick="{() => shape.isEditing = true}"
+       onblur="{() => shape.isEditing = false}"
        bind:this={textRef}
-       {onmousedown}
        bind:innerHTML={text.value}
        style="
            font-size:{text.fontSize}px;
@@ -20,7 +20,8 @@
            font-weight: {text.bold ? 'bold' : ''};
            text-decoration: {text.underline ? 'underline' : ''};
            font-style: {text.italic ? 'italic' : ''};"
-       role="presentation">
+       role="presentation"
+  >
     Text here
   </div>
 </foreignObject>

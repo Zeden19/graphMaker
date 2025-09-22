@@ -5,24 +5,27 @@
   import {onMount} from "svelte";
   import ArrowEndpointSelect from "./ArrowEndpointSelect.svelte";
 
-  let {shape = $bindable(), container = $bindable()} = $props();
+  let {shapes = $bindable(), container = $bindable()} = $props();
 
-  let shown = $state(false);
-  let popupWindow = $state();
+  const allHasProperty = (property) => {
+    return shapes.every(shape => shape[property] !== undefined);
+  }
 
-  onMount(() =>
-    window.addEventListener("click", (event) => {
-      if (popupWindow && !(popupWindow.contains(event.target)))
-        shown = false;
-    }));
+  let shape = $derived(shapes.length === 1 ? shapes[0] : undefined);
 </script>
 <!--instead of if's maybe go thru each porperty and determine type?-->
 <div class="container" bind:this={container}>
-  {#if shape !== undefined}
+  {#if shape}
     <div class="title">{shape}</div>
     <div class="basics-container">
       <div class="type-title">Basic</div>
       <div class="basics">
+
+        <!--{#if allHasProperty("color") && shapes.every(shape => shape.toString() !== "GraphText")}-->
+        <!--  <div>Color-->
+        <!--    <ChangeColorPopup bind:colorToChange={shapes.color}/>-->
+        <!--  </div>-->
+        <!--{/if}-->
 
         {#if shape.color !== undefined && shape.toString() !== "GraphText"}
           <div>Color
@@ -69,7 +72,7 @@
       </div>
     {/if}
 
-    {#if shape.text }
+    {#if shape.text}
       <div class="basics-container">
         <div class="type-title">Text</div>
         <div class="basics">
@@ -103,6 +106,8 @@
     <button class="trash" onclick={() => shape.delete()}>
       <img draggable="false" width="50" alt="trash" src="{trash}"/>
     </button>
+  {:else if shapes.length > 1}
+    <div class="title">Multiple Shapes</div>
   {:else}
     Select a shape to edit
   {/if}

@@ -13,12 +13,10 @@
   width="{square.widthWithScale}"
   height="{square.heightWithScale}"
   fill="{square.color.toHex()}"
-  onmousedown="{square.setDrag}"
   stroke="{square.strokeColor.toHex()}"
-  stroke-width="{square.strokeWidth}"
-  role="presentation"></rect>
+  stroke-width="{square.strokeWidth}"></rect>
 
-<ShapeText selected={square.selected} text={square.text}
+<ShapeText selected={square.selected} text={square.text} shape={square}
            style="pointer-events: none"
            x={square.position.x} y={square.position.y}
            width={square.widthWithScale} height={square.heightWithScale}></ShapeText>

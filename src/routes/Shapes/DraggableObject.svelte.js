@@ -1,9 +1,10 @@
 class DraggableObject {
-  constructor(setFunc, moveFunc) {
+  constructor(setFunc, moveFunc, endFunc) {
     this.mousePosBefore = {x: 0, y: 0};
     this.isDragging = $state(false);
     this.setFunc = setFunc;
     this.moveFunc = moveFunc;
+    this.endFunc = endFunc;
   }
 
   setDrag = (event) => {
@@ -22,6 +23,7 @@ class DraggableObject {
     window.addEventListener("mousemove", moveObject);
     window.addEventListener("mouseup", () => {
       this.isDragging = false;
+      this.endFunc?.();
       window.removeEventListener("mousemove", moveObject);
     }, {once: true});
   };

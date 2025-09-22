@@ -2,21 +2,21 @@
   import {onMount} from "svelte";
   import {colord} from "colord";
 
-  let {selectedShape, addShape} = $props();
+  let {selectedShapes, addShape} = $props();
 
   let clipboard = $state();
 
   onMount(() => {
     document.addEventListener("copy", async (event) => {
-      if (!selectedShape) return;
-      clipboard = JSON.parse(JSON.stringify(selectedShape));
+      if (!selectedShapes) return;
+      clipboard = JSON.parse(JSON.stringify(selectedShapes));
       event.preventDefault();
     });
 
     document.addEventListener("cut", async (event) => {
-      if (!selectedShape) return;
-      clipboard = JSON.parse(JSON.stringify(selectedShape));
-      selectedShape.delete();
+      if (!selectedShapes) return;
+      clipboard = JSON.parse(JSON.stringify(selectedShapes));
+      selectedShapes.delete();
       event.preventDefault();
     });
 

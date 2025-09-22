@@ -11,6 +11,7 @@ export class Shape {
     this.color = $state(colord(properties.color ?? "white"));
     this.text = $state(new ShapeText(properties.text ?? {}));
     this.getShapeArray = getShapeArray;
+    this.isEditing = $state(false);
   }
 
   toJSON() {
@@ -53,5 +54,21 @@ export class BasicShape extends Shape {
 
   setDrag = (event) => {
     this.drag.setDrag(event);
+  }
+
+  isInside(x1, y1, x2, y2) {
+    return (
+      // checking if physically inside
+      (this.rect.left.x <= x2 && x2 <= this.rect.right.x &&
+        this.rect.top.y <= y2 && y2 <= this.rect.bottom.y) ||
+
+      // checking if contains it horizontally
+      (this.rect.left.x > x1 && x2 > this.rect.right.x &&
+        this.rect.top.y <= y2 && y2 <= this.rect.bottom.y) ||
+
+      // checking if contains it vertically
+      (this.rect.left.x <= x2 && x2 <= this.rect.right.x
+        && this.rect.top.y > y1 && y2 > this.rect.bottom.y
+      ));
   }
 }
