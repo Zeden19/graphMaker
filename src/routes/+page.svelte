@@ -59,6 +59,13 @@
   let selectedShapes = $derived(Object.values(shapes).flat(4).filter(shape => shape.selected))
   let editShapeContainerRef = $state();
 
+  let shapeProps = $derived({
+    editShapeContainerRef,
+    highlightSelection,
+    highlightDimensions,
+    selectedShapes,
+  });
+
   const addShape = (array, ShapeClassRef, shapeProperties) => {
     array.push(new ShapeClassRef(offset, () => array, () => canvasScale, shapeProperties));
   }
@@ -130,41 +137,25 @@
   >
 
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
-    <!--    todo: use nested each-->
-    {#each shapes.circles as circle, index (circle)}
-      <Shape bind:shape={shapes.circles[index]} {editShapeContainerRef} {highlightSelection} {highlightDimensions}
-             {selectedShapes}>
-        <SnappableShape shape={circle}/>
-        <Circle bind:circle={shapes.circles[index]} removeCircle={() => removeObject(shapes.circles,index)}/>
-      </Shape>
-    {/each}
+    {#each Object.entries(shapes) as [shapesName, shapeList] (shapesName)}
+      {#each shapeList as shape, index (shape)}
+        <Shape bind:shape={shapeList[index]} {...shapeProps}>
+          {#if shapesName === "circles"}
+            <Circle bind:circle={shapes.circles[index]}/>
 
-    {#each shapes.arrows as arrow, index (arrow)}
-      <Shape bind:shape={shapes.arrows[index]} {editShapeContainerRef} {highlightSelection} {highlightDimensions}
-             {selectedShapes}>
-        <SnappableShape shape={arrow} {index}/>
-        <Arrow bind:arrow={shapes.arrows[index]} {offset} {index}
-               removeArrow={() => removeObject(shapes.arrows,index)}/>
-      </Shape>
-    {/each}
+          {:else if shapesName === "squares"}
+            <Square bind:square={shapes.squares[index]}/>
+            <ResizeFromEdges bind:shape={shapes.squares[index]}/>
 
-    {#each shapes.texts as text, index (text)}
-      <Shape bind:shape={shapes.texts[index]} {editShapeContainerRef} {highlightSelection} {highlightDimensions}
-             {selectedShapes}>
-        <SnappableShape shape={text}/>
-        <GraphText bind:text={shapes.texts[index]}
-                   removeText={() => removeObject(shapes.texts,index)}/>
-        <ResizeFromEdges bind:shape={shapes.texts[index]}/>
-      </Shape>
-    {/each}
+          {:else if shapesName === "texts"}
+            <GraphText bind:text={shapes.texts[index]}/>
+            <ResizeFromEdges bind:shape={shapes.texts[index]}/>
 
-    {#each shapes.squares as square, index (square)}
-      <Shape bind:shape={shapes.squares[index]} {editShapeContainerRef} {highlightSelection} {highlightDimensions}
-             {selectedShapes}>
-        <SnappableShape shape={square}/>
-        <Square bind:square={shapes.squares[index]} removeSquare={() => removeObject(shapes.squares,index)}/>
-        <ResizeFromEdges bind:shape={shapes.squares[index]}/>
-      </Shape>
+          {:else if shapesName === "arrows"}
+            <Arrow bind:arrow={shapes.arrows[index]} {offset} {index}/>
+          {/if}
+        </Shape>
+      {/each}
     {/each}
 
     <circle cx="{offset.x}" cy="{offset.y}" r="2" fill="red"></circle>

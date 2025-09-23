@@ -7,10 +7,10 @@
 </script>
 
 <foreignObject {...foreignObjectProps}>
-  <div transition:scale={{duration: 120}} class="no-select text" draggable="false"
+  <div transition:scale|global={{duration: 120}} class="no-select text" draggable="false"
        contenteditable
-       onclick="{() => shape.isEditing = true}"
-       onblur="{() => shape.isEditing = false}"
+       onclick="{() => shape && (shape.isEditing = true)}"
+       onblur="{() => shape && (shape.isEditing = false)}"
        bind:this={textRef}
        bind:innerHTML={text.value}
        style="

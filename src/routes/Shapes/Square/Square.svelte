@@ -2,11 +2,11 @@
   import {scale} from "svelte/transition";
   import ShapeText from "../Text/ShapeText.svelte";
 
-  let {square, removeSquare} = $props();
+  let {square} = $props();
 </script>
 
 <rect
-  transition:scale={{duration: 120}}
+  transition:scale|global={{duration: 120}}
   style="transform-origin: {square.position.x}px {square.position.y}px;"
   x="{square.position.x}"
   y="{square.position.y}"

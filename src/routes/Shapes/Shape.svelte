@@ -1,5 +1,6 @@
 <script>
   import {onDestroy, onMount} from "svelte";
+  import SnappableShape from "./SnappableShape.svelte";
 
   let {
     shape = $bindable(),
@@ -24,7 +25,7 @@
 
   // potentially wasting resources with event listeners; we can just delete all the selected ones; also useful for deleting with button
   const deleteWithKey = (event) => {
-    if ((shape && !shape.selected) || event.key.toLowerCase() !== "backspace" || shape.isEditing) return;
+    if (!shape?.selected || event.key.toLowerCase() !== "backspace" || shape?.isEditing) return;
     shape.delete();
   }
 
@@ -65,5 +66,7 @@
 <g bind:this={gRef} onmousedown={moveShapes} role="presentation">
   {@render children()}
 </g>
+
+<SnappableShape {shape}/>
 
 <style></style>

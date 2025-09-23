@@ -5,7 +5,7 @@
   import ShapeText from "../Text/ShapeText.svelte";
   import ResizeCircle from "../ResizeCircle.svelte";
 
-  let {arrow = $bindable(), removeArrow, index, offset} = $props();
+  let {arrow = $bindable(), index, offset} = $props();
 
   $effect(() => {
     if (arrow.drag.isDragging === false) {
@@ -90,7 +90,8 @@
 
 
 <ShapeText selected={arrow.selected} text={arrow.text} shape={arrow}
-           onmousedown={(event) => {arrow.selected = true; moveText.setDrag(event)}}
+           onmousedown={(event) => {arrow.isEditing = true; moveText.setDrag(event)}}
+           onmouseout={() => arrow.isEditing = false}
            x={textPosition.x} y={textPosition.y}
            style="overflow:visible;
            transform: rotate({arrow.rotation}rad);
@@ -100,7 +101,7 @@
 
 <!--use path instead for stroke (& will be useful for curved shit)-->
 <polyline
-  transition:scale={{duration: 120}}
+  transition:scale|global={{duration: 120}}
   points="{arrow.position.x1},{arrow.position.y1} {arrow.position.x2},{arrow.position.y2}"
   style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
   stroke="{arrow.color.toHex()}"

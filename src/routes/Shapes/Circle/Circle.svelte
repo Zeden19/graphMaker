@@ -4,7 +4,7 @@
   import ShapeText from "../Text/ShapeText.svelte";
   import ResizeCircle from "../ResizeCircle.svelte";
 
-  let {circle = $bindable(), removeCircle} = $props();
+  let {circle = $bindable()} = $props();
 
   const resizeCircle = new DraggableObject(
     () => {
@@ -24,7 +24,7 @@
 </script>
 
 <circle
-  transition:scale={{duration: 120}}
+  transition:scale|global={{duration: 120}}
   r="{circle.radiusWithScale}"
   cx="{circle.position.x}"
   cy="{circle.position.y}"

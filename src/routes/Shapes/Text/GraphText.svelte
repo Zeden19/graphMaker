@@ -14,7 +14,7 @@
 <foreignObject
   x="{text.position.x}" y="{text.position.y}"
   width="{text.width}" height="{text.height}">
-  <div contenteditable="true" transition:scale={{duration: 130}} draggable="false"
+  <div contenteditable="true" transition:scale|global={{duration: 130}} draggable="false"
        bind:this={textRef} bind:innerHTML={textStyles.value}
        onclick="{() => text.isEditing = true}"
        onblur="{() => text.isEditing = false}"
