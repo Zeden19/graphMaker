@@ -10,10 +10,10 @@
   import Shape from "./Shapes/Shape.svelte";
   import EditShape from "./Edit Shape Window/EditShape.svelte";
   import GraphText from "./Shapes/Text/GraphText.svelte";
-  import SnappableShape from "./Shapes/SnappableShape.svelte";
   import ResizeFromEdges from "./Shapes/ResizeFromEdges.svelte";
   import Clipboard from "./Clipboard.svelte";
   import {fade} from "svelte/transition";
+  import HandleSnap from "./Shapes/HandleSnap.svelte";
 
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
@@ -136,6 +136,7 @@
     xmlns="http://www.w3.org/2000/svg"
   >
 
+    <HandleSnap {shapes} {offset}/>
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
     {#each Object.entries(shapes) as [shapesName, shapeList] (shapesName)}
       {#each shapeList as shape, index (shape)}

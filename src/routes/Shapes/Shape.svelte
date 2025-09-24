@@ -1,6 +1,5 @@
 <script>
   import {onDestroy, onMount} from "svelte";
-  import SnappableShape from "./SnappableShape.svelte";
 
   let {
     shape = $bindable(),
@@ -66,7 +65,4 @@
 <g bind:this={gRef} onmousedown={moveShapes} role="presentation">
   {@render children()}
 </g>
-
-<SnappableShape {shape}/>
-
 <style></style>

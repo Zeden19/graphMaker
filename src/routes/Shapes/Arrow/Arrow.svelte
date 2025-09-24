@@ -1,7 +1,6 @@
 <script>
   import {scale} from "svelte/transition";
   import {DraggableShape} from "../DraggableObject.svelte.js";
-  import {onMount} from "svelte";
   import ShapeText from "../Text/ShapeText.svelte";
   import ResizeCircle from "../ResizeCircle.svelte";
 
@@ -11,24 +10,6 @@
     if (arrow.drag.isDragging === false) {
       arrow.movingStart = false;
       arrow.movingEnd = false;
-    }
-  });
-
-  onMount(() => {
-    const moveArrow = ({detail: {pos, ref}}) => {
-      if (pos === "start") {
-        arrow.x1 = ref().x - offset.x;
-        arrow.y1 = ref().y - offset.y;
-      } else if (pos === "end") {
-        arrow.x2 = ref().x - offset.x;
-        arrow.y2 = ref().y - offset.y;
-      }
-    }
-
-    window.addEventListener(`moveArrow${index}`, moveArrow);
-
-    return () => {
-      window.removeEventListener(`moveArrow${index}`, moveArrow);
     }
   });
 

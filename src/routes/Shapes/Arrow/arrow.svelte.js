@@ -26,11 +26,14 @@ export class Arrow extends Shape {
     this.movingStart = $state(false);
     this.movingEnd = $state(false);
 
+    this.startSnapped = $state();
+    this.endSnapped = $state();
+
     this.position = $derived({
-      x1: this.x1 + offset.x,
-      y1: this.y1 + offset.y,
-      x2: this.x2 + offset.x,
-      y2: this.y2 + offset.y
+      x1: this.startSnapped?.().x ?? this.x1 + offset.x,
+      y1: this.startSnapped?.().y ?? this.y1 + offset.y,
+      x2: this.endSnapped?.().x ?? this.x2 + offset.x,
+      y2: this.endSnapped?.().y ?? this.y2 + offset.y
     });
 
     this.widthWithScale = $derived({marker: MARKER_SIZE * canvasScale(), line: this.width * canvasScale()});
@@ -50,31 +53,31 @@ export class Arrow extends Shape {
     const moveCorner = (posString, dx, dy) => {
       const x = posString === "start" ? "x1" : "x2";
       const y = posString === "start" ? "y1" : "y2";
-      const cornerSnapped = posString === "start" ? "startSnapped" : "endSnapped";
+      const pointSnapped = posString === "start" ? "startSnapped" : "endSnapped";
 
-      this[x] = arrowPosBefore[x] + dx;
-      this[y] = arrowPosBefore[y] + dy;
+      if (this[pointSnapped] !== undefined) {
+        // checking whether the new position given no snapping is 20 points further away than the current position.
+        // because arrowPosBefore does not include offset, we have to remove offset from point snapped
+        if (Math.abs(this[pointSnapped]().x - offset.x - (arrowPosBefore[x] + dx)) > 20 ||
+            Math.abs(this[pointSnapped]().y - offset.y - (arrowPosBefore[y] + dy)) > 20) {
+          this[x] = this[pointSnapped]().x + dx;
+          this[y] = this[pointSnapped]().y + dy;
 
-      const index = getShapeArray().findIndex((arrow) => arrow === this);
-
-      dispatchEvent(new CustomEvent("arrowMove", {
-        detail: {
-          x: this.position[x],
-          y: this.position[y],
-          index,
-          pos: posString,
-          cornerSnapped: this[cornerSnapped]
+          this[pointSnapped] = undefined;
         }
-      }));
+      } else {
+        this[x] = arrowPosBefore[x] + dx;
+        this[y] = arrowPosBefore[y] + dy;
+      }
     }
 
     this.drag = new DraggableObject(
       () => {
         this.selected = true;
-        arrowPosBefore.x1 = this.x1;
-        arrowPosBefore.y1 = this.y1;
-        arrowPosBefore.x2 = this.x2;
-        arrowPosBefore.y2 = this.y2;
+        arrowPosBefore.x1 = this.startSnapped?.().x ? this.startSnapped?.().x - offset.x : this.x1;
+        arrowPosBefore.y1 = this.startSnapped?.().y ? this.startSnapped?.().y - offset.y : this.y1;
+        arrowPosBefore.x2 = this.endSnapped?.().x ? this.endSnapped?.().x - offset.x : this.x2;
+        arrowPosBefore.y2 = this.endSnapped?.().y ? this.endSnapped?.().y - offset.y : this.y2;
       },
       (dx, dy) => {
         if (this.movingStart) {
@@ -86,11 +89,6 @@ export class Arrow extends Shape {
           this.y1 = arrowPosBefore.y1 + dy;
           this.x2 = arrowPosBefore.x2 + dx;
           this.y2 = arrowPosBefore.y2 + dy;
-          dispatchEvent(new CustomEvent("completelyUnsnapArrow", {
-            detail: {
-              index: this.index
-            }
-          }))
         }
       });
   }
@@ -142,7 +140,7 @@ export class Arrow extends Shape {
         arrowX1 < x2 && arrowY1 < y2) ||
       // end is inside box
       (arrowX2 > x1 && arrowY2 > y1 &&
-      arrowX2 < x2 && arrowY2 > y2)
+        arrowX2 < x2 && arrowY2 > y2)
     );
   }
 }
