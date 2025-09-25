@@ -136,7 +136,7 @@
     xmlns="http://www.w3.org/2000/svg"
   >
 
-    <HandleSnap {shapes} {offset}/>
+    <HandleSnap {shapes} />
     <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
     {#each Object.entries(shapes) as [shapesName, shapeList] (shapesName)}
       {#each shapeList as shape, index (shape)}

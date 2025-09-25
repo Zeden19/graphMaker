@@ -97,13 +97,6 @@ export class Box extends BasicShape {
     this.y += changeInHeight;
   }
 
-  delete() {
-    this.arrowsSnappedIndexes.forEach(({index, pos}) => {
-      dispatchEvent(new CustomEvent(`shapeDelete${index}`, {detail: {pos}}));
-    });
-    super.delete();
-  }
-
   set width(width) {
     this.#width = Math.max(width, MIN_SIZE);
   }
