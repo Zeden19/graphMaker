@@ -3,7 +3,6 @@
 
   let {selected, text, shape = $bindable(), ...foreignObjectProps} = $props();
 
-  let textRef = $state();
 </script>
 
 <foreignObject {...foreignObjectProps}>
@@ -11,7 +10,6 @@
        contenteditable
        onclick="{() => shape && (shape.isEditing = true)}"
        onblur="{() => shape && (shape.isEditing = false)}"
-       bind:this={textRef}
        bind:innerHTML={text.value}
        style="
            font-size:{text.fontSize}px;
