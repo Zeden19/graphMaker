@@ -3,9 +3,8 @@
   import {untrack} from "svelte";
 
   const BOUNDARY = 20;
-  let {shapes} = $props();
+  let {shapes, arrow} = $props();
 
-  const arrows = shapes.arrows;
   const allShapes = $derived(Object.values(shapes).flat(4));
 
   const isInCorner = (arrowPoint, corner) => {
@@ -13,49 +12,39 @@
       arrowPoint.y > corner.y - BOUNDARY && arrowPoint.y < corner.y + BOUNDARY
   }
 
-  const preventArrowSnapLoop = (arrow, shape) => {
-    if (shape.toString().toLowerCase() === "arrow") {
-      return arrows.findIndex((a) => arrow === a) > arrows.findIndex((a) => shape === a);
-    }
-
-    return true;
+  const pointIsSnappedToCurrent = (shape, key) => {
+    return shape.toString().toLowerCase() === "arrow" && shape[key + "Snapped"] !== undefined;
   }
 
-  // create individual effects for each arrow,
-  // (track them in a array so we don't duplicate effects when adding/removing arrow)
-  // makes it slightly more faster
+  // bug: when a shape than an arrow is snapped to is deleted, the arrow will remain "snapped" to the shape
+  // until the user moves the arrow. Does not cause any errors but its clunky
   $effect(() => {
     // dependencies
-    arrows.forEach(arrow => {
-      arrow.x1;
-      arrow.y1;
-      arrow.x2;
-      arrow.y2;
-    });
-
+    arrow.x1;
+    arrow.y1;
+    arrow.x2;
+    arrow.y2;
 
     untrack(() => {
-      arrows.forEach(arrow => {
-        allShapes.forEach((shape) => {
-          if (arrow === shape) return;
+      allShapes.forEach((shape) => {
+        if (arrow === shape) return;
 
-          Object.entries(shape.rect).forEach(([key, corner]) => {
-            // can't closure corner directory because derived isn't deeply reactive
-            const cornerRef = () => shape?.rect?.[key];
+        Object.entries(shape.rect).forEach(([key, corner]) => {
+          // can't closure corner directory because derived isn't deeply reactive
+          const cornerRef = () => shape?.rect?.[key];
 
-            // this really isn't the best solution; the arrow that is being moved should be the one that
-            // gets snapped. more importance to creating individual effects
-            if (!preventArrowSnapLoop(arrow, shape)) return;
+          if (pointIsSnappedToCurrent(shape, key)) return;
 
-            if (cornerRef && isInCorner(arrow.rect.start, corner)) {
-              arrow.startSnapped = cornerRef;
-            } else if (cornerRef && isInCorner(arrow.rect.end, corner)) {
-              arrow.endSnapped = cornerRef;
-            }
-          });
+          if (cornerRef && isInCorner(arrow.rect.start, corner)) {
+            arrow.startSnapped = cornerRef;
+          } else if (cornerRef && isInCorner(arrow.rect.end, corner)) {
+            arrow.endSnapped = cornerRef;
+          }
         });
       });
     });
   });
+
+
 
 </script>
