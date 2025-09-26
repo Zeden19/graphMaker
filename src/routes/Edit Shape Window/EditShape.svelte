@@ -2,112 +2,159 @@
   import trash from "$lib/assets/trash.png";
   import Input from "./Input.svelte";
   import ChangeColorPopup from "./ChangeColorPopup.svelte";
-  import {onMount} from "svelte";
   import ArrowEndpointSelect from "./ArrowEndpointSelect.svelte";
 
   let {shapes = $bindable(), container = $bindable()} = $props();
+  const getProperty = (shape, property) => property.split(".").reduce((a, b) => {
+    return typeof a[b] === "function" ? a[b]() : a[b]
+  }, shape);
 
-  const allHasProperty = (property) => {
-    return shapes.every(shape => shape[property] !== undefined);
+  const setProperty = (shape, property, value) => {
+    const path = property.split(".");
+    const lastKey = path.pop();
+
+    // Navigate to the parent object
+    const parent = path.reduce((obj, key) => {
+      return typeof obj[key] === "function" ? obj[key]() : obj[key];
+    }, shape);
+
+    // Set the final property
+    if (lastKey.endsWith("()")) {
+      // Handle method calls - call the method with the value
+      const methodName = lastKey.slice(0, -2);
+      if (typeof parent[methodName] === "function") {
+        parent[methodName](value);
+      }
+    } else {
+      // Handle regular property assignment
+      parent[lastKey] = value;
+    }
+  };
+
+  const allHasProperty = (property, val, everyOrSome) => {
+    return everyOrSome === "every" ?
+      shapes.every(shape => getProperty(shape, property) === val) :
+      shapes.some(shape => getProperty(shape, property) === val);
   }
 
-  let shape = $derived(shapes.length === 1 ? shapes[0] : undefined);
+  const getValue = (value, returnValue = value) => {
+    return () => allHasProperty(value, getProperty(shapes[0], value), "every") ? getProperty(shapes[0], returnValue) : undefined
+  }
+
+  const setValue = (value) => {
+    return (newValue) => shapes.forEach(shape => setProperty(shape, value, newValue))
+  }
+
 </script>
-<!--instead of if's maybe go thru each porperty and determine type?-->
 <div class="container" bind:this={container}>
-  {#if shape}
-    <div class="title">{shape}</div>
+  {#if shapes.length !== 0}
+    <div class="title">{shapes[0]}</div>
     <div class="basics-container">
       <div class="type-title">Basic</div>
       <div class="basics">
 
-        <!--{#if allHasProperty("color") && shapes.every(shape => shape.toString() !== "GraphText")}-->
-        <!--  <div>Color-->
-        <!--    <ChangeColorPopup bind:colorToChange={shapes.color}/>-->
-        <!--  </div>-->
-        <!--{/if}-->
-
-        {#if shape.color !== undefined && shape.toString() !== "GraphText"}
+        {#if !allHasProperty("color.toHex", undefined, "some") && !allHasProperty("toString", "GraphText", "every")}
           <div>Color
-            <ChangeColorPopup bind:colorToChange={shape.color}/>
+            <ChangeColorPopup
+              bind:colorToChange={getValue("color.toHex", "color"), setValue("color")}/>
           </div>
         {/if}
 
-        {#if shape.r !== undefined}
-          <div>Radius <Input max={200} type="number" bind:value={shape.r}/></div>
+
+        {#if !allHasProperty("r", undefined, "some")}
+          <div>Radius
+            <Input max={200} type="number" bind:value={getValue("r"), setValue("r")}/>
+          </div>
         {/if}
 
-        {#if shape.x !== undefined}
-          <div>x <Input max={50000} type="number" bind:value={shape.x}/></div>
-          <div>y <Input max={50000} type="number" bind:value={shape.y}/></div>
+        {#if !allHasProperty("x", undefined, "some")}
+          <div>x <Input max={50000} type="number" bind:value={getValue("x"), setValue("x")}/></div>
+          <div>y <Input max={50000} type="number" bind:value={getValue("y"), setValue("y")}/></div>
         {/if}
 
-        {#if shape.x1 !== undefined}
-          <div>x1 <Input max={50000} type="number" bind:value={shape.x1}/></div>
-          <div>y1 <Input max={50000} type="number" bind:value={shape.y1}/></div>
+        {#if !(allHasProperty("x1", undefined, "some"))}
+          <div>x1 <Input max={50000} type="number" bind:value={getValue("x1"), setValue("x1")}/></div>
+          <div>y1 <Input max={50000} type="number" bind:value={getValue("y1"), setValue("y1")}/></div>
 
-          <div>x2 <Input max={50000} type="number" bind:value={shape.x2}/></div>
-          <div>y2 <Input max={50000} type="number" bind:value={shape.y2}/></div>
+          <div>x2 <Input max={50000} type="number" bind:value={getValue("x2"), setValue("x2")}/></div>
+          <div>y2 <Input max={50000} type="number" bind:value={getValue("y2"), setValue("y2")}/></div>
         {/if}
 
-        {#if shape.width !== undefined}
-          <div>Width: <Input max={500} type="number" bind:value={shape.width}/></div>
+        {#if (!allHasProperty("width", undefined, "some"))}
+          <div>Width: <Input max={500} min={1} type="number" bind:value={getValue("width"), setValue("width")}/>
+          </div>
         {/if}
 
-        {#if shape.height !== undefined}
-          <div>Height: <Input max={500} type="number" bind:value={shape.height}/></div>
+        {#if (!allHasProperty("height", undefined, "some"))}
+          <div>Height: <Input max={500} min={1} type="number" bind:value={getValue("height"), setValue("height")}/>
+          </div>
         {/if}
       </div>
     </div>
 
-    {#if shape.strokeColor}
+
+    {#if (!allHasProperty("strokeWidth", undefined, "some"))}
       <div class="basics-container">
         <div class="type-title">Stroke</div>
         <div class="basics">
           <div>Color
-            <ChangeColorPopup bind:colorToChange={shape.strokeColor}/>
+            <ChangeColorPopup
+              bind:colorToChange={getValue("strokeColor.toHex", "strokeColor"), setValue("strokeColor")}/>
           </div>
-          <div>Width <Input min={1} max={30} type="number" bind:value={shape.strokeWidth}/></div>
+          <div>Width <Input min={1} max={30} type="number"
+                            bind:value={getValue("strokeWidth"), setValue("strokeWidth")}/></div>
         </div>
       </div>
     {/if}
 
-    {#if shape.text}
+    {#if (!allHasProperty("text", undefined, "some"))}
       <div class="basics-container">
         <div class="type-title">Text</div>
         <div class="basics">
           <div>Color
-            <ChangeColorPopup bind:colorToChange={shape.text.color}/>
+            <ChangeColorPopup bind:colorToChange={getValue("text.color.toHex", "text.color"), setValue("text.color")}/>
           </div>
-          <div>Font Size: <Input type="number" min="1" bind:value={shape.text.fontSize}/></div>
-          <div>Bold: <Input type="checkbox" bind:checked={shape.text.bold}/></div>
-          <div>Italic: <Input type="checkbox" bind:checked={shape.text.italic}/></div>
-          <div>Underline: <Input type="checkbox" bind:checked={shape.text.underline}/></div>
-          <div>Value: <Input type="text" bind:value={shape.text.value}/></div>
+
+          <div>Font Size:
+            <Input type="number" min="1" max="100" bind:value={getValue("text.fontSize"), setValue("text.fontSize")}/>
+          </div>
+
+          <div>Bold:
+            <Input type="checkbox" bind:checked={getValue("text.bold"), setValue("text.bold")}/>
+          </div>
+
+          <div>Italic:
+            <Input type="checkbox" bind:checked={getValue("text.italic"), setValue("text.italic")}/>
+          </div>
+          <div>Underline:
+            <Input type="checkbox" bind:checked={getValue("text.underline"), setValue("text.underline")}/>
+          </div>
+          <div>Value:
+            <Input type="text" bind:value={getValue("text.value"), setValue("text.value")}/></div>
         </div>
       </div>
     {/if}
 
-    {#if shape.start !== undefined}
+    {#if (!allHasProperty("start", undefined, "some"))}
       <div class="basics-container">
         <div class="type-title">End Points</div>
         <div class="basics">
           <div>Start:
-            <ArrowEndpointSelect endpointString="start" bind:arrow={shape}/>
+            <ArrowEndpointSelect {shapes} endpointString="start" bind:endpoint={
+            getValue("start"), setValue("start")}/>
           </div>
           <div>End:
-            <ArrowEndpointSelect endpointString="end" bind:arrow={shape}/>
+            <ArrowEndpointSelect {shapes} endpointString="end" bind:endpoint={
+            getValue("end"), setValue("end")}/>
           </div>
         </div>
       </div>
     {/if}
 
     <!--Must be arrow function: https://svelte.dev/docs/svelte/$state#Classes-->
-    <button class="trash" onclick={() => shape.delete()}>
+    <button class="trash" onclick={() => shapes.forEach(shape => shape.delete())}>
       <img draggable="false" width="50" alt="trash" src="{trash}"/>
     </button>
-  {:else if shapes.length > 1}
-    <div class="title">Multiple Shapes</div>
   {:else}
     Select a shape to edit
   {/if}
