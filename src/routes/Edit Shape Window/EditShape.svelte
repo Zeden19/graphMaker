@@ -63,32 +63,40 @@
 
         {#if !allHasProperty("r", undefined, "some")}
           <div>Radius
-            <Input max={200} type="number" bind:value={getValue("r"), setValue("r")}/>
+            <Input fallback={shapes[0].r} max={200} type="number" bind:value={getValue("r"), setValue("r")}/>
           </div>
         {/if}
 
         {#if !allHasProperty("x", undefined, "some")}
-          <div>x <Input max={50000} min={-50000} type="number" bind:value={getValue("x"), setValue("x")}/></div>
-          <div>y <Input max={50000} min={-50000} type="number" bind:value={getValue("y"), setValue("y")}/></div>
+          <div>x <Input fallback={shapes[0].x} max={50000} min={-50000} type="number"
+                        bind:value={getValue("x"), setValue("x")}/></div>
+          <div>y <Input fallback={shapes[0].y} max={50000} min={-50000} type="number"
+                        bind:value={getValue("y"), setValue("y")}/></div>
         {/if}
 
         {#if !(allHasProperty("x1", undefined, "some"))}
-          <div>x1 <Input max={50000} min={-50000} type="number" bind:value={getValue("x1"), setValue("x1")}/></div>
-          <div>y1 <Input max={50000} min={-50000} type="number" bind:value={getValue("y1"), setValue("y1")}/></div>
+          <div>x1 <Input fallback={shapes[0].x1} max={50000} min={-50000} type="number"
+                         bind:value={getValue("x1"), setValue("x1")}/></div>
+          <div>y1 <Input fallback={shapes[0].y1} max={50000} min={-50000} type="number"
+                         bind:value={getValue("y1"), setValue("y1")}/></div>
 
-          <div>x2 <Input max={50000} min={-50000} type="number" bind:value={getValue("x2"), setValue("x2")}/></div>
-          <div>y2 <Input max={50000} min={-50000} type="number" bind:value={getValue("y2"), setValue("y2")}/></div>
+          <div>x2 <Input fallback={shapes[0].x2} max={50000} min={-50000} type="number"
+                         bind:value={getValue("x2"), setValue("x2")}/></div>
+          <div>y2 <Input fallback={shapes[0].y2} max={50000} min={-50000} type="number"
+                         bind:value={getValue("y2"), setValue("y2")}/></div>
         {/if}
 
         {#if (!allHasProperty("width", undefined, "some"))}
           <div>Width:
-            <Input max={500} min={1} type="number" bind:value={getValue("width"), setValue("width")}/>
+            <Input fallback={shapes[0].width} max={500} min={1} type="number"
+                   bind:value={getValue("width"), setValue("width")}/>
           </div>
         {/if}
 
         {#if (!allHasProperty("height", undefined, "some"))}
           <div>Height:
-            <Input max={500} min={1} type="number" bind:value={getValue("height"), setValue("height")}/>
+            <Input fallback={shapes[0].height} max={500} min={1} type="number"
+                   bind:value={getValue("height"), setValue("height")}/>
           </div>
         {/if}
       </div>
@@ -104,7 +112,8 @@
               bind:colorToChange={getValue("strokeColor.toHex", "strokeColor"), setValue("strokeColor")}/>
           </div>
           <div>Width
-            <Input min={0} max={30} type="number" bind:value={getValue("strokeWidth"), setValue("strokeWidth")}/>
+            <Input fallback={shapes[0].strokeWidth} min={0} max={30} type="number"
+                   bind:value={getValue("strokeWidth"), setValue("strokeWidth")}/>
           </div>
         </div>
       </div>
@@ -119,7 +128,8 @@
           </div>
 
           <div>Font Size:
-            <Input type="number" min="1" max="100" bind:value={getValue("text.fontSize"), setValue("text.fontSize")}/>
+            <Input fallback={shapes[0].text.fontSize} type="number" min="1" max="100"
+                   bind:value={getValue("text.fontSize"), setValue("text.fontSize")}/>
           </div>
 
           <div>Bold:
