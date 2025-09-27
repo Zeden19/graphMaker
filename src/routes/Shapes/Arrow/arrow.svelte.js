@@ -20,8 +20,8 @@ export class Arrow extends Shape {
     this.y2 = $state(properties.y2 ?? DEFAULT_Y - offset.y);
     this.width = $state(properties.width ?? DEFAULT_WIDTH);
 
-    this.start = $state(properties.start ?? "arrow");
-    this.end = $state(properties.end ?? "nothing");
+    this.start = $state(properties.start ?? "←");
+    this.end = $state(properties.end ?? "");
 
     this.movingStart = $state(false);
     this.movingEnd = $state(false);

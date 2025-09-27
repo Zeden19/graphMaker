@@ -8,7 +8,9 @@
   let {colorToChange = $bindable()} = $props();
   let colors = ["white", "black", "red", "orange", "yellow", "lime", "green", "blue", "cyan", "pink", "purple"]
     .map((color) => colord(color));
-  let hex = $derived(colorToChange.toHex());
+
+  let colorDisplayed = $derived(colorToChange ?? colord(""));
+  let hex = $derived(colorDisplayed.toHex());
 
   let showPopup = $state(false);
   let popupArea = $state(null);
@@ -18,34 +20,37 @@
       if (popupArea && !(popupArea.contains(event.target))) {
         showPopup = false;
       }
-    })
-  })
-
+    });
+  });
 
 </script>
 
 <div style="position: relative;" bind:this={popupArea}>
-  <Input style="background-color: {colorToChange.toHex()};"
+  <!--  for consistent transparent background, exclude bg-color-->
+  <Input style={colorToChange !== undefined && `background-color: ${colorDisplayed.toHex()}`}
          onclick={() => showPopup = true} readonly={true}
          aria-label="Change stroke color" type="color"/>
   {#if showPopup}
     <div class="show-stroke-popup">
       <div class="color-container" transition:blur={{duration: 130}}>
         {#each colors as color}
-          <button class="color-pick {colorToChange.toHex() === color.toHex() ? 'color-selected' : ''}"
+          <button class="color-pick {colorDisplayed.toHex() === color.toHex() && 'color-selected'}"
                   style="background-color: {color.toHex()};"
                   onclick={() => colorToChange = color}
                   aria-label="Change color to {color.toName()}">
           </button>
         {/each}
         <div
-          class="color-picker {colors.every((color) => colorToChange.toHex() !== color.toHex()) ? 'color-selected' : ''}">
+          class="color-picker {colors.every((color) => colorDisplayed.toHex() !== color.toHex()) && 'color-selected'}">
           <ColorPicker
             textInputModes={["hex"]}
             --cp-bg-color="black"
             --cp-border-color="white"
             --cp-input-color="#333"
-            bind:color={colorToChange}
+            bind:color={() => colorDisplayed, (newValue) => {
+             if (colorToChange === undefined && newValue.toHex() === colorDisplayed.toHex()) return;
+              colorDisplayed = colorToChange = newValue
+            }}
             bind:hex
             label=""
             position="responsive"

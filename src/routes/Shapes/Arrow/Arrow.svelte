@@ -1,18 +1,10 @@
 <script>
+  import {arrowEndpoints} from "$lib/arrowEndpoints.js";
   import {scale} from "svelte/transition";
   import ShapeText from "../Text/ShapeText.svelte";
   import ResizeCircle from "../ResizeCircle.svelte";
 
   let {arrow = $bindable(), index} = $props();
-
-  const arrowEndPoints = {
-    arrow: `<path fill="${arrow.color.toHex()}" d="M 0 0 L 10 5 L 0 10 z"/>`,
-    circle: `<circle r="${arrow.widthWithScale.marker}" fill="${arrow.color.toHex()}" cx="5" cy="5"></circle>`,
-    square: `<rect x="0.5" y="0.5" width="${arrow.widthWithScale.marker + 5}" height="${arrow.widthWithScale.marker + 5}"
-                        fill="${arrow.color.toHex()}"></rect>`,
-    line: `<line stroke-width="${arrow.widthWithScale.marker}" stroke="${arrow.color.toHex()}"
-                        x1="5" y1="0" x2="5" y2="10"></line>`
-  };
 
   $effect(() => {
     if (arrow.drag.isDragging === false) {
@@ -37,14 +29,14 @@
           markerWidth="{arrow.widthWithScale.marker}"
           markerHeight="{arrow.widthWithScale.marker}"
           orient="auto-start-reverse" viewBox="0 0 10 10">
-    {@html arrowEndPoints[arrow.start]}
+    {@html arrowEndpoints[arrow.start](arrow)}
   </marker>
 
   <marker id="end{index}" refX="{5}" refY="{5}"
           markerWidth="{arrow.widthWithScale.marker}"
           markerHeight="{arrow.widthWithScale.marker}"
           orient="auto-start-reverse" viewBox="0 0 10 10">
-    {@html arrowEndPoints[arrow.end]}
+    {@html arrowEndpoints[arrow.end](arrow)}
   </marker>
 </defs>
 
