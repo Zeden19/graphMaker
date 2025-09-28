@@ -1,12 +1,12 @@
 <script>
   import {scale} from "svelte/transition";
 
-  let {selected, text, shape = $bindable(), x, y, width, height, ...foreignObjectProps} = $props();
+  let {selected, text, shape = $bindable(), x, y, width, height, containerStyles, ...foreignObjectProps} = $props();
 
 </script>
 
 <foreignObject {x} {y} {width} {height} {...foreignObjectProps}>
-  <div class="container">
+  <div class="container" style="{containerStyles}">
     <div transition:scale|global={{duration: 120}} draggable="false"
          contenteditable
          onclick="{() => shape && (shape.isEditing = true)}"
@@ -32,6 +32,7 @@
     align-items: center;
     justify-content: center;
     overflow: scroll;
-    height: 100%
+    height: 100%;
+    width: 100%;
   }
 </style>
