@@ -4,7 +4,24 @@
 
   let {shape} = $props();
 
-  let cornerResizes = $derived(Object.values(shape.rect).map((corner) => {
+  const getCursor = (key) => {
+    switch (key) {
+      case "top":
+      case "bottom" :
+        return "ns"
+      case "right":
+      case "left" :
+        return "ew"
+      case "topLeft" :
+      case "bottomRight":
+        return "nwse"
+      case "topRight" :
+      case "bottomLeft" :
+        return "nesw"
+    }
+  }
+
+  let cornerResizes = $derived(Object.entries(shape.rect).map(([key, corner]) => {
     let sizeBefore = $state({width: shape.width, height: shape.height})
     let resize = new DraggableObject(
       () => {
@@ -18,7 +35,7 @@
       () => {
         shape.isEditing = false;
       })
-    return {setDrag: resize.setDrag, ...corner}
+    return {setDrag: resize.setDrag, cursor: getCursor(key) + "-resize", ...corner}
   }));
 </script>
 

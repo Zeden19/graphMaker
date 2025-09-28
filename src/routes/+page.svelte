@@ -143,6 +143,7 @@
         <Shape bind:shape={shapeList[index]} {...shapeProps}>
           {#if shapesName === "circles"}
             <Circle bind:circle={shapes.circles[index]}/>
+            <ResizeFromEdges bind:shape={shapes.circles[index]}/>
 
           {:else if shapesName === "squares"}
             <Square bind:square={shapes.squares[index]}/>

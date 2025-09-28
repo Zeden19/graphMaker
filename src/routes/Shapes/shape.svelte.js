@@ -37,23 +37,83 @@ export class Shape {
 
 const DEFAULT_X = 350;
 const DEFAULT_Y = 250;
+const DEFAULT_SIZE = 100;
+const MIN_SIZE = 10;
 
 export class BasicShape extends Shape {
-  constructor(offset, getShapeArray, properties = {}) {
+  #width = $state();
+  #height = $state();
+
+  constructor(offset, getShapeArray, canvasScale, properties = {}) {
     super(getShapeArray, properties);
     this.x = $state(properties.x ?? DEFAULT_X - offset.x);
     this.y = $state(properties.y ?? DEFAULT_Y - offset.y);
     this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
 
-    this.drag = new DraggableShape(this);
-  }
+    this.#width = properties.width ?? DEFAULT_SIZE;
+    this.#height = properties.height ?? DEFAULT_SIZE;
+    this.widthWithScale = $derived((this.#width) * canvasScale());
+    this.heightWithScale = $derived((this.#height) * canvasScale());
 
-  toJSON() {
-    return {...super.toJSON(), x: this.x, y: this.y};
+    this.strokeColor = $state(colord(properties.strokeColor ?? "black"));
+    this.strokeWidth = $state(properties.strokeWidth ?? 2);
+
+    this.drag = new DraggableShape(this);
   }
 
   setDrag = (event) => {
     this.drag.setDrag(event);
+  }
+
+  set width(width) {
+    this.#width = Math.max(width, MIN_SIZE);
+  }
+
+  set height(height) {
+    this.#height = Math.max(height, MIN_SIZE);
+  }
+
+  get height() {
+    return this.#height;
+  }
+
+  get width() {
+    return this.#width;
+  }
+
+  changeRight(dx, sizeBeforeWidth) {
+    this.width = dx + sizeBeforeWidth;
+  }
+
+  changeBottom(dy, sizeBeforeHeight) {
+    this.height = dy + sizeBeforeHeight;
+  }
+
+  changeLeft(dx, sizeBeforeWidth) {
+    const oldWidth = this.width;
+    this.width = sizeBeforeWidth - dx;
+    const changeInWidth = oldWidth - this.width;
+    this.x += changeInWidth;
+  }
+
+  changeTop(dy, sizeBeforeHeight) {
+    const oldHeight = this.height;
+    this.height = sizeBeforeHeight - dy;
+    const changeInHeight = oldHeight - this.height;
+    this.y += changeInHeight;
+  }
+
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      width: this.width,
+      height: this.height,
+      strokeWidth: this.strokeWidth,
+      strokeColor: this.strokeColor.toHex(),
+      x: this.x,
+      y: this.y
+    };
   }
 
   isInside(x1, y1, x2, y2) {
