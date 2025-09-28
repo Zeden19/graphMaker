@@ -1,13 +1,13 @@
 <script>
   import {scale} from "svelte/transition";
 
-  let {selected, text, shape = $bindable(), ...foreignObjectProps} = $props();
+  let {selected, text, shape = $bindable(), x, y, width, height, ...foreignObjectProps} = $props();
 
 </script>
 
-<foreignObject {...foreignObjectProps}>
+<foreignObject {x} {y} {width} {height} {...foreignObjectProps}>
   <div class="container">
-    <div transition:scale|global={{duration: 120}} class="no-select text" draggable="false"
+    <div transition:scale|global={{duration: 120}} draggable="false"
          contenteditable
          onclick="{() => shape && (shape.isEditing = true)}"
          onblur="{() => shape && (shape.isEditing = false)}"
@@ -33,16 +33,5 @@
     justify-content: center;
     overflow: scroll;
     height: 100%
-  }
-
-  .text {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    white-space: break-spaces;
-    overflow: auto;
   }
 </style>
