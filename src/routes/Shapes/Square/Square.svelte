@@ -7,17 +7,18 @@
 
 <rect
   transition:scale|global={{duration: 120}}
-  style="transform-origin: {square.position.x}px {square.position.y}px;"
+  style="transform-origin: {square.position.x}px {square.position.y}px;
+  outline: {square.strokeColor.toHex()} {square.strokeWidth}px solid;"
   x="{square.position.x}"
   y="{square.position.y}"
   width="{square.widthWithScale}"
   height="{square.heightWithScale}"
   fill="{square.color.toHex()}"
-  stroke="{square.strokeColor.toHex()}"
-  stroke-width="{square.strokeWidth}"></rect>
+
+></rect>
 
 <ShapeText selected={square.selected} text={square.text} shape={square}
-           style="pointer-events: none"
+           style="overflow: visible"
            x={square.position.x} y={square.position.y}
            width={square.widthWithScale} height={square.heightWithScale}></ShapeText>
 

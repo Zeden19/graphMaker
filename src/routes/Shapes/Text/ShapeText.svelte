@@ -6,25 +6,35 @@
 </script>
 
 <foreignObject {...foreignObjectProps}>
-  <div transition:scale|global={{duration: 120}} class="no-select text" draggable="false"
-       contenteditable
-       onclick="{() => shape && (shape.isEditing = true)}"
-       onblur="{() => shape && (shape.isEditing = false)}"
-       bind:innerHTML={text.value}
-       style="
+  <div class="container">
+    <div transition:scale|global={{duration: 120}} class="no-select text" draggable="false"
+         contenteditable
+         onclick="{() => shape && (shape.isEditing = true)}"
+         onblur="{() => shape && (shape.isEditing = false)}"
+         bind:innerHTML={text.value}
+         style="
            font-size:{text.fontSize}px;
            pointer-events:{selected ? 'auto' : ''};
            color: {text.color.toHex()};
            font-weight: {text.bold ? 'bold' : ''};
            text-decoration: {text.underline ? 'underline' : ''};
-           font-style: {text.italic ? 'italic' : ''};"
-       role="presentation"
-  >
-    Text here
+           font-style: {text.italic ? 'italic' : ''};
+           width: fit-content;
+           height: fit-content;
+           overflow-wrap: anywhere;"
+         role="presentation"></div>
   </div>
 </foreignObject>
 
 <style>
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: scroll;
+    height: 100%
+  }
+
   .text {
     width: 100%;
     height: 100%;
