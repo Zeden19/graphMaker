@@ -7,20 +7,22 @@
 
 <rect
   transition:scale|global={{duration: 120}}
-  style="transform-origin: {square.position.x}px {square.position.y}px;
+  style="transform-origin: {square.position.x + (square.widthWithScale / 2)}px
+                           {square.position.y + (square.heightWithScale / 2)}px;
+         rotate: {square.rotation}deg;
   outline: {square.strokeColor.toHex()} {square.strokeWidth}px solid;"
   x="{square.position.x}"
   y="{square.position.y}"
   width="{square.widthWithScale}"
   height="{square.heightWithScale}"
   fill="{square.color.toHex()}"
-
 ></rect>
 
 <ShapeText selected={square.selected} text={square.text} shape={square}
            style="overflow: visible"
            x={square.position.x} y={square.position.y}
-           width={square.widthWithScale} height={square.heightWithScale}></ShapeText>
+           width={square.widthWithScale} height={square.heightWithScale}
+           containerStyles="rotate: {square.rotation}deg"></ShapeText>
 
 <style>
   rect {

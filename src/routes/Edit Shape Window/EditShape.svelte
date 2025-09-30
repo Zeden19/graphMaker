@@ -60,13 +60,6 @@
           </div>
         {/if}
 
-
-        {#if !allHasProperty("r", undefined, "some")}
-          <div>Radius
-            <Input {shapes} fallback={shapes[0].r} max={200} type="number" bind:value={getValue("r"), setValue("r")}/>
-          </div>
-        {/if}
-
         {#if !allHasProperty("x", undefined, "some")}
           <div>x <Input {shapes} fallback={shapes[0].x} max={50000} min={-50000} type="number"
                         bind:value={getValue("x"), setValue("x")}/></div>
@@ -97,6 +90,13 @@
           <div>Height:
             <Input {shapes} fallback={shapes[0].height} max={500} min={1} type="number"
                    bind:value={getValue("height"), setValue("height")}/>
+          </div>
+        {/if}
+
+        {#if !allHasProperty("rotation", undefined, "some")}
+          <div>Rotation
+            <Input {shapes} fallback={shapes[0].rotation} type="number" max={359} min={0}
+                   bind:value={getValue("rotation"), setValue("rotation")}/>
           </div>
         {/if}
       </div>

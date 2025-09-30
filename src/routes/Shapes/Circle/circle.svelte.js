@@ -13,25 +13,29 @@ export class Circle extends BasicShape {
     this.rect = $derived(
       {
         top: {
-          x: this.position.x, y: this.position.y - this.heightWithScale - this.strokeWidth / 2,
+          ...this.rotateRectCords(this.position.x, this.position.y - this.heightWithScale - this.strokeWidth / 2,
+            {x: this.position.x, y: this.position.y}),
           changeSizeFnc: (dx, dy, _, sizeBeforeHeight) => {
             this.changeTop(dy, sizeBeforeHeight);
           }
         },
         bottom: {
-          x: this.position.x, y: this.position.y + this.heightWithScale + this.strokeWidth / 2,
+          ...this.rotateRectCords(this.position.x, this.position.y + this.heightWithScale + this.strokeWidth / 2,
+            {x: this.position.x, y: this.position.y}),
           changeSizeFnc: (dx, dy, _, sizeBeforeHeight) => {
             this.changeBottom(dy, sizeBeforeHeight);
           }
         },
         left: {
-          x: this.position.x - this.widthWithScale - this.strokeWidth / 2, y: this.position.y,
+          ...this.rotateRectCords(this.position.x - this.widthWithScale - this.strokeWidth / 2, this.position.y,
+            {x: this.position.x, y: this.position.y}),
           changeSizeFnc: (dx, dy, sizeBeforeWidth) => {
             this.changeLeft(dx, sizeBeforeWidth);
           }
         },
         right: {
-          x: this.position.x + this.widthWithScale + this.strokeWidth / 2, y: this.position.y,
+          ...this.rotateRectCords(this.position.x + this.widthWithScale + this.strokeWidth / 2, this.position.y,
+            {x: this.position.x, y: this.position.y}),
           changeSizeFnc: (dx, dy, sizeBeforeWidth) => {
             this.changeRight(dx, sizeBeforeWidth);
           }
@@ -89,8 +93,9 @@ export class Circle extends BasicShape {
 
   #createCornerPos(angle) {
     return {
-      x: this.position.x + (this.widthWithScale + this.strokeWidth / 2) * Math.cos(angle),
-      y: this.position.y + (this.heightWithScale + this.strokeWidth / 2) * Math.sin(angle)
+      ...this.rotateRectCords(this.position.x + (this.widthWithScale + this.strokeWidth / 2) * Math.cos(angle),
+        this.position.y + (this.heightWithScale + this.strokeWidth / 2) * Math.sin(angle),
+        {x: this.position.x, y: this.position.y}),
     };
   }
 }

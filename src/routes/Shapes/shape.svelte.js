@@ -58,6 +58,8 @@ export class BasicShape extends Shape {
     this.strokeColor = $state(colord(properties.strokeColor ?? "black"));
     this.strokeWidth = $state(properties.strokeWidth ?? 2);
 
+    this.rotation = $state(properties.rotation ?? 0);
+
     this.drag = new DraggableShape(this);
   }
 
@@ -103,6 +105,22 @@ export class BasicShape extends Shape {
     this.y += changeInHeight;
   }
 
+  rotateRectCords = (x, y, center) => {
+    const angleRadians = this.rotation * Math.PI / 180;
+
+    const shifted = {x: x - center.x, y: y - center.y};
+
+    const rotated = {
+      x: shifted.x * Math.cos(angleRadians) - shifted.y * Math.sin(angleRadians),
+      y: shifted.x * Math.sin(angleRadians) + shifted.y * Math.cos(angleRadians),
+    }
+
+    return {
+      x: rotated.x + center.x,
+      y: rotated.y + center.y,
+    }
+  }
+
 
   toJSON() {
     return {
@@ -111,6 +129,7 @@ export class BasicShape extends Shape {
       height: this.height,
       strokeWidth: this.strokeWidth,
       strokeColor: this.strokeColor.toHex(),
+      rotation: this.rotation,
       x: this.x,
       y: this.y
     };
