@@ -1,18 +1,19 @@
 <script>
   let {shapes, value = $bindable(), checked = $bindable(), fallback, type = "text", ...inputProps} = $props();
 
-  let displayedValue = $derived(value === undefined && type === "number" ? fallback : value)
+  let multipleShapesSelected = $derived(value === undefined);
+  let displayedValue = $derived(multipleShapesSelected && type === "number" ? fallback : value)
 </script>
 
 {#if type === "checkbox"}
   <input type="checkbox" bind:checked {...inputProps}/>
 {:else if type === "number" || type === "text"}
-  <input {type} {...inputProps} style={value === undefined && "color: #888"}
+  <input {type} {...inputProps} style={multipleShapesSelected && "color: #888"}
          onfocus={() => shapes.forEach(shape => shape.isEditing = true)}
          onblur={() => shapes.forEach(shape => shape.isEditing = false)}
          bind:value={() => displayedValue,
          (newValue) => {
-            if (newValue === fallback && value === undefined) return
+            if (newValue === fallback && multipleShapesSelected) return;
             value = displayedValue = newValue
           }}/>
 {:else if type === "color"}

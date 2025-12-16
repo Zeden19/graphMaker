@@ -59,7 +59,7 @@
   transition:scale|global={{duration: 120}}
   points="{arrow.position.x1},{arrow.position.y1} {arrow.position.x2},{arrow.position.y2}"
   style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
-  stroke="{arrow.color.toHex()}"
+  stroke="{arrow.color}"
   stroke-width="{arrow.width}"
   marker-end="url(#end{index})"
   marker-start="url(#start{index})">

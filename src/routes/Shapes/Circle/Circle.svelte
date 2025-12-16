@@ -12,8 +12,8 @@
   ry="{circle.height}"
   cx="{circle.position.x}"
   cy="{circle.position.y}"
-  fill="{circle.color.toHex()}"
-  stroke={circle.strokeColor.toHex()}
+  fill="{circle.color}"
+  stroke={circle.strokeColor}
   stroke-width="{circle.strokeWidth}"
   style="transform-origin: {circle.position.x}px {circle.position.y}px;
          rotate: {circle.rotation}deg"

@@ -1,6 +1,5 @@
 import {Shape} from "../shape.svelte.js";
 import DraggableObject from "../DraggableObject.svelte.js";
-import {colord} from "colord";
 
 const DEFAULT_X1 = 350;
 const DEFAULT_X2 = DEFAULT_X1 + 100
@@ -13,7 +12,7 @@ export class Arrow extends Shape {
 
   constructor(offset, getShapeArray, canvasScale, properties = {text: {color: "white"}}) {
     super(getShapeArray, properties);
-    this.#color = colord(properties.color ?? "white");
+    this.#color = properties.color ?? "white";
     this.x1 = $state(properties.x1 ?? DEFAULT_X1 - offset.x);
     this.x2 = $state(properties.x2 ?? DEFAULT_X2 - offset.x);
     this.y1 = $state(properties.y1 ?? DEFAULT_Y - offset.y);
@@ -95,8 +94,8 @@ export class Arrow extends Shape {
 
   set color(color) {
     this.#color = color;
-    this.start = this.start.replace(/#[0-9a-f]{6}/, color.toHex());
-    this.end = this.end.replace(/#[0-9a-f]{6}/, color.toHex());
+    this.start = this.start.replace(/#[0-9a-f]{6}/, color);
+    this.end = this.end.replace(/#[0-9a-f]{6}/, color);
   }
 
   get color() {
@@ -110,7 +109,7 @@ export class Arrow extends Shape {
   toJSON() {
     return {
       ...super.toJSON(),
-      color: this.color.toHex(),
+      color: this.color,
       width: this.width,
       x1: this.x1,
       y1: this.y1,

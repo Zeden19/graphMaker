@@ -1,5 +1,3 @@
-import {colord} from "colord";
-
 export class ShapeText {
   constructor({
                 color = "black",
@@ -9,7 +7,7 @@ export class ShapeText {
                 underline = false,
                 value = "Text Here"
               }) {
-    this.color = $state(colord(color));
+    this.color = $state(color);
     this.fontSize = $state(fontSize);
     this.bold = $state(bold);
     this.italic = $state(italic);
@@ -19,7 +17,7 @@ export class ShapeText {
 
   toJSON() {
     return {
-      color: this.color.toHex(),
+      color: this.color,
       fontSize: this.fontSize,
       bold: this.bold,
       italic: this.italic,

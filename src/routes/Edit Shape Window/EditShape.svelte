@@ -18,7 +18,7 @@
       return typeof obj[key] === "function" ? obj[key]() : obj[key];
     }, shape);
 
-    // Set the final property
+    // Set the final property -- not used as nothing calls function; keeping in case it is needed
     if (lastKey.endsWith("()")) {
       // Handle method calls - call the method with the value
       const methodName = lastKey.slice(0, -2);
@@ -53,10 +53,10 @@
       <div class="type-title">Basic</div>
       <div class="basics">
 
-        {#if !allHasProperty("color.toHex", undefined, "some") && !allHasProperty("toString", "GraphText", "every")}
+        {#if !allHasProperty("color", undefined, "some") && !allHasProperty("toString", "GraphText", "every")}
           <div>Color
             <ChangeColorPopup
-              bind:colorToChange={getValue("color.toHex", "color"), setValue("color")}/>
+              bind:colorToChange={getValue("color"), setValue("color")}/>
           </div>
         {/if}
 
@@ -109,7 +109,7 @@
         <div class="basics">
           <div>Color
             <ChangeColorPopup
-              bind:colorToChange={getValue("strokeColor.toHex", "strokeColor"), setValue("strokeColor")}/>
+              bind:colorToChange={getValue("strokeColor"), setValue("strokeColor")}/>
           </div>
           <div>Width
             <Input {shapes} fallback={shapes[0].strokeWidth} min={0} max={30} type="number"
@@ -124,7 +124,7 @@
         <div class="type-title">Text</div>
         <div class="basics">
           <div>Color
-            <ChangeColorPopup bind:colorToChange={getValue("text.color.toHex", "text.color"), setValue("text.color")}/>
+            <ChangeColorPopup bind:colorToChange={getValue("text.color"), setValue("text.color")}/>
           </div>
 
           <div>Font Size:

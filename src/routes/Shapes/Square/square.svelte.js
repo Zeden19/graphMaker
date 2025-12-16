@@ -9,6 +9,6 @@ export class Square extends Box {
   }
 
   toJSON() {
-    return {...super.toJSON(), strokeColor: this.strokeColor.toHex(), strokeWidth: this.strokeWidth};
+    return {...super.toJSON(), strokeColor: this.strokeColor, strokeWidth: this.strokeWidth};
   }
 }

@@ -1,14 +1,10 @@
 import {DraggableShape} from "./DraggableObject.svelte.js";
-import {colord, extend} from "colord";
 import {ShapeText} from "./Text/ShapeText.svelte.js";
-import namesPlugin from "colord/plugins/names";
-
-extend([namesPlugin]);
 
 export class Shape {
   constructor(getShapeArray, properties = {}) {
     this.selected = $state(false);
-    this.color = $state(colord(properties.color ?? "white"));
+    this.color = $state(properties.color ?? "white");
     this.text = $state(new ShapeText(properties.text ?? {}));
     this.getShapeArray = getShapeArray;
     this.isEditing = $state(false);
@@ -16,7 +12,7 @@ export class Shape {
 
   toJSON() {
     return {
-      color: this.color.toHex(),
+      color: this.color,
       text: JSON.parse(JSON.stringify(this.text)),
       toString: this.toString(),
     }
@@ -55,7 +51,7 @@ export class BasicShape extends Shape {
     this.widthWithScale = $derived((this.#width) * canvasScale());
     this.heightWithScale = $derived((this.#height) * canvasScale());
 
-    this.strokeColor = $state(colord(properties.strokeColor ?? "black"));
+    this.strokeColor = $state(properties.strokeColor ?? "black");
     this.strokeWidth = $state(properties.strokeWidth ?? 2);
 
     this.rotation = $state(properties.rotation ?? 0);
@@ -128,7 +124,7 @@ export class BasicShape extends Shape {
       width: this.width,
       height: this.height,
       strokeWidth: this.strokeWidth,
-      strokeColor: this.strokeColor.toHex(),
+      strokeColor: this.strokeColor,
       rotation: this.rotation,
       x: this.x,
       y: this.y

@@ -1,6 +1,5 @@
 <script>
   import {onMount} from "svelte";
-  import {colord} from "colord";
 
   let {selectedShapes, addShape} = $props();
 
@@ -36,7 +35,7 @@
       if (!clipboard) return;
       const shapeProperties = clipboard;
       shapeProperties.forEach(shape => {
-        shape.color = colord(shape.color);
+        shape.color = shape.color;
         moveShapePos(shape);
       });
       shapeProperties.forEach(shape => addShape(shape.toString, shape));

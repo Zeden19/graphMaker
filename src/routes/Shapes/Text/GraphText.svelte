@@ -10,7 +10,7 @@
            width={text.widthWithScale} height={text.heightWithScale}
            selected={text.selected} shape={text} text={textStyles}
            style="overflow: visible"
-           containerStyles="outline: {text.strokeWidth}px {text.strokeColor.toHex()} solid;
+           containerStyles="outline: {text.strokeWidth}px {text.strokeColor} solid;
            rotate: {text.rotation}deg;"
 />
 

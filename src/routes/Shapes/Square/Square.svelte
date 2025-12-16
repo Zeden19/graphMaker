@@ -10,12 +10,12 @@
   style="transform-origin: {square.position.x + (square.widthWithScale / 2)}px
                            {square.position.y + (square.heightWithScale / 2)}px;
          rotate: {square.rotation}deg;
-  outline: {square.strokeColor.toHex()} {square.strokeWidth}px solid;"
+  outline: {square.strokeColor} {square.strokeWidth}px solid;"
   x="{square.position.x}"
   y="{square.position.y}"
   width="{square.widthWithScale}"
   height="{square.heightWithScale}"
-  fill="{square.color.toHex()}"
+  fill="{square.color}"
 ></rect>
 
 <ShapeText selected={square.selected} text={square.text} shape={square}

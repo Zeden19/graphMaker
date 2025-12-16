@@ -15,7 +15,7 @@
          style="
            font-size:{text.fontSize}px;
            pointer-events:{selected ? 'auto' : ''};
-           color: {text.color.toHex()};
+           color: {text.color};
            font-weight: {text.bold ? 'bold' : ''};
            text-decoration: {text.underline ? 'underline' : ''};
            font-style: {text.italic ? 'italic' : ''};
@@ -31,7 +31,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: scroll;
+    overflow: clip;
     height: 100%;
     width: 100%;
   }
