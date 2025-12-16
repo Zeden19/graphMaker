@@ -25,31 +25,22 @@
   <!--  for consistent transparent background, exclude bg-color-->
   <Input style={colorToChange !== undefined && `background-color: ${colorDisplayed}`}
          onclick={() => showPopup = true} readonly={true}
-         aria-label="Change stroke color" type="color"/>
+         aria-label="Change stroke color" type="displayOnly"/>
   {#if showPopup}
     <div class="show-stroke-popup">
       <div class="color-container" transition:blur={{duration: 130}}>
         {#each colors as color}
-          <button class="color-pick {colorDisplayed === color && 'color-selected'}"
+          <button class="{colorDisplayed === color && 'color-selected'}"
                   style="background-color: {color};"
                   onclick={() => colorToChange = color}
                   aria-label="Change color to {color}">
           </button>
         {/each}
-        <input class="color-pick color-picker {colors.every((color) => colorDisplayed !== color) && 'color-selected'}"
-               type="color" bind:value={() => colorDisplayed, (newColor) => {
-             if (colorToChange === undefined && newColor === colorDisplayed) return;
-              colorDisplayed = colorToChange = newColor
+        <input class="{colors.every((color) => colorDisplayed !== color) && 'color-selected'}" type="color"
+               bind:value={() => colorDisplayed, (newColor) => {
+                if (colorToChange === undefined && newColor === colorDisplayed) return;
+                colorDisplayed = colorToChange = newColor
             }}/>
-        <!--          <ColorPicker-->
-        <!--            &#45;&#45;cp-bg-color="black"-->
-        <!--            &#45;&#45;cp-border-color="white"-->
-        <!--            &#45;&#45;cp-input-color="#333"-->
-
-        <!--            bind:hex-->
-        <!--            label=""-->
-        <!--            position="responsive"-->
-        <!--          />-->
       </div>
     </div>
   {/if}
@@ -71,7 +62,7 @@
     border: var(--darkBorder);
   }
 
-  .color-pick {
+  .color-container > * {
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -80,12 +71,34 @@
     transition: transform 0.2s ease-out;
   }
 
-  .color-pick:hover, .color-selected {
+  .color-container > *:hover, .color-selected {
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
     transform: scale(1.1);
   }
 
-  .color-picker {
-    background-image: var(--rainbowCircleGradient);
+  input[type=color] {
+    border: none;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    padding: 0;
   }
+
+  input[type=color]::-webkit-color-swatch-wrapper {
+    padding: 0;
+    border: 1px solid white;
+  }
+
+  input[type=color]::-webkit-color-swatch {
+    background-image: var(--rainbowCircleGradient);
+    border: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+
+  .color-selected::-webkit-color-swatch {
+    background-image: none !important;
+  }
+
 </style>

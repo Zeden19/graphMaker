@@ -16,7 +16,7 @@
             if (newValue === fallback && multipleShapesSelected) return;
             value = displayedValue = newValue
           }}/>
-{:else if type === "color"}
+{:else if type === "displayOnly"}
   <input {...inputProps}/>
 {/if}
 
