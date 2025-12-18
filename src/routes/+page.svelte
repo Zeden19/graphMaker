@@ -24,12 +24,22 @@
   let materialsRef = $state();
 
   let offsetBefore = {x: 0, y: 0};
+  let speed = {x: 0, y: 0};
+  let previousChange = {x: 0, y: 0};
+  let useMomentum = $state(false);
   let highlightSelection = $state(false);
   let highlightDimensions = $state({x1: 0, y1: 0, x2: 0, y2: 0});
 
   const moveGrid = new DraggableObject(
     (event) => {
+      speed.x = 0;
+      speed.y = 0;
+
+      previousChange.x = 0;
+      previousChange.y = 0;
+
       highlightSelection = event.ctrlKey || event.metaKey;
+
       offsetBefore.x = offset.x;
       offsetBefore.y = offset.y;
 
@@ -37,6 +47,12 @@
       highlightDimensions.y1 = highlightDimensions.y2 = event.clientY;
     },
     (dx, dy) => {
+      speed.x = dx - previousChange.x;
+      speed.y = dy - previousChange.y;
+
+      previousChange.x = dx;
+      previousChange.y = dy;
+
       // we want to select things whilst still being able to move the highlight
       if (highlightSelection) {
         highlightDimensions.x2 = highlightDimensions.x1 + dx;
@@ -49,6 +65,22 @@
     },
     () => {
       highlightSelection = false;
+      let friction = 0.95;
+      let minSpeed = 3;
+
+      const applyMomentum = () => {
+        if (Math.abs(speed.x) < minSpeed && Math.abs(speed.y) < minSpeed) return;
+
+        offset.x += speed.x;
+        offset.y += speed.y;
+
+        speed.x *= friction;
+        speed.y *= friction;
+
+        requestAnimationFrame(applyMomentum);
+      };
+
+      if (useMomentum) requestAnimationFrame(applyMomentum);
     });
 
   let shapes = $state({
@@ -111,15 +143,16 @@
 
 <div class="container">
   <div class="materials" bind:this={materialsRef}>
-    <div style="height: 30%">
+    <div class="functional-buttons">
       <button class="button" onclick={() => addShape(shapes.circles, CircleClass)}>Add Circle</button>
       <button class="button" onclick={() => addShape(shapes.arrows, ArrowClass)}>Add Arrow</button>
       <button class="button" onclick={() => addShape(shapes.texts, GraphTextClass)}>Add Text</button>
       <button class="button" onclick={() => addShape(shapes.squares, SquareClass)}>Add Square</button>
       <button class="button" onclick="{clear}">Clear</button>
-      <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
       <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
-      <input type="range" min="0.3" max="2" step="0.1" oninput="{changeScale}">
+      <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
+      <label> Scale <input type="range" min="0.3" max="2" step="0.1" bind:value={canvasScale}></label>
+      <label> Use Momentum <input type="checkbox" bind:checked={useMomentum}/></label>
     </div>
 
     <EditShape bind:container={editShapeContainerRef} bind:shapes={selectedShapes}/>
@@ -177,7 +210,7 @@
   </svg>
 
   <div class="toolbox">
-    <p>CanMoveGrid: {selectedShapes.length !== 0}</p>
+    <p>CanMoveGrid: {selectedShapes.length === 0}</p>
     <p>Offset: {offset.x}, {offset.y}</p>
     <p>Drag Position Before: {offsetBefore.x}, {offsetBefore.y}</p>
   </div>
@@ -201,6 +234,15 @@
     border-right: var(--mainBorder);
     display: flex;
     flex-direction: column;
+  }
+
+  .functional-buttons {
+    display: inline;
+    height: 30%;
+  }
+
+  .functional-buttons > button {
+    margin: 5px;
   }
 
   /*.materials-border {*/
