@@ -26,9 +26,10 @@
   let offsetBefore = {x: 0, y: 0};
   let highlightSelection = $state(false);
   let highlightDimensions = $state({x1: 0, y1: 0, x2: 0, y2: 0});
+
   const moveGrid = new DraggableObject(
     (event) => {
-      highlightSelection = event.shiftKey;
+      highlightSelection = event.ctrlKey || event.metaKey;
       offsetBefore.x = offset.x;
       offsetBefore.y = offset.y;
 

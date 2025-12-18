@@ -14,10 +14,10 @@
   shape.gRef = () => gRef;
 
   const deselect = (event) => {
-    // dont' deselect if clicking shape, the edit, holding shift (to multi-select),
+    // dont' deselect if clicking shape, the edit window, holding ctrl/meta (to multi-select),
     // or if clicking on another shape (keeping multiselect after moving)
     if (shape && gRef && !(gRef.contains(event.target)) && !(editShapeContainerRef.contains(event.target)) &&
-      !event.shiftKey && !selectedShapes.some(shape => shape.gRef().contains(event.target))) {
+      !(event.ctrlKey || event.metaKey) && !selectedShapes.some(shape => shape.gRef().contains(event.target))) {
       shape.selected = false;
     }
   };
@@ -31,7 +31,7 @@
   const moveShapes = (event) => {
     // needed to unselect a shape already selected to prevent the previously selected shape from also moving
     const isAlreadySelected = selectedShapes.some((selectedShape) => selectedShape === shape);
-    if (!isAlreadySelected && !event.shiftKey) {
+    if (!isAlreadySelected && !(event.ctrlKey || event.metaKey)) {
       selectedShapes.forEach((shape) => shape.selected = false)
     }
 
