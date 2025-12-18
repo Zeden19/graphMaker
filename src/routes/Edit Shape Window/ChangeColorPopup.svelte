@@ -36,6 +36,7 @@
                   aria-label="Change color to {color}">
           </button>
         {/each}
+        <!--This logic is very very similar to what happens in Input, figure out a way to reuse-->
         <input class="{colors.every((color) => colorDisplayed !== color) && 'color-selected'}" type="color"
                bind:value={() => colorDisplayed, (newColor) => {
                 if (colorToChange === undefined && newColor === colorDisplayed) return;

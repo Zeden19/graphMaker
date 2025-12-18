@@ -31,6 +31,7 @@
     }
   };
 
+  // These fnc names gotta be changed
   const allHasProperty = (property, val, everyOrSome) => {
     return everyOrSome === "every" ?
       shapes.every(shape => getProperty(shape, property) === val) :
@@ -38,7 +39,8 @@
   }
 
   const getValue = (value, returnValue = value) => {
-    return () => allHasProperty(value, getProperty(shapes[0], value), "every") ? getProperty(shapes[0], returnValue) : undefined
+    return () => allHasProperty(value, getProperty(shapes[0], value), "every") ?
+      getProperty(shapes[0], returnValue) : undefined
   }
 
   const setValue = (value) => {
@@ -95,7 +97,7 @@
 
         {#if !allHasProperty("rotation", undefined, "some")}
           <div>Rotation
-            <Input {shapes} fallback={shapes[0].rotation} type="number" max={359} min={0}
+            <Input {shapes} fallback={shapes[0].rotation} type="rotation" max={359} min={0}
                    bind:value={getValue("rotation"), setValue("rotation")}/>
           </div>
         {/if}
