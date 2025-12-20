@@ -18,7 +18,10 @@
     // or if clicking on another shape (keeping multiselect after moving)
     if (shape && gRef && !(gRef.contains(event.target)) && !(editShapeContainerRef.contains(event.target)) &&
       !(event.ctrlKey || event.metaKey) && !selectedShapes.some(shape => shape.gRef().contains(event.target))) {
-      shape.selected = false;
+      selectedShapes.forEach(shape => {
+        shape.selected = false;
+        shape.isEditing = false;
+      });
     }
   };
 

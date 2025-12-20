@@ -155,7 +155,13 @@
       <label> Use Momentum <input type="checkbox" bind:checked={useMomentum}/></label>
     </div>
 
-    <EditShape bind:container={editShapeContainerRef} bind:shapes={selectedShapes}/>
+    <div class="edit-shape-container" bind:this={editShapeContainerRef}>
+      {#if selectedShapes.length > 0}
+        <EditShape bind:shapes={selectedShapes}/>
+      {:else}
+        Select a shape to edit
+      {/if}
+    </div>
   </div>
 
 
@@ -243,6 +249,17 @@
 
   .functional-buttons > button {
     margin: 5px;
+  }
+
+  .edit-shape-container {
+    height: 70%;
+    border-top: var(--mainBorder);
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
   }
 
   /*.materials-border {*/
