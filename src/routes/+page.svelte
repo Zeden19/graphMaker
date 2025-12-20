@@ -14,6 +14,8 @@
   import Clipboard from "./Clipboard.svelte";
   import {fade} from "svelte/transition";
   import HandleSnap from "./Shapes/HandleSnap.svelte";
+  import {Triangle as TriangleClass}  from "./Shapes/Triangle/triangle.svelte.js";
+  import Triangle from "./Shapes/Triangle/Triangle.svelte";
 
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
@@ -88,7 +90,8 @@
     arrows: [],
     squares: [],
     texts: [],
-  })
+    triangles: [],
+  });
   let selectedShapes = $derived(Object.values(shapes).flat(4).filter(shape => shape.selected))
   let editShapeContainerRef = $state();
 
@@ -148,6 +151,7 @@
       <button class="button" onclick={() => addShape(shapes.arrows, ArrowClass)}>Add Arrow</button>
       <button class="button" onclick={() => addShape(shapes.texts, GraphTextClass)}>Add Text</button>
       <button class="button" onclick={() => addShape(shapes.squares, SquareClass)}>Add Square</button>
+      <button class="button" onclick={() => addShape(shapes.triangles, TriangleClass)}>Add Triangle</button>
       <button class="button" onclick="{clear}">Clear</button>
       <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
       <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
@@ -192,6 +196,9 @@
           {:else if shapesName === "texts"}
             <GraphText bind:text={shapes.texts[index]}/>
             <ResizeFromEdges bind:shape={shapes.texts[index]}/>
+
+          {:else if shapesName === "triangles"}
+            <Triangle bind:triangle={shapes.triangles[index]}/>
 
           {:else if shapesName === "arrows"}
             <Arrow bind:arrow={shapes.arrows[index]} {index}/>
