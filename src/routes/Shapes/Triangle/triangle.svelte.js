@@ -29,8 +29,9 @@ export class Triangle extends Shape {
     });
 
     // fixme: this doesn't work at all and fucks up text positioning
-    this.width = $derived((this.x1 + this.x3) / 2);
-    this.height = $derived((this.y1 + this.y3) / 2);
+    // In triangle.svelte.js, replace the width and height calculations:
+    this.width = $derived(Math.max(this.x1, this.x2, this.x3) - Math.min(this.x1, this.x2, this.x3));
+    this.height = $derived(Math.max(this.y1, this.y2, this.y3) - Math.min(this.y1, this.y2, this.y3));
 
     this.rotation = $state(properties.rotation ?? 0);
 
