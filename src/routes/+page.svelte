@@ -199,6 +199,7 @@
 
           {:else if shapesName === "triangles"}
             <Triangle bind:triangle={shapes.triangles[index]}/>
+            <ResizeFromEdges bind:shape={shapes.triangles[index]}/>
 
           {:else if shapesName === "arrows"}
             <Arrow bind:arrow={shapes.arrows[index]} {index}/>

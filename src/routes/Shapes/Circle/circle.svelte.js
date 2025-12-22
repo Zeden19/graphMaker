@@ -13,29 +13,37 @@ export class Circle extends BasicShape {
     this.rect = $derived(
       {
         top: {
-          ...this.rotateRectCords(this.position.x, this.position.y - this.heightWithScale - this.strokeWidth / 2,
-            {x: this.position.x, y: this.position.y}),
+          ...this.rotateCords(this.position.x, this.position.y - this.heightWithScale - this.strokeWidth / 2, {
+            x: this.position.x,
+            y: this.position.y
+          }),
           changeSizeFnc: (dx, dy, _, sizeBeforeHeight) => {
             this.changeTop(dy, sizeBeforeHeight);
           }
         },
         bottom: {
-          ...this.rotateRectCords(this.position.x, this.position.y + this.heightWithScale + this.strokeWidth / 2,
-            {x: this.position.x, y: this.position.y}),
+          ...this.rotateCords(this.position.x, this.position.y + this.heightWithScale + this.strokeWidth / 2, {
+            x: this.position.x,
+            y: this.position.y
+          }),
           changeSizeFnc: (dx, dy, _, sizeBeforeHeight) => {
             this.changeBottom(dy, sizeBeforeHeight);
           }
         },
         left: {
-          ...this.rotateRectCords(this.position.x - this.widthWithScale - this.strokeWidth / 2, this.position.y,
-            {x: this.position.x, y: this.position.y}),
+          ...this.rotateCords(this.position.x - this.widthWithScale - this.strokeWidth / 2, this.position.y, {
+            x: this.position.x,
+            y: this.position.y
+          }),
           changeSizeFnc: (dx, dy, sizeBeforeWidth) => {
             this.changeLeft(dx, sizeBeforeWidth);
           }
         },
         right: {
-          ...this.rotateRectCords(this.position.x + this.widthWithScale + this.strokeWidth / 2, this.position.y,
-            {x: this.position.x, y: this.position.y}),
+          ...this.rotateCords(this.position.x + this.widthWithScale + this.strokeWidth / 2, this.position.y, {
+            x: this.position.x,
+            y: this.position.y
+          }),
           changeSizeFnc: (dx, dy, sizeBeforeWidth) => {
             this.changeRight(dx, sizeBeforeWidth);
           }
@@ -93,9 +101,10 @@ export class Circle extends BasicShape {
 
   #createCornerPos(angle) {
     return {
-      ...this.rotateRectCords(this.position.x + (this.widthWithScale + this.strokeWidth / 2) * Math.cos(angle),
-        this.position.y + (this.heightWithScale + this.strokeWidth / 2) * Math.sin(angle),
-        {x: this.position.x, y: this.position.y}),
+      ...this.rotateCords(this.position.x + (this.widthWithScale + this.strokeWidth / 2) * Math.cos(angle), this.position.y + (this.heightWithScale + this.strokeWidth / 2) * Math.sin(angle), {
+        x: this.position.x,
+        y: this.position.y
+      }),
     };
   }
 }

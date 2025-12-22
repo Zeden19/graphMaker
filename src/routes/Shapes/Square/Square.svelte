@@ -3,12 +3,17 @@
   import ShapeText from "../Text/ShapeText.svelte";
 
   let {square} = $props();
+
+  let transformOrigin = $derived({
+    x: square.position.x + (square.widthWithScale / 2),
+    y: square.position.y + (square.heightWithScale / 2)
+  });
 </script>
 
 <rect
   transition:scale|global={{duration: 120}}
-  style="transform-origin: {square.position.x + (square.widthWithScale / 2)}px
-                           {square.position.y + (square.heightWithScale / 2)}px;
+  style="transform-origin: {transformOrigin.x}px
+                           {transformOrigin.y}px;
          rotate: {square.rotation}deg;
   outline: {square.strokeColor} {square.strokeWidth}px solid;"
   x="{square.position.x}"
@@ -18,11 +23,8 @@
   fill="{square.color}"
 ></rect>
 
-<ShapeText selected={square.selected} text={square.text} shape={square}
-           style="overflow: visible"
-           x={square.position.x} y={square.position.y}
-           width={square.widthWithScale} height={square.heightWithScale}
-           containerStyles="rotate: {square.rotation}deg"></ShapeText>
+<ShapeText shape={square} x={square.position.x} y={square.position.y} {transformOrigin}
+           width={square.widthWithScale} height={square.heightWithScale}></ShapeText>
 
 <style>
   rect {

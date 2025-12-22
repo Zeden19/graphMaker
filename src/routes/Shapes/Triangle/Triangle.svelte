@@ -19,15 +19,10 @@ style="transform: rotate({triangle.rotation}deg);
 </polygon>
 
 <ShapeText
-  selected={triangle.selected}
-  text={triangle.text}
   shape={triangle}
   x={triangle.center.x - triangle.width / 2}
   y={triangle.center.y - triangle.height / 2}
-  style="
-  overflow-wrap: normal;
-    transform: rotate({triangle.rotation}deg);
-    transform-origin: {triangle.center.x}px {triangle.center.y}px"
+  transformOrigin={{x: triangle.center.x, y: triangle.center.y}}
   width="{triangle.width}px"
   height="{triangle.height}px"
 />

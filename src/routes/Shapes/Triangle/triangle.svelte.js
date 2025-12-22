@@ -1,6 +1,6 @@
 import {Shape} from "../shape.svelte.js";
 import DraggableObject from "../DraggableObject.svelte.js";
-import {derived} from "svelte/store";
+import rotateCords from "$lib/rotateCords.js";
 
 const DEFAULT_X1 = 50;
 const DEFAULT_X2 = 100
@@ -28,8 +28,6 @@ export class Triangle extends Shape {
       y: (this.position.y1 + this.position.y2 + this.position.y3) / 3
     });
 
-    // fixme: this doesn't work at all and fucks up text positioning
-    // In triangle.svelte.js, replace the width and height calculations:
     this.width = $derived(Math.max(this.x1, this.x2, this.x3) - Math.min(this.x1, this.x2, this.x3));
     this.height = $derived(Math.max(this.y1, this.y2, this.y3) - Math.min(this.y1, this.y2, this.y3));
 
@@ -44,8 +42,19 @@ export class Triangle extends Shape {
       y3: this.y3 + offset.y
     });
 
-    // fixme: get rect and make it work with resizefromedges
-    this.rect = $derived(this.x1);
+    // fixme: still gotta add movefnc
+    this.rect = $derived({
+      point1: {...rotateCords(this.position.x1, this.position.y1, this.center, this.rotation)},
+      point2: {...rotateCords(this.position.x2, this.position.y2, this.center, this.rotation)},
+      point3: {...rotateCords(this.position.x3, this.position.y3, this.center, this.rotation)},
+
+      point1_2: {...rotateCords(((this.position.x1 + this.position.x2) / 2),
+          ((this.position.y1 + this.position.y2) / 2), this.center, this.rotation)},
+      point1_3: {...rotateCords(((this.position.x1 + this.position.x3) / 2),
+          ((this.position.y1 + this.position.y3) / 2), this.center, this.rotation)},
+      point2_3: {...rotateCords(((this.position.x2 + this.position.x3) / 2),
+          ((this.position.y2 + this.position.y3) / 2), this.center, this.rotation)}
+    });
 
     let trianglePosBefore = {x1: 0, x2: 0, x3: 0, y1: 0, y2: 0, y3: 0};
     this.drag = new DraggableObject(
@@ -67,7 +76,6 @@ export class Triangle extends Shape {
       });
   }
 
-  // fixme do drag stuffs
   setDrag = (event) => {
     this.drag.setDrag(event)
   }

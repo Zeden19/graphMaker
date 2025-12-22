@@ -41,15 +41,10 @@
 </defs>
 
 <ShapeText
-  selected={arrow.selected}
-  text={arrow.text}
   shape={arrow}
   x={textPos.x}
   y={textPos.y}
-  style="
-  overflow-wrap: normal;
-    transform: rotate({arrow.rotation}rad);
-    transform-origin: {textPos.x}px {textPos.y}px;"
+  transformOrigin={{x: textPos.x, y: textPos.y}}
   width="{textWidth}px"
   height="1.5em"
 />

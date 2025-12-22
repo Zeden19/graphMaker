@@ -3,14 +3,14 @@
 
   let {text = $bindable()} = $props();
 
-  let textStyles = $derived(text?.text);
+  let transformOrigin = $derived({
+    x: text.position.x + (text.widthWithScale / 2),
+    y: text.position.y + (text.heightWithScale / 2)
+  });
 </script>
 
 <ShapeText x={text.position.x} y={text.position.y}
-           width={text.widthWithScale} height={text.heightWithScale}
-           selected={text.selected} shape={text} text={textStyles}
-           style="overflow: visible"
-           containerStyles="outline: {text.strokeWidth}px {text.strokeColor} solid;
-           rotate: {text.rotation}deg;"
-/>
+           width={text.widthWithScale} height={text.heightWithScale} shape={text}
+           {transformOrigin}
+           containerStyles="outline: {text.strokeWidth}px {text.strokeColor} solid;"/>
 
