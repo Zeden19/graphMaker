@@ -1,5 +1,6 @@
-import {DraggableShape} from "./DraggableObject.svelte.js";
+import DraggableObject from "./DraggableObject.svelte.js";
 import {ShapeText} from "./Text/ShapeText.svelte.js";
+import extractCoordinates from "$lib/extractCoordinates.js";
 
 export class Shape {
   constructor(getShapeArray, properties = {}) {
@@ -8,6 +9,19 @@ export class Shape {
     this.text = $state(new ShapeText(properties.text ?? {}));
     this.getShapeArray = getShapeArray;
     this.isEditing = $state(false);
+    this.shapePosBefore = {};
+
+    this.drag = new DraggableObject(() => {
+        this.selected = true;
+        Object.entries(extractCoordinates(this)).forEach(([key, value]) => {
+          this.shapePosBefore[key] = value;
+        });
+      },
+      (dx, dy) => {
+        Object.keys(extractCoordinates(this)).forEach((key) => {
+          this[key] = (key.includes("x") ? dx : dy) + this.shapePosBefore[key];
+        });
+      });
   }
 
   toJSON() {
@@ -24,6 +38,10 @@ export class Shape {
     setTimeout(() => {
       shapeArray.splice(shapeArray.findIndex((shape) => shape === this), 1)
     });
+  }
+
+  setDrag = (event) => {
+    this.drag.setDrag(event);
   }
 
   toString() {
@@ -55,12 +73,6 @@ export class BasicShape extends Shape {
     this.strokeWidth = $state(properties.strokeWidth ?? 2);
 
     this.rotation = $state(properties.rotation ?? 0);
-
-    this.drag = new DraggableShape(this);
-  }
-
-  setDrag = (event) => {
-    this.drag.setDrag(event);
   }
 
   set width(width) {

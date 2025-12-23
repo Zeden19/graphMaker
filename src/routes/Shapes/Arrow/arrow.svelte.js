@@ -102,10 +102,6 @@ export class Arrow extends Shape {
     return this.#color
   }
 
-  setDrag = (event) => {
-    this.drag.setDrag(event)
-  }
-
   toJSON() {
     return {
       ...super.toJSON(),

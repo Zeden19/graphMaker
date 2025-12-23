@@ -1,5 +1,4 @@
 import {Shape} from "../shape.svelte.js";
-import DraggableObject from "../DraggableObject.svelte.js";
 import rotateCords from "$lib/rotateCords.js";
 
 const DEFAULT_X1 = 50;
@@ -48,36 +47,19 @@ export class Triangle extends Shape {
       point2: {...rotateCords(this.position.x2, this.position.y2, this.center, this.rotation)},
       point3: {...rotateCords(this.position.x3, this.position.y3, this.center, this.rotation)},
 
-      point1_2: {...rotateCords(((this.position.x1 + this.position.x2) / 2),
-          ((this.position.y1 + this.position.y2) / 2), this.center, this.rotation)},
-      point1_3: {...rotateCords(((this.position.x1 + this.position.x3) / 2),
-          ((this.position.y1 + this.position.y3) / 2), this.center, this.rotation)},
-      point2_3: {...rotateCords(((this.position.x2 + this.position.x3) / 2),
-          ((this.position.y2 + this.position.y3) / 2), this.center, this.rotation)}
-    });
-
-    let trianglePosBefore = {x1: 0, x2: 0, x3: 0, y1: 0, y2: 0, y3: 0};
-    this.drag = new DraggableObject(
-      () => {
-        trianglePosBefore.x1 = this.x1;
-        trianglePosBefore.y1 = this.y1;
-        trianglePosBefore.x2 = this.x2;
-        trianglePosBefore.y2 = this.y2;
-        trianglePosBefore.x3 = this.x3;
-        trianglePosBefore.y3 = this.y3;
+      point1_2: {
+        ...rotateCords(((this.position.x1 + this.position.x2) / 2),
+          ((this.position.y1 + this.position.y2) / 2), this.center, this.rotation)
       },
-      (dx, dy) => {
-        this.x1 = trianglePosBefore.x1 + dx;
-        this.y1 = trianglePosBefore.y1 + dy;
-        this.x2 = trianglePosBefore.x2 + dx;
-        this.y2 = trianglePosBefore.y2 + dy;
-        this.x3 = trianglePosBefore.x3 + dx;
-        this.y3 = trianglePosBefore.y3 + dy;
-      });
-  }
-
-  setDrag = (event) => {
-    this.drag.setDrag(event)
+      point1_3: {
+        ...rotateCords(((this.position.x1 + this.position.x3) / 2),
+          ((this.position.y1 + this.position.y3) / 2), this.center, this.rotation)
+      },
+      point2_3: {
+        ...rotateCords(((this.position.x2 + this.position.x3) / 2),
+          ((this.position.y2 + this.position.y3) / 2), this.center, this.rotation)
+      }
+    });
   }
 
   toJSON() {
