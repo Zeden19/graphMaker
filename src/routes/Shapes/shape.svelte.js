@@ -10,6 +10,8 @@ export class Shape {
     this.getShapeArray = getShapeArray;
     this.isEditing = $state(false);
     this.shapePosBefore = {};
+    this.rotation = $state(properties.rotation ?? 0);
+
 
     this.drag = new DraggableObject(() => {
         this.selected = true;
@@ -71,8 +73,6 @@ export class BasicShape extends Shape {
 
     this.strokeColor = $state(properties.strokeColor ?? "black");
     this.strokeWidth = $state(properties.strokeWidth ?? 2);
-
-    this.rotation = $state(properties.rotation ?? 0);
   }
 
   set width(width) {
