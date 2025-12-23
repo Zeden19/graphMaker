@@ -96,7 +96,6 @@ export class Triangle extends Shape {
     };
   }
 
-  // todo fix to work with triangle shit
   isInside(x1, y1, x2, y2) {
     if (x2 < x1) {
       [x1, x2] = [x2, x1];
@@ -106,17 +105,12 @@ export class Triangle extends Shape {
       [y1, y2] = [y2, y1];
     }
 
-    let arrowX1 = this.rect.start.x;
-    let arrowY1 = this.rect.start.y;
-    let arrowX2 = this.rect.end.x;
-    let arrowY2 = this.rect.end.y;
+    const pointInside = (px, py) => px > x1 && px < x2 && py > y1 && py < y2;
+
     return (
-      // start is inside the box
-      (arrowX1 > x1 && arrowY1 > y1 &&
-        arrowX1 < x2 && arrowY1 < y2) ||
-      // end is inside box
-      (arrowX2 > x1 && arrowY2 > y1 &&
-        arrowX2 < x2 && arrowY2 > y2)
+      pointInside(this.rect.point1.x, this.rect.point1.y) ||
+      pointInside(this.rect.point2.x, this.rect.point2.y) ||
+      pointInside(this.rect.point3.x, this.rect.point3.y)
     );
   }
 }
