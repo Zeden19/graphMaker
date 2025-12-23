@@ -18,7 +18,7 @@ Simple Graph maker made with Svelte
 - Make a generic class for shapes that don't have one set of x and y coordinates. Used for arrow and triangle (and any
   other shapes that are more complex)
 - When adding new shapes, make it so that I don't have to manually insert the button to insert the shape
-- every shape should have a rotation property, apply it in Shape
+- ~~every shape should have a rotation property, apply it in Shape~~
 - consider including rotation in shape.svelte, on the g-element. this would require all shapes to have a center/middle
 - ~~standardize shapetext styles (and maybe even include in Shape.svelte given some variables)~~
 - typescript in .svelte.js files

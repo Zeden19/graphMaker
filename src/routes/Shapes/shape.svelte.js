@@ -10,6 +10,8 @@ export class Shape {
     this.getShapeArray = getShapeArray;
     this.isEditing = $state(false);
     this.shapePosBefore = {};
+    this.rotation = $state(properties.rotation ?? 0);
+
 
     this.drag = new DraggableObject(() => {
         this.selected = true;
@@ -28,6 +30,7 @@ export class Shape {
     return {
       color: this.color,
       text: JSON.parse(JSON.stringify(this.text)),
+      rotation: this.rotation,
       toString: this.toString(),
     }
   }
@@ -71,8 +74,6 @@ export class BasicShape extends Shape {
 
     this.strokeColor = $state(properties.strokeColor ?? "black");
     this.strokeWidth = $state(properties.strokeWidth ?? 2);
-
-    this.rotation = $state(properties.rotation ?? 0);
   }
 
   set width(width) {

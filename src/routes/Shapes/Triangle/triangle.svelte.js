@@ -30,8 +30,6 @@ export class Triangle extends Shape {
     this.width = $derived(Math.max(this.x1, this.x2, this.x3) - Math.min(this.x1, this.x2, this.x3));
     this.height = $derived(Math.max(this.y1, this.y2, this.y3) - Math.min(this.y1, this.y2, this.y3));
 
-    this.rotation = $state(properties.rotation ?? 0);
-
     this.position = $derived({
       x1: this.x1 + offset.x,
       y1: this.y1 + offset.y,
