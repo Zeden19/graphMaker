@@ -1,5 +1,5 @@
 function extractCoordinates(obj) {
-  if (obj.x) return {x: obj.x, y: obj.y};
+  if (obj.x !== undefined) return {x: obj.x, y: obj.y};
 
   const coordinates = {};
   let counter = 1;
