@@ -39,25 +39,45 @@ export class Triangle extends Shape {
       y3: this.y3 + offset.y
     });
 
-    // fixme: still gotta add movefnc
+    const setPoint = (i, dx, dy, pos) => {
+      this[`x${i}`] = dx + pos[`x${i}`];
+      this[`y${i}`] = dy + pos[`y${i}`];
+    };
+
+    const change = (...ids) => (dx, dy, pos) => ids.forEach(i => setPoint(i, dx, dy, pos));
+
     this.rect = $derived({
-      point1: {...rotateCords(this.position.x1, this.position.y1, this.center, this.rotation)},
-      point2: {...rotateCords(this.position.x2, this.position.y2, this.center, this.rotation)},
-      point3: {...rotateCords(this.position.x3, this.position.y3, this.center, this.rotation)},
+      point1: {
+        ...rotateCords(this.position.x1, this.position.y1, this.center, this.rotation),
+        changeSizeFnc: change("1")
+      },
+      point2: {
+        ...rotateCords(this.position.x2, this.position.y2, this.center, this.rotation),
+        changeSizeFnc: change("2")
+      },
+      point3: {
+        ...rotateCords(this.position.x3, this.position.y3, this.center, this.rotation),
+        changeSizeFnc: change("3")
+      },
 
       point1_2: {
         ...rotateCords(((this.position.x1 + this.position.x2) / 2),
-          ((this.position.y1 + this.position.y2) / 2), this.center, this.rotation)
+          ((this.position.y1 + this.position.y2) / 2), this.center, this.rotation),
+        changeSizeFnc: change("1", "2")
       },
       point1_3: {
         ...rotateCords(((this.position.x1 + this.position.x3) / 2),
-          ((this.position.y1 + this.position.y3) / 2), this.center, this.rotation)
+          ((this.position.y1 + this.position.y3) / 2), this.center, this.rotation),
+        changeSizeFnc: change("1", "3")
       },
       point2_3: {
         ...rotateCords(((this.position.x2 + this.position.x3) / 2),
-          ((this.position.y2 + this.position.y3) / 2), this.center, this.rotation)
+          ((this.position.y2 + this.position.y3) / 2), this.center, this.rotation),
+        changeSizeFnc: change("2", "3")
       }
     });
+
+    this.beforeProperties = ["x1", "y1", "x2", "y2", "x3", "y3"];
   }
 
   toJSON() {

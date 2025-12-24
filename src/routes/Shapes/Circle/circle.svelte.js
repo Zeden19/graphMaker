@@ -9,6 +9,7 @@ const topLeftAngle = 225 * Math.PI / 180; // 225 degrees
 export class Circle extends BasicShape {
   constructor(offset, getShapeArray, canvasScale, properties = {}) {
     super(offset, getShapeArray, canvasScale, properties);
+    this.center = $derived({x: this.position.x, y: this.position.y});
 
     // halving strokeWidth because stroke is drawn from center of line, rather than outside
     this.rect = $derived(
@@ -18,8 +19,8 @@ export class Circle extends BasicShape {
             x: this.position.x,
             y: this.position.y
           }, this.rotation),
-          changeSizeFnc: (dx, dy, _, sizeBeforeHeight) => {
-            this.changeTop(dy, sizeBeforeHeight);
+          changeSizeFnc: (dx, dy, {height}) => {
+            this.changeTop(dy, height);
           }
         },
         bottom: {
@@ -27,8 +28,8 @@ export class Circle extends BasicShape {
             x: this.position.x,
             y: this.position.y
           }, this.rotation),
-          changeSizeFnc: (dx, dy, _, sizeBeforeHeight) => {
-            this.changeBottom(dy, sizeBeforeHeight);
+          changeSizeFnc: (dx, dy, {height}) => {
+            this.changeBottom(dy, height);
           }
         },
         left: {
@@ -36,8 +37,8 @@ export class Circle extends BasicShape {
             x: this.position.x,
             y: this.position.y
           }, this.rotation),
-          changeSizeFnc: (dx, dy, sizeBeforeWidth) => {
-            this.changeLeft(dx, sizeBeforeWidth);
+          changeSizeFnc: (dx, dy, {width}) => {
+            this.changeLeft(dx, width);
           }
         },
         right: {
@@ -45,33 +46,33 @@ export class Circle extends BasicShape {
             x: this.position.x,
             y: this.position.y
           }, this.rotation),
-          changeSizeFnc: (dx, dy, sizeBeforeWidth) => {
-            this.changeRight(dx, sizeBeforeWidth);
+          changeSizeFnc: (dx, dy, {width}) => {
+            this.changeRight(dx, width);
           }
         },
 
         bottomRight: {
-          ...this.#createCornerPos(bottomRightAngle), changeSizeFnc: (dx, dy, sizeBeforeWidth, sizeBeforeHeight) => {
-            this.changeRight(dx, sizeBeforeWidth);
-            this.changeBottom(dy, sizeBeforeHeight);
+          ...this.#createCornerPos(bottomRightAngle), changeSizeFnc: (dx, dy, {width, height}) => {
+            this.changeRight(dx, width);
+            this.changeBottom(dy, height);
           }
         },
         bottomLeft: {
-          ...this.#createCornerPos(bottomLeftAngle), changeSizeFnc: (dx, dy, sizeBeforeWidth, sizeBeforeHeight) => {
-            this.changeLeft(dx, sizeBeforeWidth);
-            this.changeBottom(dy, sizeBeforeHeight);
+          ...this.#createCornerPos(bottomLeftAngle), changeSizeFnc: (dx, dy, {width, height}) => {
+            this.changeLeft(dx, width);
+            this.changeBottom(dy, height);
           }
         },
         topLeft: {
-          ...this.#createCornerPos(topLeftAngle), changeSizeFnc: (dx, dy, sizeBeforeWidth, sizeBeforeHeight) => {
-            this.changeLeft(dx, sizeBeforeWidth);
-            this.changeTop(dy, sizeBeforeHeight);
+          ...this.#createCornerPos(topLeftAngle), changeSizeFnc: (dx, dy, {width, height}) => {
+            this.changeLeft(dx, width);
+            this.changeTop(dy, height);
           }
         },
         topRight: {
-          ...this.#createCornerPos(topRightAngle), changeSizeFnc: (dx, dy, sizeBeforeWidth, sizeBeforeHeight) => {
-            this.changeRight(dx, sizeBeforeWidth);
-            this.changeTop(dy, sizeBeforeHeight);
+          ...this.#createCornerPos(topRightAngle), changeSizeFnc: (dx, dy, {width, height}) => {
+            this.changeRight(dx, width);
+            this.changeTop(dy, height);
           }
         },
       }
@@ -102,10 +103,9 @@ export class Circle extends BasicShape {
 
   #createCornerPos(angle) {
     return {
-      ...rotateCords(this.position.x + (this.widthWithScale + this.strokeWidth / 2) * Math.cos(angle), this.position.y + (this.heightWithScale + this.strokeWidth / 2) * Math.sin(angle), {
-        x: this.position.x,
-        y: this.position.y
-      }, this.rotation),
+      ...rotateCords(this.position.x + (this.widthWithScale + this.strokeWidth / 2) * Math.cos(angle),
+        this.position.y + (this.heightWithScale + this.strokeWidth / 2) * Math.sin(angle),
+        {x: this.position.x, y: this.position.y}, this.rotation),
     };
   }
 }

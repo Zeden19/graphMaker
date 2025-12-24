@@ -74,6 +74,8 @@ export class BasicShape extends Shape {
 
     this.strokeColor = $state(properties.strokeColor ?? "black");
     this.strokeWidth = $state(properties.strokeWidth ?? 2);
+
+    this.beforeProperties = ["width", "height"];
   }
 
   set width(width) {

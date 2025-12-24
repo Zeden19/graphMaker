@@ -22,15 +22,16 @@
   }
 
   let cornerResizes = $derived(Object.entries(shape.rect).map(([key, corner]) => {
-    let sizeBefore = $state({width: shape.width, height: shape.height})
+    let sizeBefore = {}
     let resize = new DraggableObject(
       () => {
         shape.isEditing = true;
-        sizeBefore.width = shape.width;
-        sizeBefore.height = shape.height;
+        shape.beforeProperties.forEach(prop => {
+          sizeBefore[prop] = shape[prop];
+        });
       },
       (dx, dy) => {
-        corner.changeSizeFnc(dx, dy, sizeBefore.width, sizeBefore.height);
+        corner.changeSizeFnc(dx, dy, sizeBefore);
       },
       () => {
         shape.isEditing = false;
