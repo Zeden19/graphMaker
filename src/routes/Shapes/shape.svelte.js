@@ -122,7 +122,6 @@ export class BasicShape extends Shape {
       height: this.height,
       strokeWidth: this.strokeWidth,
       strokeColor: this.strokeColor,
-      rotation: this.rotation,
       x: this.x,
       y: this.y
     };
