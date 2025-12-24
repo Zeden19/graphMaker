@@ -11,6 +11,6 @@
 
 <ShapeText x={text.position.x} y={text.position.y}
            width={text.widthWithScale} height={text.heightWithScale} shape={text}
-           {transformOrigin}
-           containerStyles="outline: {text.strokeWidth}px {text.strokeColor} solid;"/>
+           {transformOrigin} style="outline: {text.strokeWidth}px {text.strokeColor} solid;"
+           />
 
