@@ -19,8 +19,7 @@
     if (shape && gRef && !(gRef.contains(event.target)) && !(editShapeContainerRef.contains(event.target)) &&
       !(event.ctrlKey || event.metaKey) && !selectedShapes.some(shape => shape.gRef().contains(event.target))) {
       selectedShapes.forEach(shape => {
-        shape.selected = false;
-        shape.isEditing = false;
+        shape.isEditing = shape.selected = false;
       });
     }
   };
@@ -35,7 +34,7 @@
     // needed to unselect a shape already selected to prevent the previously selected shape from also moving
     const isAlreadySelected = selectedShapes.some((selectedShape) => selectedShape === shape);
     if (!isAlreadySelected && !(event.ctrlKey || event.metaKey)) {
-      selectedShapes.forEach((shape) => shape.selected = false)
+      selectedShapes.forEach((shape) => shape.selected = shape.isEditing = false)
     }
 
     shape.selected = true; // need this to actually select a individual shape

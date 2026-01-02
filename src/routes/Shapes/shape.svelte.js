@@ -10,11 +10,9 @@ export class Shape {
     this.getShapeArray = getShapeArray;
     this.isEditing = $state(false);
     this.shapePosBefore = {};
-    this.rotation = $state(properties.rotation ?? 0);
-
+    this.gRef = $state();
 
     this.drag = new DraggableObject(() => {
-        this.selected = true;
         Object.entries(extractCoordinates(this)).forEach(([key, value]) => {
           this.shapePosBefore[key] = value;
         });
@@ -30,7 +28,6 @@ export class Shape {
     return {
       color: this.color,
       text: JSON.parse(JSON.stringify(this.text)),
-      rotation: this.rotation,
       toString: this.toString(),
     }
   }
@@ -60,22 +57,52 @@ const MIN_SIZE = 10;
 export class BasicShape extends Shape {
   #width = $state();
   #height = $state();
-
   constructor(offset, getShapeArray, canvasScale, properties = {}) {
     super(getShapeArray, properties);
-    this.x = $state(properties.x ?? DEFAULT_X - offset.x);
-    this.y = $state(properties.y ?? DEFAULT_Y - offset.y);
-    this.position = $derived({x: offset.x + this.x, y: offset.y + this.y});
 
+    this.rotation = $state(properties.rotation ?? 0);
     this.#width = properties.width ?? DEFAULT_SIZE;
     this.#height = properties.height ?? DEFAULT_SIZE;
+
+    // Store center position internally
+    this.x = $state((properties.x ?? DEFAULT_X - offset.x) + this.#width / 2);
+    this.y = $state((properties.y ?? DEFAULT_Y - offset.y) + this.#height / 2);
+
+    // Derived center in canvas space
+    this.center = $derived({
+      x: offset.x + this.x,
+      y: offset.y + this.y
+    });
+
+    // Derive the ROTATED top-left corner
+    this.position = $derived(() => {
+      const cx = this.center.x;
+      const cy = this.center.y;
+      const w = this.#width;
+      const h = this.#height;
+      const rad = (this.rotation * Math.PI) / 180;
+
+      // Vector from center to unrotated top-left
+      const dx = -w / 2;
+      const dy = -h / 2;
+
+      // Rotate this vector
+      const cos = Math.cos(rad);
+      const sin = Math.sin(rad);
+      const rotatedDx = dx * cos - dy * sin;
+      const rotatedDy = dx * sin + dy * cos;
+
+      return {
+        x: cx + rotatedDx,
+        y: cy + rotatedDy
+      };
+    });
+
     this.widthWithScale = $derived((this.#width) * canvasScale());
     this.heightWithScale = $derived((this.#height) * canvasScale());
 
     this.strokeColor = $state(properties.strokeColor ?? "black");
     this.strokeWidth = $state(properties.strokeWidth ?? 2);
-
-    this.beforeProperties = ["width", "height"];
   }
 
   set width(width) {
@@ -94,28 +121,63 @@ export class BasicShape extends Shape {
     return this.#width;
   }
 
+  // Update resize methods to work with center-based positioning
   changeRight(dx, sizeBeforeWidth) {
-    this.width = dx + sizeBeforeWidth;
+    const newWidth = Math.max(dx + sizeBeforeWidth, MIN_SIZE);
+    const widthDelta = newWidth - this.#width;
+
+    // Moving right edge means center moves right by half the width change
+    const rad = (this.rotation * Math.PI) / 180;
+    this.x += (widthDelta / 2) * Math.cos(rad);
+    this.y += (widthDelta / 2) * Math.sin(rad);
+
+    this.#width = newWidth;
   }
 
   changeBottom(dy, sizeBeforeHeight) {
-    this.height = dy + sizeBeforeHeight;
+    const newHeight = Math.max(dy + sizeBeforeHeight, MIN_SIZE);
+    const heightDelta = newHeight - this.#height;
+
+    // Moving bottom edge means center moves down by half the height change
+    const rad = (this.rotation * Math.PI) / 180;
+    this.x -= (heightDelta / 2) * Math.sin(rad);
+    this.y += (heightDelta / 2) * Math.cos(rad);
+
+    this.#height = newHeight;
   }
 
   changeLeft(dx, sizeBeforeWidth) {
-    const oldWidth = this.width;
-    this.width = sizeBeforeWidth - dx;
-    const changeInWidth = oldWidth - this.width;
-    this.x += changeInWidth;
+    const newWidth = Math.max(sizeBeforeWidth - dx, MIN_SIZE);
+    const widthDelta = this.#width - newWidth;
+
+    // Moving left edge means center moves left by half the width change
+    const rad = (this.rotation * Math.PI) / 180;
+    this.x += (widthDelta / 2) * Math.cos(rad);
+    this.y += (widthDelta / 2) * Math.sin(rad);
+
+    this.#width = newWidth;
   }
 
   changeTop(dy, sizeBeforeHeight) {
-    const oldHeight = this.height;
-    this.height = sizeBeforeHeight - dy;
-    const changeInHeight = oldHeight - this.height;
-    this.y += changeInHeight;
+    const newHeight = Math.max(sizeBeforeHeight - dy, MIN_SIZE);
+    const heightDelta = this.#height - newHeight;
+
+    // Moving top edge means center moves up by half the height change
+    const rad = (this.rotation * Math.PI) / 180;
+    this.x -= (heightDelta / 2) * Math.sin(rad);
+    this.y += (heightDelta / 2) * Math.cos(rad);
+
+    this.#height = newHeight;
   }
 
+  // Helper method to get the axis-aligned bounding box top-left
+  // (useful if you still need the old behavior somewhere)
+  getAxisAlignedTopLeft() {
+    return {
+      x: this.center.x - this.#width / 2,
+      y: this.center.y - this.#height / 2
+    };
+  }
 
   toJSON() {
     return {
@@ -124,6 +186,7 @@ export class BasicShape extends Shape {
       height: this.height,
       strokeWidth: this.strokeWidth,
       strokeColor: this.strokeColor,
+      rotation: this.rotation,
       x: this.x,
       y: this.y
     };
@@ -144,4 +207,7 @@ export class BasicShape extends Shape {
         && this.rect.top.y > y1 && y2 > this.rect.bottom.y
       ));
   }
+
 }
+
+

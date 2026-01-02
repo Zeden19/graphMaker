@@ -1,9 +1,7 @@
 Simple Graph maker made with Svelte
 
 # bugs:
-
-- When a shape is rotated, the changeSizeFnc breaks since it does not account for rotation
-- text rotation inside a circle is completely fucked lol. also arrow rotation does not work
+- arrow rotation does not work
 
 ## Fixed Bugs
 

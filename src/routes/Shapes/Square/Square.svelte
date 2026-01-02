@@ -4,27 +4,26 @@
 
   let {square} = $props();
 
-  let transformOrigin = $derived({
-    x: square.position.x + (square.widthWithScale / 2),
-    y: square.position.y + (square.heightWithScale / 2)
-  });
+  // Use the axis-aligned top-left for rendering
+  let renderPosition = $derived(square.getAxisAlignedTopLeft());
 </script>
 
 <rect
   transition:scale|global={{duration: 120}}
-  style="transform-origin: {transformOrigin.x}px
-                           {transformOrigin.y}px;
+  style="transform-origin: {square.center.x}px {square.center.y}px;
          rotate: {square.rotation}deg;
-  outline: {square.strokeColor} {square.strokeWidth}px solid;"
-  x="{square.position.x}"
-  y="{square.position.y}"
-  width="{square.widthWithScale}"
-  height="{square.heightWithScale}"
+         outline: {square.strokeColor} {square.strokeWidth}px solid;"
+  x="{renderPosition.x}"
+  y="{renderPosition.y}"
+  width="{square.width}"
+  height="{square.height}"
   fill="{square.color}"
+  bind:this={square.ref}
 ></rect>
 
-<ShapeText shape={square} x={square.position.x} y={square.position.y} {transformOrigin}
-           width={square.widthWithScale} height={square.heightWithScale}></ShapeText>
+<ShapeText shape={square} x={renderPosition.x} y={renderPosition.y}
+           transformOrigin={square.center}
+           width={square.width} height={square.height}></ShapeText>
 
 <style>
   rect {

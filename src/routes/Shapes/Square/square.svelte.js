@@ -7,8 +7,4 @@ export class Square extends Box {
   constructor(offset, getShapeArray, canvasScale, properties = {width: DEFAULT_SIZE, height: DEFAULT_SIZE}) {
     super(offset, getShapeArray, canvasScale, properties);
   }
-
-  toJSON() {
-    return {...super.toJSON(), strokeColor: this.strokeColor, strokeWidth: this.strokeWidth};
-  }
 }

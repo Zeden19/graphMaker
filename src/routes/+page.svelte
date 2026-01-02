@@ -14,7 +14,7 @@
   import Clipboard from "./Clipboard.svelte";
   import {fade} from "svelte/transition";
   import HandleSnap from "./Shapes/HandleSnap.svelte";
-  import {Triangle as TriangleClass}  from "./Shapes/Triangle/triangle.svelte.js";
+  import {Triangle as TriangleClass} from "./Shapes/Triangle/triangle.svelte.js";
   import Triangle from "./Shapes/Triangle/Triangle.svelte";
 
   const DEFAULT_PRIMARY_SEP = 40;
@@ -134,6 +134,8 @@
         return {array: shapes.squares, class: SquareClass};
       case "graphtext":
         return {array: shapes.texts, class: GraphTextClass};
+      case "triangle":
+        return {array: shapes.triangles, class: TriangleClass};
     }
   }
 

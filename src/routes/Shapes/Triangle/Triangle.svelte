@@ -4,27 +4,30 @@
 
   let {triangle = $bindable()} = $props();
 
+  // Use axis-aligned top-left for text positioning
+  let renderPosition = $derived(triangle.getAxisAlignedTopLeft());
 </script>
 
 <polygon
   transition:scale|global={{duration: 120}}
-  points="{triangle.position.x1},{triangle.position.y1}
-          {triangle.position.x2},{triangle.position.y2}
-          {triangle.position.x3},{triangle.position.y3}"
+  points="{triangle.coords.point1.x},{triangle.coords.point1.y}
+          {triangle.coords.point2.x},{triangle.coords.point2.y}
+          {triangle.coords.point3.x},{triangle.coords.point3.y}"
   fill={triangle.color}
   stroke="{triangle.strokeColor}"
   stroke-width="{triangle.strokeWidth}"
-style="transform: rotate({triangle.rotation}deg);
-       transform-origin: {triangle.center.x}px {triangle.center.y}px;">
+  style="transform: rotate({triangle.rotation}deg);
+       transform-origin: {triangle.center.x}px {triangle.center.y}px;"
+  bind:this={triangle.ref}>
 </polygon>
 
 <ShapeText
   shape={triangle}
-  x={triangle.center.x - triangle.width / 2}
-  y={triangle.center.y - triangle.height / 2}
-  transformOrigin={{x: triangle.center.x, y: triangle.center.y}}
-  width="{triangle.width}px"
-  height="{triangle.height}px"
+  x={renderPosition.x}
+  y={renderPosition.y}
+  transformOrigin={triangle.center}
+  width={triangle.width}
+  height={triangle.height}
 />
 
 <style>

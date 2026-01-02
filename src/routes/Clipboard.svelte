@@ -33,12 +33,10 @@
 
     document.addEventListener("paste", async (event) => {
       if (!clipboard) return;
-      const shapeProperties = clipboard;
-      shapeProperties.forEach(shape => {
-        shape.color = shape.color;
+      clipboard.forEach(shape => {
         moveShapePos(shape);
+        addShape(shape.toString, shape)
       });
-      shapeProperties.forEach(shape => addShape(shape.toString, shape));
       event.preventDefault();
     });
   })
