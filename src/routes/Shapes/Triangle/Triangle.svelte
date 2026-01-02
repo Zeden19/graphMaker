@@ -6,13 +6,31 @@
 
   // Use axis-aligned top-left for text positioning
   let renderPosition = $derived(triangle.getAxisAlignedTopLeft());
+
+  let coords = $derived.by(() => {
+    return {
+      point1: {
+        x: renderPosition.x + triangle.width / 2,
+        y: renderPosition.y
+      },
+      point2: {
+        x: renderPosition.x,
+        y: renderPosition.y + triangle.height
+      },
+      point3: {
+        x: renderPosition.x + triangle.width,
+        y: renderPosition.y + triangle.height
+      }
+    };
+  });
+
 </script>
 
 <polygon
   transition:scale|global={{duration: 120}}
-  points="{triangle.coords.point1.x},{triangle.coords.point1.y}
-          {triangle.coords.point2.x},{triangle.coords.point2.y}
-          {triangle.coords.point3.x},{triangle.coords.point3.y}"
+  points="{coords.point1.x},{coords.point1.y}
+          {coords.point2.x},{coords.point2.y}
+          {coords.point3.x},{coords.point3.y}"
   fill={triangle.color}
   stroke="{triangle.strokeColor}"
   stroke-width="{triangle.strokeWidth}"
