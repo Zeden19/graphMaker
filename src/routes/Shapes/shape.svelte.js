@@ -1,8 +1,8 @@
-import DraggableObject from "./DraggableObject.svelte.js";
 import {ShapeText} from "./Text/ShapeText.svelte.js";
-import extractCoordinates from "$lib/extractCoordinates.js";
 import rotateCords from "$lib/rotateCords.js";
-import isHiglightInsideShape from "$lib/isInside.js";
+import isHighlightInsideShape from "$lib/isInside.js";
+import DraggableObject from "./DraggableObject.svelte.js";
+import extractCoordinates from "$lib/extractCoordinates.js";
 
 export class Shape {
   constructor(getShapeArray, properties = {}) {
@@ -270,7 +270,7 @@ export class BasicShape extends Shape {
 
   // i don't want to look at the code, so i put it elsewhere
   isInside(x1, y1, x2, y2) {
-    return isHiglightInsideShape(x1, y1, x2, y2, this.corners);
+    return isHighlightInsideShape(x1, y1, x2, y2, this.corners);
   }
 }
 
