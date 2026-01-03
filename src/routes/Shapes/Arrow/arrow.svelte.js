@@ -43,7 +43,7 @@ export class Arrow extends Shape {
     this.length = $derived(Math.sqrt(((this.position.x2 - this.position.x1) ** 2) + ((this.position.y2 - this.position.y1) ** 2)))
     this.rotation = $derived(Math.atan((this.position.y2 - this.position.y1) / (this.position.x2 - this.position.x1)));
 
-    this.rect = $derived({
+    this.points = $derived({
       start: {x: this.position.x1, y: this.position.y1},
       end: {x: this.position.x2, y: this.position.y2},
     });

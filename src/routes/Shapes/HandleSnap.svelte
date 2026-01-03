@@ -12,11 +12,11 @@
       arrowPoint.y > corner.y - BOUNDARY && arrowPoint.y < corner.y + BOUNDARY
   }
 
-  const pointIsSnappedToCurrent = (shape, key) => {
+  const isPointSnappedToCurrent = (shape, key) => {
     return shape.toString().toLowerCase() === "arrow" && shape[key + "Snapped"] !== undefined;
   }
 
-  // bug: when a shape than an arrow is snapped to is deleted, the arrow will remain "snapped" to the shape
+  // bug: when a shape that an arrow is snapped to is deleted, the arrow will remain "snapped" to the shape
   // until the user moves the arrow. Does not cause any errors but its clunky
   $effect(() => {
     // dependencies
@@ -29,22 +29,19 @@
       allShapes.forEach((shape) => {
         if (arrow === shape) return;
 
-        Object.entries(shape.rect).forEach(([key, corner]) => {
+        Object.entries(shape.points).forEach(([key, corner]) => {
           // can't closure corner directory because derived isn't deeply reactive
-          const cornerRef = () => shape?.rect?.[key];
+          const cornerRef = () => shape?.points?.[key];
 
-          if (pointIsSnappedToCurrent(shape, key)) return;
+          if (isPointSnappedToCurrent(shape, key)) return;
 
-          if (cornerRef && isInCorner(arrow.rect.start, corner)) {
+          if (cornerRef && isInCorner(arrow.points.start, corner)) {
             arrow.startSnapped = cornerRef;
-          } else if (cornerRef && isInCorner(arrow.rect.end, corner)) {
+          } else if (cornerRef && isInCorner(arrow.points.end, corner)) {
             arrow.endSnapped = cornerRef;
           }
         });
       });
     });
   });
-
-
-
 </script>
