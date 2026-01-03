@@ -1,6 +1,8 @@
 import DraggableObject from "./DraggableObject.svelte.js";
 import {ShapeText} from "./Text/ShapeText.svelte.js";
 import extractCoordinates from "$lib/extractCoordinates.js";
+import rotateCords from "$lib/rotateCords.js";
+import isHiglightInsideShape from "$lib/isInside.js";
 
 export class Shape {
   constructor(getShapeArray, properties = {}) {
@@ -57,6 +59,7 @@ const MIN_SIZE = 10;
 export class BasicShape extends Shape {
   #width = $state();
   #height = $state();
+
   constructor(offset, getShapeArray, canvasScale, properties = {}) {
     super(getShapeArray, properties);
 
@@ -103,6 +106,86 @@ export class BasicShape extends Shape {
 
     this.strokeColor = $state(properties.strokeColor ?? "black");
     this.strokeWidth = $state(properties.strokeWidth ?? 2);
+
+    // Get the axis-aligned bounding box for handle positioning
+    let aabbTopLeft = $derived(this.getAxisAlignedTopLeft());
+
+    this.points = $derived([
+      { // top-left
+        bbox: true,
+        x: aabbTopLeft.x,
+        y: aabbTopLeft.y,
+        resizeFnc: (dx, dy, width, height) => {
+          this.changeTop(dy, height);
+          this.changeLeft(dx, width);
+        }
+      },
+      {   // top-center
+        x: aabbTopLeft.x + this.width / 2,
+        y: aabbTopLeft.y,
+        resizeFnc: (dx, dy, width, height) => {
+          this.changeTop(dy, height);
+        }
+      },
+      {    // top-right
+        bbox: true,
+        x: aabbTopLeft.x + this.width,
+        y: aabbTopLeft.y,
+        resizeFnc: (dx, dy, width, height) => {
+          this.changeTop(dy, height);
+          this.changeRight(dx, width);
+        }
+      },
+      {   // middle-right
+        x: aabbTopLeft.x + this.width,
+        y: aabbTopLeft.y + this.height / 2,
+        resizeFnc: (dx, dy, width) => {
+          this.changeRight(dx, width);
+        }
+      },
+      {   // bottom-right
+        bbox: true,
+        x: aabbTopLeft.x + this.width,
+        y: aabbTopLeft.y + this.height,
+        resizeFnc: (dx, dy, width, height) => {
+          this.changeBottom(dy, height);
+          this.changeRight(dx, width);
+        }
+      },
+      {   // bottom-center
+        x: aabbTopLeft.x + this.width / 2,
+        y: aabbTopLeft.y + this.height,
+        resizeFnc: (dx, dy, width, height) => {
+          this.changeBottom(dy, height);
+        }
+      },
+      {   // bottom-left
+        bbox: true,
+        x: aabbTopLeft.x,
+        y: aabbTopLeft.y + this.height,
+        resizeFnc: (dx, dy, width, height) => {
+          this.changeBottom(dy, height);
+          this.changeLeft(dx, width);
+        }
+      },
+      {  // middle-left
+        x: aabbTopLeft.x,
+        y: aabbTopLeft.y + this.height / 2,
+        resizeFnc: (dx, dy, width) => {
+          this.changeLeft(dx, width);
+        }
+      }
+    ].map(point => {
+      return {
+        ...rotateCords(point.x, point.y, this.center, this.rotation),
+        bbox: point.bbox,
+        resizeFnc: point.resizeFnc
+      };
+    }));
+
+    this.corners = $derived(this.points.filter(point => point.bbox).map(point => {
+      return {x: point.x, y: point.y}
+    }));
   }
 
   set width(width) {
@@ -121,12 +204,10 @@ export class BasicShape extends Shape {
     return this.#width;
   }
 
-  // Update resize methods to work with center-based positioning
   changeRight(dx, sizeBeforeWidth) {
     const newWidth = Math.max(dx + sizeBeforeWidth, MIN_SIZE);
     const widthDelta = newWidth - this.#width;
 
-    // Moving right edge means center moves right by half the width change
     const rad = (this.rotation * Math.PI) / 180;
     this.x += (widthDelta / 2) * Math.cos(rad);
     this.y += (widthDelta / 2) * Math.sin(rad);
@@ -138,7 +219,6 @@ export class BasicShape extends Shape {
     const newHeight = Math.max(dy + sizeBeforeHeight, MIN_SIZE);
     const heightDelta = newHeight - this.#height;
 
-    // Moving bottom edge means center moves down by half the height change
     const rad = (this.rotation * Math.PI) / 180;
     this.x -= (heightDelta / 2) * Math.sin(rad);
     this.y += (heightDelta / 2) * Math.cos(rad);
@@ -150,7 +230,6 @@ export class BasicShape extends Shape {
     const newWidth = Math.max(sizeBeforeWidth - dx, MIN_SIZE);
     const widthDelta = this.#width - newWidth;
 
-    // Moving left edge means center moves left by half the width change
     const rad = (this.rotation * Math.PI) / 180;
     this.x += (widthDelta / 2) * Math.cos(rad);
     this.y += (widthDelta / 2) * Math.sin(rad);
@@ -162,7 +241,6 @@ export class BasicShape extends Shape {
     const newHeight = Math.max(sizeBeforeHeight - dy, MIN_SIZE);
     const heightDelta = this.#height - newHeight;
 
-    // Moving top edge means center moves up by half the height change
     const rad = (this.rotation * Math.PI) / 180;
     this.x -= (heightDelta / 2) * Math.sin(rad);
     this.y += (heightDelta / 2) * Math.cos(rad);
@@ -170,8 +248,6 @@ export class BasicShape extends Shape {
     this.#height = newHeight;
   }
 
-  // Helper method to get the axis-aligned bounding box top-left
-  // (useful if you still need the old behavior somewhere)
   getAxisAlignedTopLeft() {
     return {
       x: this.center.x - this.#width / 2,
@@ -192,22 +268,9 @@ export class BasicShape extends Shape {
     };
   }
 
+  // i don't want to look at the code, so i put it elsewhere
   isInside(x1, y1, x2, y2) {
-    return (
-      // checking if physically inside
-      (this.rect.left.x <= x2 && x2 <= this.rect.right.x &&
-        this.rect.top.y <= y2 && y2 <= this.rect.bottom.y) ||
-
-      // checking if contains it horizontally
-      (this.rect.left.x > x1 && x2 > this.rect.right.x &&
-        this.rect.top.y <= y2 && y2 <= this.rect.bottom.y) ||
-
-      // checking if contains it vertically
-      (this.rect.left.x <= x2 && x2 <= this.rect.right.x
-        && this.rect.top.y > y1 && y2 > this.rect.bottom.y
-      ));
+    return isHiglightInsideShape(x1, y1, x2, y2, this.corners);
   }
-
 }
-
 
