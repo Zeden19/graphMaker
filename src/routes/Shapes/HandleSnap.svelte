@@ -5,14 +5,12 @@
   const BOUNDARY = 20;
   let {shapes, arrow} = $props();
 
-  const allShapes = $derived(Object.values(shapes).flat(4));
-
   const isInCorner = (arrowPoint, corner) => {
     return arrowPoint.x > corner.x - BOUNDARY && arrowPoint.x < corner.x + BOUNDARY &&
       arrowPoint.y > corner.y - BOUNDARY && arrowPoint.y < corner.y + BOUNDARY
   }
 
-  const isPointSnappedToCurrent = (shape, key) => {
+  const isPointSnappedToAnotherArrow = (shape, key) => {
     return shape.toString().toLowerCase() === "arrow" && shape[key + "Snapped"] !== undefined;
   }
 
@@ -26,14 +24,14 @@
     arrow.y2;
 
     untrack(() => {
-      allShapes.forEach((shape) => {
+      Object.values(shapes).flat(4).forEach((shape) => {
         if (arrow === shape) return;
 
         Object.entries(shape.points).forEach(([key, corner]) => {
           // can't closure corner directory because derived isn't deeply reactive
-          const cornerRef = () => shape?.points?.[key];
+          const cornerRef = () => shape.points[key];
 
-          if (isPointSnappedToCurrent(shape, key)) return;
+          if (isPointSnappedToAnotherArrow(shape, key)) return;
 
           if (cornerRef && isInCorner(arrow.points.start, corner)) {
             arrow.startSnapped = cornerRef;
