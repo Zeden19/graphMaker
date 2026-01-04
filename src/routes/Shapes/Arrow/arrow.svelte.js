@@ -126,10 +126,10 @@ export class Arrow extends Shape {
       [y1, y2] = [y2, y1];
     }
 
-    let arrowX1 = this.rect.start.x;
-    let arrowY1 = this.rect.start.y;
-    let arrowX2 = this.rect.end.x;
-    let arrowY2 = this.rect.end.y;
+    let arrowX1 = this.points.start.x;
+    let arrowY1 = this.points.start.y;
+    let arrowX2 = this.points.end.x;
+    let arrowY2 = this.points.end.y;
     return (
       // start is inside the box
       (arrowX1 > x1 && arrowY1 > y1 &&
