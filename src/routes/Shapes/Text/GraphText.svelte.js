@@ -4,14 +4,14 @@ const DEFAULT_WIDTH = 100;
 const DEFAULT_HEIGHT = 20;
 
 export class GraphText extends Box {
-  constructor(offset, getShapeArray, canvasScale,
+  constructor(offset, canvasScale,
               properties = {
                 width: DEFAULT_WIDTH,
                 height: DEFAULT_HEIGHT,
                 strokeColor: "white",
                 strokeWidth: 0,
                 text: {color: "white"}
-              }) {
-    super(offset, getShapeArray, canvasScale, properties);
+              }, removeShape) {
+    super(offset, canvasScale, properties, removeShape);
   }
 }

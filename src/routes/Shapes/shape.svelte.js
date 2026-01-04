@@ -5,11 +5,11 @@ import DraggableObject from "./DraggableObject.svelte.js";
 import extractCoordinates from "$lib/extractCoordinates.js";
 
 export class Shape {
-  constructor(getShapeArray, properties = {}) {
+  constructor(properties = {}, removeShape) {
     this.selected = $state(false);
     this.color = $state(properties.color ?? "white");
     this.text = $state(new ShapeText(properties.text ?? {}));
-    this.getShapeArray = getShapeArray;
+    this.removeShape = removeShape;
     this.isEditing = $state(false);
     this.shapePosBefore = {};
     this.gRef = $state();
@@ -35,11 +35,7 @@ export class Shape {
   }
 
   delete() {
-    this.selected = false;
-    const shapeArray = this.getShapeArray();
-    setTimeout(() => {
-      shapeArray.splice(shapeArray.findIndex((shape) => shape === this), 1)
-    });
+    this.removeShape(this)
   }
 
   setDrag = (event) => {
@@ -60,8 +56,8 @@ export class BasicShape extends Shape {
   #width = $state();
   #height = $state();
 
-  constructor(offset, getShapeArray, canvasScale, properties = {}) {
-    super(getShapeArray, properties);
+  constructor(offset, canvasScale, properties = {}, removeShape) {
+    super(properties, removeShape);
 
     this.rotation = $state(properties.rotation ?? 0);
     this.#width = properties.width ?? DEFAULT_SIZE;

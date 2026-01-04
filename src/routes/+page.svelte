@@ -89,7 +89,7 @@
     circles: [],
     arrows: [],
     squares: [],
-    texts: [],
+    graphtexts: [],
     triangles: [],
   });
   let selectedShapes = $derived(Object.values(shapes).flat(4).filter(shape => shape.selected))
@@ -103,14 +103,32 @@
   });
 
   const addShape = (array, ShapeClassRef, shapeProperties) => {
-    array.push(new ShapeClassRef(offset, () => array, () => canvasScale, shapeProperties));
+    array.push(new ShapeClassRef(offset, () => canvasScale, shapeProperties, removeShape));
   }
 
-  export const removeObject = (array, index) => {
+  const removeShape = (shape) => {
     // need selected to be false so popup transition out plays
-    array[index].selected = false;
+    shape.selected = false;
+
+    shapes.arrows.forEach(arrow => {
+      if (arrow.startSnappedShape?.() === shape) {
+        arrow.x1 = arrow.startSnapped().x - offset.x;
+        arrow.y1 = arrow.startSnapped().y - offset.y;
+        arrow.startSnapped = undefined;
+        arrow.startSnappedShape = undefined;
+
+      }
+      if (arrow.endSnappedShape?.() === shape) {
+        arrow.x2 = arrow.endSnapped().x - offset.x;
+        arrow.y2 = arrow.endSnapped().y - offset.y;
+        arrow.endSnapped = undefined;
+        arrow.endSnappedShape = undefined;
+      }
+    });
+
     setTimeout(() => { // idk why but we also need timemeout
-      array.splice(index, 1);
+      const index = shapes[shape.toString().toLowerCase() + "s"].indexOf(shape);
+      shapes[shape.toString().toLowerCase() + "s"].splice(index, 1);
     });
   }
 
@@ -133,7 +151,7 @@
       case "square":
         return {array: shapes.squares, class: SquareClass};
       case "graphtext":
-        return {array: shapes.texts, class: GraphTextClass};
+        return {array: shapes.graphtexts, class: GraphTextClass};
       case "triangle":
         return {array: shapes.triangles, class: TriangleClass};
     }
@@ -151,7 +169,7 @@
     <div class="functional-buttons">
       <button class="button" onclick={() => addShape(shapes.circles, CircleClass)}>Add Circle</button>
       <button class="button" onclick={() => addShape(shapes.arrows, ArrowClass)}>Add Arrow</button>
-      <button class="button" onclick={() => addShape(shapes.texts, GraphTextClass)}>Add Text</button>
+      <button class="button" onclick={() => addShape(shapes.graphtexts, GraphTextClass)}>Add Text</button>
       <button class="button" onclick={() => addShape(shapes.squares, SquareClass)}>Add Square</button>
       <button class="button" onclick={() => addShape(shapes.triangles, TriangleClass)}>Add Triangle</button>
       <button class="button" onclick="{clear}">Clear</button>
@@ -195,9 +213,9 @@
             <Square bind:square={shapes.squares[index]}/>
             <ResizeFromEdges bind:shape={shapes.squares[index]}/>
 
-          {:else if shapesName === "texts"}
-            <GraphText bind:text={shapes.texts[index]}/>
-            <ResizeFromEdges bind:shape={shapes.texts[index]}/>
+          {:else if shapesName === "graphtexts"}
+            <GraphText bind:text={shapes.graphtexts[index]}/>
+            <ResizeFromEdges bind:shape={shapes.graphtexts[index]}/>
 
           {:else if shapesName === "triangles"}
             <Triangle bind:triangle={shapes.triangles[index]}/>

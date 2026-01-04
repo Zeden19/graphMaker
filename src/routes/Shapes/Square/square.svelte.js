@@ -4,7 +4,7 @@ const DEFAULT_SIZE = 200
 
 
 export class Square extends Box {
-  constructor(offset, getShapeArray, canvasScale, properties = {width: DEFAULT_SIZE, height: DEFAULT_SIZE}) {
-    super(offset, getShapeArray, canvasScale, properties);
+  constructor(offset, canvasScale, properties = {width: DEFAULT_SIZE, height: DEFAULT_SIZE}, removeShape) {
+    super(offset, canvasScale, properties, removeShape);
   }
 }

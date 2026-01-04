@@ -35,8 +35,11 @@
 
           if (cornerRef && isInCorner(arrow.points.start, corner)) {
             arrow.startSnapped = cornerRef;
+            arrow.startSnappedShape = () => shape;
           } else if (cornerRef && isInCorner(arrow.points.end, corner)) {
             arrow.endSnapped = cornerRef;
+            arrow.endSnappedShape = () => shape;
+
           }
         });
       });

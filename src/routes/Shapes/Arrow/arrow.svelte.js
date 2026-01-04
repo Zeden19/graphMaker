@@ -10,8 +10,8 @@ const MARKER_SIZE = 4;
 export class Arrow extends Shape {
   #color = $state();
 
-  constructor(offset, getShapeArray, canvasScale, properties = {text: {color: "white"}}) {
-    super(getShapeArray, properties);
+  constructor(offset, canvasScale, properties = {text: {color: "white"}}, removeShape) {
+    super(properties, removeShape);
     this.#color = properties.color ?? "white";
     this.x1 = $state(properties.x1 ?? DEFAULT_X1 - offset.x);
     this.x2 = $state(properties.x2 ?? DEFAULT_X2 - offset.x);
@@ -26,7 +26,9 @@ export class Arrow extends Shape {
     this.movingEnd = $state(false);
 
     this.startSnapped = $state();
+    this.startSnappedShape = $state();
     this.endSnapped = $state();
+    this.endSnappedShape = $state();
 
     this.position = $derived({
       x1: this.startSnapped?.().x ?? this.x1 + offset.x,
@@ -64,6 +66,7 @@ export class Arrow extends Shape {
           this[y] = this[pointSnapped]().y + dy;
 
           this[pointSnapped] = undefined;
+          this[pointSnapped + "Shape"] = undefined;
         }
       } else {
         this[x] = arrowPosBefore[x] + dx;
