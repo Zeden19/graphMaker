@@ -6,9 +6,10 @@ import extractCoordinates from "$lib/extractCoordinates.js";
 
 export class Shape {
   constructor(properties = {}, removeShape) {
+    const propertiesWithDefaults = {...this.constructor.defaultProperties, ...properties}
     this.selected = $state(false);
-    this.color = $state(properties.color ?? "white");
-    this.text = $state(new ShapeText(properties.text ?? {}));
+    this.color = $state(propertiesWithDefaults.color ?? "white");
+    this.text = $state(new ShapeText(propertiesWithDefaults.text ?? {}));
     this.removeShape = removeShape;
     this.isEditing = $state(false);
     this.shapePosBefore = {};
@@ -58,14 +59,15 @@ export class BasicShape extends Shape {
 
   constructor(offset, canvasScale, properties = {}, removeShape) {
     super(properties, removeShape);
+    const propertiesWithDefaults = {...this.constructor.defaultProperties, ...properties}
 
-    this.rotation = $state(properties.rotation ?? 0);
-    this.#width = properties.width ?? DEFAULT_SIZE;
-    this.#height = properties.height ?? DEFAULT_SIZE;
+    this.rotation = $state(propertiesWithDefaults.rotation ?? 0);
+    this.#width = propertiesWithDefaults.width ?? DEFAULT_SIZE;
+    this.#height = propertiesWithDefaults.height ?? DEFAULT_SIZE;
 
     // Store center position internally
-    this.x = $state((properties.x ?? DEFAULT_X - offset.x) + this.#width / 2);
-    this.y = $state((properties.y ?? DEFAULT_Y - offset.y) + this.#height / 2);
+    this.x = $state((propertiesWithDefaults.x ?? DEFAULT_X - offset.x) + this.#width / 2);
+    this.y = $state((propertiesWithDefaults.y ?? DEFAULT_Y - offset.y) + this.#height / 2);
 
     // Derived center in canvas space
     this.center = $derived({
@@ -100,8 +102,8 @@ export class BasicShape extends Shape {
     this.widthWithScale = $derived((this.#width) * canvasScale());
     this.heightWithScale = $derived((this.#height) * canvasScale());
 
-    this.strokeColor = $state(properties.strokeColor ?? "black");
-    this.strokeWidth = $state(properties.strokeWidth ?? 2);
+    this.strokeColor = $state(propertiesWithDefaults.strokeColor ?? "black");
+    this.strokeWidth = $state(propertiesWithDefaults.strokeWidth ?? 2);
 
     // Get the axis-aligned bounding box for handle positioning
     let aabbTopLeft = $derived(this.getAxisAlignedTopLeft());
