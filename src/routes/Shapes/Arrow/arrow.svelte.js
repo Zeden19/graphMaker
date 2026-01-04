@@ -41,7 +41,8 @@ export class Arrow extends Shape {
       y: (this.position.y1 + this.position.y2) / 2
     });
     this.length = $derived(Math.sqrt(((this.position.x2 - this.position.x1) ** 2) + ((this.position.y2 - this.position.y1) ** 2)))
-    this.rotation = $derived(Math.atan((this.position.y2 - this.position.y1) / (this.position.x2 - this.position.x1)));
+    this.rotation = $derived(Math.atan2(this.position.y2 - this.position.y1, this.position.x2 - this.position.x1)
+      * (180 / Math.PI));
 
     this.points = $derived({
       start: {x: this.position.x1, y: this.position.y1},
@@ -58,7 +59,7 @@ export class Arrow extends Shape {
         // checking whether the new position given no snapping is 20 points further away than the current position.
         // because arrowPosBefore does not include offset, we have to remove offset from point snapped
         if (Math.abs(this[pointSnapped]().x - offset.x - (arrowPosBefore[x] + dx)) > 20 ||
-            Math.abs(this[pointSnapped]().y - offset.y - (arrowPosBefore[y] + dy)) > 20) {
+          Math.abs(this[pointSnapped]().y - offset.y - (arrowPosBefore[y] + dy)) > 20) {
           this[x] = this[pointSnapped]().x + dx;
           this[y] = this[pointSnapped]().y + dy;
 

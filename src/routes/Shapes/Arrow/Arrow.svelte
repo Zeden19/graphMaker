@@ -13,15 +13,19 @@
     }
   });
 
-  const textWidth = $derived(Math.min(arrow.text.value.length * arrow.text.fontSize * 0.6, arrow.length));
+  const textPos = $derived.by(() => {
+    const dx = arrow.points.end.x - arrow.points.start.x;
+    const dy = arrow.points.end.y - arrow.points.start.y;
+    const L = Math.sqrt(dx * dx + dy * dy);
 
-  const textOffset = 25;
+    const nX = -dy / L;
+    const nY = dx / L;
 
-  const textPos = $derived({
-    x: arrow.middle.x + Math.sin(arrow.rotation) * textOffset - Math.cos(arrow.rotation) * (textWidth / 2),
-    y: arrow.middle.y - Math.cos(arrow.rotation) * textOffset - Math.sin(arrow.rotation) * (textWidth / 2)
+    const offsetX = nX * 10;
+    const offsetY = nY * 10;
+
+    return {x: offsetX + arrow.points.start.x, y: offsetY + arrow.points.start.y};
   });
-
 </script>
 
 <defs>
@@ -45,7 +49,7 @@
   x={textPos.x}
   y={textPos.y}
   transformOrigin={{x: textPos.x, y: textPos.y}}
-  width="{textWidth}px"
+  width="{arrow.length}px"
   height="1.5em"
 />
 
