@@ -18,7 +18,7 @@
     () => {
     },
     (dx, dy) => {
-      value = Math.floor((Math.atan2(dx, dy) * (180 / Math.PI)) - 90) * -1;
+      value = Math.floor((Math.atan2(dy, dx) * (180 / Math.PI)) - 90);
     });
 </script>
 

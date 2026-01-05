@@ -1,5 +1,6 @@
 import {Shape} from "../shape.svelte.js";
 import DraggableObject from "../DraggableObject.svelte.js";
+import rotateCords from "$lib/rotateCords.js";
 
 const DEFAULT_X1 = 350;
 const DEFAULT_X2 = DEFAULT_X1 + 100
@@ -9,9 +10,20 @@ const MARKER_SIZE = 4;
 
 export class Arrow extends Shape {
   #color = $state();
+  #rotation = $state();
+
+  #isSnappedStart() {
+    return !!this.startSnapped?.();
+  }
+
+  #isSnappedEnd() {
+    return !!this.endSnapped?.();
+  }
+
 
   constructor(offset, canvasScale, properties = {text: {color: "white"}}, removeShape) {
     super(properties, removeShape);
+    this.offset = offset;
     this.#color = properties.color ?? "white";
     this.x1 = $state(properties.x1 ?? DEFAULT_X1 - offset.x);
     this.x2 = $state(properties.x2 ?? DEFAULT_X2 - offset.x);
@@ -31,10 +43,10 @@ export class Arrow extends Shape {
     this.endSnappedShape = $state();
 
     this.position = $derived({
-      x1: this.startSnapped?.().x ?? this.x1 + offset.x,
-      y1: this.startSnapped?.().y ?? this.y1 + offset.y,
-      x2: this.endSnapped?.().x ?? this.x2 + offset.x,
-      y2: this.endSnapped?.().y ?? this.y2 + offset.y
+      x1: this.startSnapped?.().x ?? this.x1 + this.offset.x,
+      y1: this.startSnapped?.().y ?? this.y1 + this.offset.y,
+      x2: this.endSnapped?.().x ?? this.x2 + this.offset.x,
+      y2: this.endSnapped?.().y ?? this.y2 + this.offset.y
     });
 
     this.widthWithScale = $derived({marker: MARKER_SIZE * canvasScale(), line: this.width * canvasScale()});
@@ -43,8 +55,8 @@ export class Arrow extends Shape {
       y: (this.position.y1 + this.position.y2) / 2
     });
     this.length = $derived(Math.sqrt(((this.position.x2 - this.position.x1) ** 2) + ((this.position.y2 - this.position.y1) ** 2)))
-    this.rotation = $derived(Math.atan2(this.position.y2 - this.position.y1, this.position.x2 - this.position.x1)
-      * (180 / Math.PI));
+
+    this.#rotation = properties.rotation ?? 0;
 
     this.points = $derived({
       start: {x: this.position.x1, y: this.position.y1},
@@ -105,6 +117,33 @@ export class Arrow extends Shape {
   get color() {
     return this.#color
   }
+
+  get rotation() {
+    return Math.atan2(this.position.y2 - this.position.y1, this.position.x2 - this.position.x1)
+      * (180 / Math.PI)
+  }
+
+  set rotation(targetRotation) {
+  // Capture the middle point at the start
+  const fixedMiddleX = this.middle.x;
+  const fixedMiddleY = this.middle.y;
+  const fixedMiddle = { x: fixedMiddleX, y: fixedMiddleY };
+
+  // Calculate the rotation difference
+  const currentRotation = this.rotation;
+  const rotationDelta = targetRotation - currentRotation;
+
+  // Rotate both endpoints by the delta
+  const newPos1 = rotateCords(this.position.x1, this.position.y1, fixedMiddle, rotationDelta);
+  const newPos2 = rotateCords(this.position.x2, this.position.y2, fixedMiddle, rotationDelta);
+
+  // Update the underlying coordinates (accounting for offset)
+  this.x1 = newPos1.x - this.offset.x;
+  this.y1 = newPos1.y - this.offset.y;
+  this.x2 = newPos2.x - this.offset.x;
+  this.y2 = newPos2.y - this.offset.y;
+}
+
 
   toJSON() {
     return {

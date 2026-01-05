@@ -25,6 +25,7 @@
     const offsetY = nY * 10;
 
     return {x: offsetX + arrow.points.start.x, y: offsetY + arrow.points.start.y};
+
   });
 </script>
 
