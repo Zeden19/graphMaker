@@ -8,6 +8,7 @@ class DraggableObject {
   }
 
   setDrag = (event) => {
+    event.preventDefault();
     this.mousePosBefore.x = event.clientX;
     this.mousePosBefore.y = event.clientY;
     this.setFunc(event, this.mousePosBefore.x, this.mousePosBefore.y);
