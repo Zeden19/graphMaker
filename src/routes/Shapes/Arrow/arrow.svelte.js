@@ -12,15 +12,6 @@ export class Arrow extends Shape {
   #color = $state();
   #rotation = $state();
 
-  #isSnappedStart() {
-    return !!this.startSnapped?.();
-  }
-
-  #isSnappedEnd() {
-    return !!this.endSnapped?.();
-  }
-
-
   constructor(offset, canvasScale, properties = {text: {color: "white"}}, removeShape) {
     super(properties, removeShape);
     this.offset = offset;

@@ -103,7 +103,7 @@ export class BasicShape extends Shape {
     this.heightWithScale = $derived((this.#height) * canvasScale());
 
     this.strokeColor = $state(propertiesWithDefaults.strokeColor ?? "black");
-    this.strokeWidth = $state(propertiesWithDefaults.strokeWidth ?? 2);
+    this.strokeWidth = $state(propertiesWithDefaults.strokeWidth ?? 30);
 
     // Get the axis-aligned bounding box for handle positioning
     let aabbTopLeft = $derived(this.getAxisAlignedTopLeft());
@@ -111,8 +111,8 @@ export class BasicShape extends Shape {
     this.points = $derived([
       { // top-left
         bbox: true,
-        x: aabbTopLeft.x,
-        y: aabbTopLeft.y,
+        x: aabbTopLeft.x - this.strokeWidth,
+        y: aabbTopLeft.y - this.strokeWidth,
         resizeFnc: (dx, dy, width, height) => {
           this.changeTop(dy, height);
           this.changeLeft(dx, width);
@@ -120,22 +120,22 @@ export class BasicShape extends Shape {
       },
       {   // top-center
         x: aabbTopLeft.x + this.width / 2,
-        y: aabbTopLeft.y,
+        y: aabbTopLeft.y - this.strokeWidth,
         resizeFnc: (dx, dy, width, height) => {
           this.changeTop(dy, height);
         }
       },
       {    // top-right
         bbox: true,
-        x: aabbTopLeft.x + this.width,
-        y: aabbTopLeft.y,
+        x: aabbTopLeft.x + this.width + this.strokeWidth,
+        y: aabbTopLeft.y - this.strokeWidth,
         resizeFnc: (dx, dy, width, height) => {
           this.changeTop(dy, height);
           this.changeRight(dx, width);
         }
       },
       {   // middle-right
-        x: aabbTopLeft.x + this.width,
+        x: aabbTopLeft.x + this.width + this.strokeWidth,
         y: aabbTopLeft.y + this.height / 2,
         resizeFnc: (dx, dy, width) => {
           this.changeRight(dx, width);
@@ -143,8 +143,8 @@ export class BasicShape extends Shape {
       },
       {   // bottom-right
         bbox: true,
-        x: aabbTopLeft.x + this.width,
-        y: aabbTopLeft.y + this.height,
+        x: aabbTopLeft.x + this.width + this.strokeWidth,
+        y: aabbTopLeft.y + this.height + this.strokeWidth,
         resizeFnc: (dx, dy, width, height) => {
           this.changeBottom(dy, height);
           this.changeRight(dx, width);
@@ -152,22 +152,22 @@ export class BasicShape extends Shape {
       },
       {   // bottom-center
         x: aabbTopLeft.x + this.width / 2,
-        y: aabbTopLeft.y + this.height,
+        y: aabbTopLeft.y + this.height + this.strokeWidth,
         resizeFnc: (dx, dy, width, height) => {
           this.changeBottom(dy, height);
         }
       },
       {   // bottom-left
         bbox: true,
-        x: aabbTopLeft.x,
-        y: aabbTopLeft.y + this.height,
+        x: aabbTopLeft.x - this.strokeWidth,
+        y: aabbTopLeft.y + this.height + this.strokeWidth,
         resizeFnc: (dx, dy, width, height) => {
           this.changeBottom(dy, height);
           this.changeLeft(dx, width);
         }
       },
       {  // middle-left
-        x: aabbTopLeft.x,
+        x: aabbTopLeft.x - this.strokeWidth,
         y: aabbTopLeft.y + this.height / 2,
         resizeFnc: (dx, dy, width) => {
           this.changeLeft(dx, width);

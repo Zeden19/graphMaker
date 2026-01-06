@@ -16,7 +16,7 @@
   cy="{circle.center.y}"
   fill="{circle.color}"
   stroke={circle.strokeColor}
-  stroke-width="{circle.strokeWidth}"
+  stroke-width="{circle.strokeWidth * 2}"
   style="transform-origin: {circle.center.x}px {circle.center.y}px;
          rotate: {circle.rotation}deg"
   role="presentation"
@@ -34,5 +34,6 @@
   ellipse {
     cursor: grab;
     transition: fill var(--shape-transition-timing), stroke var(--shape-transition-timing);
+    paint-order: stroke;
   }
 </style>

@@ -11,14 +11,14 @@
     return {
       point1: {
         x: renderPosition.x + triangle.width / 2,
-        y: renderPosition.y
+        y: renderPosition.y + triangle.strokeWidth
       },
       point2: {
-        x: renderPosition.x,
+        x: renderPosition.x + triangle.strokeWidth / 2,
         y: renderPosition.y + triangle.height
       },
       point3: {
-        x: renderPosition.x + triangle.width,
+        x: renderPosition.x + triangle.width - triangle.strokeWidth / 2,
         y: renderPosition.y + triangle.height
       }
     };
@@ -33,7 +33,7 @@
           {coords.point3.x},{coords.point3.y}"
   fill={triangle.color}
   stroke="{triangle.strokeColor}"
-  stroke-width="{triangle.strokeWidth}"
+  stroke-width="{triangle.strokeWidth * 2}"
   style="transform: rotate({triangle.rotation}deg);
        transform-origin: {triangle.center.x}px {triangle.center.y}px;"
   bind:this={triangle.ref}>
@@ -52,5 +52,6 @@
   polygon {
     cursor: pointer;
     transition: stroke var(--shape-transition-timing);
+    paint-order: stroke;
   }
 </style>

@@ -11,8 +11,9 @@
 <rect
   transition:scale|global={{duration: 120}}
   style="transform-origin: {square.center.x}px {square.center.y}px;
-         rotate: {square.rotation}deg;
-         outline: {square.strokeColor} {square.strokeWidth}px solid;"
+         rotate: {square.rotation}deg;"
+  stroke="{square.strokeColor}"
+  stroke-width="{square.strokeWidth * 2}"
   x="{renderPosition.x}"
   y="{renderPosition.y}"
   width="{square.width}"
@@ -29,5 +30,6 @@
   rect {
     cursor: grab;
     transition: fill var(--shape-transition-timing), stroke var(--shape-transition-timing);
+    paint-order: stroke;
   }
 </style>
