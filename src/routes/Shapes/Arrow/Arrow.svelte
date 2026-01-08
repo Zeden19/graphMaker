@@ -14,36 +14,36 @@
   });
 
   const textPos = $derived.by(() => {
-    const dx = arrow.points.end.x - arrow.points.start.x;
-    const dy = arrow.points.end.y - arrow.points.start.y;
-    const L = Math.sqrt(dx * dx + dy * dy);
+    const offset = (arrow.width / 2) + arrow.strokeWidth + 5;
+    return {
+      x: arrow.position.x1 + arrow.unitVectors.perp.x * offset,
+      y: arrow.position.y1 + arrow.unitVectors.perp.y * offset
+    };
+  });
 
-    const nX = -dy / L;
-    const nY = dx / L;
+  const path = $derived.by(() => {
+    const hw = arrow.width / 2;
+    const coords = {
+      x1: arrow.position.x1 + arrow.unitVectors.perp.x * hw,
+      y1: arrow.position.y1 + arrow.unitVectors.perp.y * hw,
+      x2: arrow.position.x2 + arrow.unitVectors.perp.x * hw,
+      y2: arrow.position.y2 + arrow.unitVectors.perp.y * hw,
+      x3: arrow.position.x2 - arrow.unitVectors.perp.x * hw,
+      y3: arrow.position.y2 - arrow.unitVectors.perp.y * hw,
+      x4: arrow.position.x1 - arrow.unitVectors.perp.x * hw,
+      y4: arrow.position.y1 - arrow.unitVectors.perp.y * hw,
+    }
+    const {x1, y1, x2, y2, x3, y3, x4, y4} = coords;
 
-    const offsetX = nX * 10;
-    const offsetY = nY * 10;
+    return `
+          M ${x1},${y1} L ${x2},${y2}
+          L ${x3},${y3} L ${x4},${y4} Z
 
-    return {x: offsetX + arrow.points.start.x, y: offsetY + arrow.points.start.y};
-
+          ${arrowEndpoints[arrow.start](arrow, true, coords)}
+          ${arrowEndpoints[arrow.end](arrow, false, coords)}
+          `
   });
 </script>
-
-<defs>
-  <marker id="start{index}" refX="{5}" refY="{5}"
-          markerWidth="{arrow.widthWithScale.marker}"
-          markerHeight="{arrow.widthWithScale.marker}"
-          orient="auto-start-reverse" viewBox="0 0 10 10">
-    {@html arrowEndpoints[arrow.start](arrow)}
-  </marker>
-
-  <marker id="end{index}" refX="{5}" refY="{5}"
-          markerWidth="{arrow.widthWithScale.marker}"
-          markerHeight="{arrow.widthWithScale.marker}"
-          orient="auto-start-reverse" viewBox="0 0 10 10">
-    {@html arrowEndpoints[arrow.end](arrow)}
-  </marker>
-</defs>
 
 <ShapeText
   shape={arrow}
@@ -54,36 +54,36 @@
   height="1.5em"
 />
 
-<!--use path instead for stroke (& will be useful for curved shit)-->
-<polyline
+<path
   transition:scale|global={{duration: 120}}
-  points="{arrow.position.x1},{arrow.position.y1} {arrow.position.x2},{arrow.position.y2}"
+  d="{path}"
   style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
-  stroke="{arrow.color}"
-  stroke-width="{arrow.width}"
-  marker-end="url(#end{index})"
-  marker-start="url(#start{index})">
-</polyline>
+  fill="{arrow.color}"
+  stroke="{arrow.strokeColor}"
+  stroke-width="{arrow.strokeWidth * 2}"
+>
+</path>
 
 {#if arrow.selected}
   <ResizeCircle
-    x={arrow.position.x1}
-    y={arrow.position.y1}
+    x={arrow.points.start.x}
+    y={arrow.points.start.y}
     cursor="move"
     setDrag={(event) => {arrow.setDrag(event); arrow.movingStart = true;}}
   />
 
   <ResizeCircle
-    x={arrow.position.x2}
-    y={arrow.position.y2}
+    x={arrow.points.end.x}
+    y={arrow.points.end.y}
     cursor="move"
     setDrag={(event) => {arrow.setDrag(event); arrow.movingEnd = true;}}
   />
 {/if}
 
 <style>
-  polyline {
-    cursor: pointer;
-    transition: stroke var(--shape-transition-timing);
+  path {
+    cursor: grab;
+    transition: fill var(--shape-transition-timing), stroke var(--shape-transition-timing);
+    paint-order: stroke;
   }
 </style>

@@ -9,6 +9,8 @@ export class Shape {
     const propertiesWithDefaults = {...this.constructor.defaultProperties, ...properties}
     this.selected = $state(false);
     this.color = $state(propertiesWithDefaults.color ?? "white");
+    this.strokeColor = $state(propertiesWithDefaults.strokeColor ?? "black");
+    this.strokeWidth = $state(propertiesWithDefaults.strokeWidth ?? 2);
     this.text = $state(new ShapeText(propertiesWithDefaults.text ?? {}));
     this.removeShape = removeShape;
     this.isEditing = $state(false);
@@ -101,9 +103,6 @@ export class BasicShape extends Shape {
 
     this.widthWithScale = $derived((this.#width) * canvasScale());
     this.heightWithScale = $derived((this.#height) * canvasScale());
-
-    this.strokeColor = $state(propertiesWithDefaults.strokeColor ?? "black");
-    this.strokeWidth = $state(propertiesWithDefaults.strokeWidth ?? 30);
 
     // Get the axis-aligned bounding box for handle positioning
     let aabbTopLeft = $derived(this.getAxisAlignedTopLeft());

@@ -47,11 +47,34 @@ export class Arrow extends Shape {
     });
     this.length = $derived(Math.sqrt(((this.position.x2 - this.position.x1) ** 2) + ((this.position.y2 - this.position.y1) ** 2)))
 
+    // Direction encodes rotation; it is length 1 and points along the arrow from start to end
+    // Perpendicular encodes what is left and right; Length is 1, but points 90 degress away from the arrow
+    this.unitVectors = $derived({
+      dir: {
+        x: (this.position.x2 - this.position.x1) / this.length,
+        y: (this.position.y2 - this.position.y1) / this.length
+      },
+      perp: {
+        x: -(this.position.y2 - this.position.y1) / this.length,
+        y: (this.position.x2 - this.position.x1) / this.length
+      }
+    })
+
     this.#rotation = properties.rotation ?? 0;
 
-    this.points = $derived({
-      start: {x: this.position.x1, y: this.position.y1},
-      end: {x: this.position.x2, y: this.position.y2},
+    this.points = $derived.by(() => {
+      const offset = this.strokeWidth;
+
+      return {
+        start: {
+          x: this.position.x1 - this.unitVectors.dir.x * offset,
+          y: this.position.y1 - this.unitVectors.dir.y * offset
+        },
+        end: {
+          x: this.position.x2 + this.unitVectors.dir.x * offset,
+          y: this.position.y2 + this.unitVectors.dir.y * offset
+        }
+      };
     });
 
     let arrowPosBefore = {x1: 0, y1: 0, x2: 0, y2: 0};
@@ -115,25 +138,22 @@ export class Arrow extends Shape {
   }
 
   set rotation(targetRotation) {
-  // Capture the middle point at the start
-  const fixedMiddleX = this.middle.x;
-  const fixedMiddleY = this.middle.y;
-  const fixedMiddle = { x: fixedMiddleX, y: fixedMiddleY };
+    // Capture the middle point at the start
+    const fixedMiddle = {x: this.middle.x, y: this.middle.y};
 
-  // Calculate the rotation difference
-  const currentRotation = this.rotation;
-  const rotationDelta = targetRotation - currentRotation;
+    // Calculate the rotation difference
+    const rotationDelta = targetRotation - this.rotation;
 
-  // Rotate both endpoints by the delta
-  const newPos1 = rotateCords(this.position.x1, this.position.y1, fixedMiddle, rotationDelta);
-  const newPos2 = rotateCords(this.position.x2, this.position.y2, fixedMiddle, rotationDelta);
+    // Rotate both endpoints by the delta
+    const newPos1 = rotateCords(this.position.x1, this.position.y1, fixedMiddle, rotationDelta);
+    const newPos2 = rotateCords(this.position.x2, this.position.y2, fixedMiddle, rotationDelta);
 
-  // Update the underlying coordinates (accounting for offset)
-  this.x1 = newPos1.x - this.offset.x;
-  this.y1 = newPos1.y - this.offset.y;
-  this.x2 = newPos2.x - this.offset.x;
-  this.y2 = newPos2.y - this.offset.y;
-}
+    // Update the underlying coordinates (accounting for offset)
+    this.x1 = newPos1.x - this.offset.x;
+    this.y1 = newPos1.y - this.offset.y;
+    this.x2 = newPos2.x - this.offset.x;
+    this.y2 = newPos2.y - this.offset.y;
+  }
 
 
   toJSON() {

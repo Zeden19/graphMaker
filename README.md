@@ -1,7 +1,8 @@
 Simple Graph maker made with Svelte
 
 # bugs:
-- arrow rotation does not work
+- arrow still stays attatched to phantom reference
+- can't select text at all anymore
 
 ## Fixed Bugs
 
