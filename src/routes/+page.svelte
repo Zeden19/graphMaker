@@ -222,7 +222,7 @@
             <ResizeFromEdges bind:shape={shapes.triangles[index]}/>
 
           {:else if shapesName === "arrows"}
-            <Arrow bind:arrow={shapes.arrows[index]} {index}/>
+            <Arrow bind:arrow={shapes.arrows[index]}/>
             <HandleSnap arrow={shape} {shapes}/>
           {/if}
         </Shape>

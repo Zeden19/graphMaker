@@ -20,7 +20,7 @@ class DraggableObject {
       const dx = event.clientX - this.mousePosBefore.x;
       const dy = event.clientY - this.mousePosBefore.y;
 
-      this.moveFunc(dx, dy);
+      this.moveFunc(dx, dy, event);
     };
 
     window.addEventListener("mousemove", moveObject);

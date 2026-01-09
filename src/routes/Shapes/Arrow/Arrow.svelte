@@ -4,7 +4,7 @@
   import ShapeText from "../Text/ShapeText.svelte";
   import ResizeCircle from "../ResizeCircle.svelte";
 
-  let {arrow = $bindable(), index} = $props();
+  let {arrow = $bindable()} = $props();
 
   $effect(() => {
     if (arrow.drag.isDragging === false) {

@@ -14,11 +14,19 @@
     }
   });
 
+  let knobCenter = {x: 0, y: 0};
+  let angleOffset = 0;
+
   const draggableKnob = new DraggableObject(
-    () => {
+    (event) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      knobCenter = {x: rect.left + rect.width / 2, y: rect.top + rect.height / 2};
+      const baseAngle = (Math.atan2(event.clientY - knobCenter.y, event.clientX - knobCenter.x) * (180 / Math.PI)) - 90;
+      angleOffset = value - baseAngle;
     },
-    (dx, dy) => {
-      value = Math.floor((Math.atan2(dy, dx) * (180 / Math.PI)) - 90);
+    (_dx, _dy, event) => {
+      const baseAngle = (Math.atan2(event.clientY - knobCenter.y, event.clientX - knobCenter.x) * (180 / Math.PI)) - 90;
+      value = Math.floor(baseAngle + angleOffset);
     });
 </script>
 
