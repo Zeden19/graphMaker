@@ -67,4 +67,3 @@
 <g bind:this={gRef} onmousedown={moveShapes} role="presentation">
   {@render children()}
 </g>
-<style></style>

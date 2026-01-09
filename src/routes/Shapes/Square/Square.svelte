@@ -25,11 +25,3 @@
 <ShapeText shape={square} x={renderPosition.x} y={renderPosition.y}
            transformOrigin={square.center}
            width={square.width} height={square.height}></ShapeText>
-
-<style>
-  rect {
-    cursor: grab;
-    transition: fill var(--shape-transition-timing), stroke var(--shape-transition-timing);
-    paint-order: stroke;
-  }
-</style>

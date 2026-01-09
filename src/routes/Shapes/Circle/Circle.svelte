@@ -29,11 +29,3 @@
            y={renderPosition.y}
            width={Math.abs(circle.width)}
            height={Math.abs(circle.height)}/>
-
-<style>
-  ellipse {
-    cursor: grab;
-    transition: fill var(--shape-transition-timing), stroke var(--shape-transition-timing);
-    paint-order: stroke;
-  }
-</style>

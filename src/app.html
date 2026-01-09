@@ -84,4 +84,10 @@
     -ms-user-select: none;
     user-select: none;
   }
+
+  polygon, rect, ellipse, path {
+    cursor: grab;
+    transition: fill var(--shape-transition-timing), stroke var(--shape-transition-timing);
+    paint-order: stroke;
+  }
 </style>

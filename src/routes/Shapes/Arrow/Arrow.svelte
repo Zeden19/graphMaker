@@ -79,11 +79,3 @@
     setDrag={(event) => {arrow.setDrag(event); arrow.movingEnd = true;}}
   />
 {/if}
-
-<style>
-  path {
-    cursor: grab;
-    transition: fill var(--shape-transition-timing), stroke var(--shape-transition-timing);
-    paint-order: stroke;
-  }
-</style>

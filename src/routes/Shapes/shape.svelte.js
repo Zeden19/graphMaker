@@ -109,6 +109,7 @@ export class BasicShape extends Shape {
 
     this.points = $derived([
       { // top-left
+        handle: "topLeft",
         bbox: true,
         x: aabbTopLeft.x - this.strokeWidth,
         y: aabbTopLeft.y - this.strokeWidth,
@@ -118,6 +119,7 @@ export class BasicShape extends Shape {
         }
       },
       {   // top-center
+        handle: "top",
         x: aabbTopLeft.x + this.width / 2,
         y: aabbTopLeft.y - this.strokeWidth,
         resizeFnc: (dx, dy, width, height) => {
@@ -125,6 +127,7 @@ export class BasicShape extends Shape {
         }
       },
       {    // top-right
+        handle: "topRight",
         bbox: true,
         x: aabbTopLeft.x + this.width + this.strokeWidth,
         y: aabbTopLeft.y - this.strokeWidth,
@@ -134,6 +137,7 @@ export class BasicShape extends Shape {
         }
       },
       {   // middle-right
+        handle: "right",
         x: aabbTopLeft.x + this.width + this.strokeWidth,
         y: aabbTopLeft.y + this.height / 2,
         resizeFnc: (dx, dy, width) => {
@@ -141,6 +145,7 @@ export class BasicShape extends Shape {
         }
       },
       {   // bottom-right
+        handle: "bottomRight",
         bbox: true,
         x: aabbTopLeft.x + this.width + this.strokeWidth,
         y: aabbTopLeft.y + this.height + this.strokeWidth,
@@ -150,6 +155,7 @@ export class BasicShape extends Shape {
         }
       },
       {   // bottom-center
+        handle: "bottom",
         x: aabbTopLeft.x + this.width / 2,
         y: aabbTopLeft.y + this.height + this.strokeWidth,
         resizeFnc: (dx, dy, width, height) => {
@@ -157,6 +163,7 @@ export class BasicShape extends Shape {
         }
       },
       {   // bottom-left
+        handle: "bottomLeft",
         bbox: true,
         x: aabbTopLeft.x - this.strokeWidth,
         y: aabbTopLeft.y + this.height + this.strokeWidth,
@@ -166,6 +173,7 @@ export class BasicShape extends Shape {
         }
       },
       {  // middle-left
+        handle: "left",
         x: aabbTopLeft.x - this.strokeWidth,
         y: aabbTopLeft.y + this.height / 2,
         resizeFnc: (dx, dy, width) => {
@@ -176,7 +184,8 @@ export class BasicShape extends Shape {
       return {
         ...rotateCords(point.x, point.y, this.center, this.rotation),
         bbox: point.bbox,
-        resizeFnc: point.resizeFnc
+        resizeFnc: point.resizeFnc,
+        handle: point.handle
       };
     }));
 
@@ -270,4 +279,3 @@ export class BasicShape extends Shape {
     return isHighlightInsideShape(x1, y1, x2, y2, this.corners);
   }
 }
-

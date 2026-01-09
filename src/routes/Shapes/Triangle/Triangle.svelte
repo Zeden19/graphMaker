@@ -47,11 +47,3 @@
   width={triangle.width}
   height={triangle.height}
 />
-
-<style>
-  polygon {
-    cursor: pointer;
-    transition: stroke var(--shape-transition-timing);
-    paint-order: stroke;
-  }
-</style>
