@@ -2,7 +2,6 @@ Simple Graph maker made with Svelte
 
 # bugs:
 - arrow still stays attatched to phantom reference
-- can't select text at all anymore
 
 ## Fixed Bugs
 
@@ -11,6 +10,8 @@ Simple Graph maker made with Svelte
     - Fixed by making the edit a component Fixed by setting isEditing to false
       at deselect in [Shape.svelte](src/routes/Shapes/Shape.svelte). This simulates "source of truth" model which I
       should follow more
+- can't select text at all anymore
+  - Fixed by applying no select when you are dragging instead of using event.preventDefault()
 
 # Code adjustments
 

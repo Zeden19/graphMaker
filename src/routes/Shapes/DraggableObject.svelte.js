@@ -8,7 +8,9 @@ class DraggableObject {
   }
 
   setDrag = (event) => {
-    event.preventDefault();
+    if (event.target?.closest?.('[contenteditable="true"]')) return;
+
+    document.body.classList.add("no-select");
     this.mousePosBefore.x = event.clientX;
     this.mousePosBefore.y = event.clientY;
     this.setFunc(event, this.mousePosBefore.x, this.mousePosBefore.y);
@@ -25,6 +27,7 @@ class DraggableObject {
     window.addEventListener("mouseup", () => {
       this.isDragging = false;
       this.endFunc?.();
+      document.body.classList.remove("no-select");
       window.removeEventListener("mousemove", moveObject);
     }, {once: true});
   };
