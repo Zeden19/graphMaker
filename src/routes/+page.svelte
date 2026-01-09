@@ -102,7 +102,9 @@
     selectedShapes,
   });
 
-  const addShape = (array, ShapeClassRef, shapeProperties) => {
+  const addShape = (ShapeClassRef, shapeProperties) => {
+    const array = getShapeArray(ShapeClassRef.name);
+    if (!array) return;
     array.push(new ShapeClassRef(offset, () => canvasScale, shapeProperties, removeShape));
   }
 
@@ -127,8 +129,8 @@
     });
 
     setTimeout(() => { // idk why but we also need timemeout
-      const index = shapes[shape.toString().toLowerCase() + "s"].indexOf(shape);
-      shapes[shape.toString().toLowerCase() + "s"].splice(index, 1);
+      const index = getShapeArray(shape).indexOf(shape);
+      getShapeArray(shape).splice(index, 1);
     });
   }
 
@@ -142,36 +144,25 @@
     canvasScale = event.target?.value ?? 1;
   }
 
-  const mapShapeToArray = (shapeString) => {
-    switch (shapeString.toLowerCase()) {
-      case "circle":
-        return {array: shapes.circles, class: CircleClass};
-      case "arrow":
-        return {array: shapes.arrows, class: ArrowClass};
-      case "square":
-        return {array: shapes.squares, class: SquareClass};
-      case "graphtext":
-        return {array: shapes.graphtexts, class: GraphTextClass};
-      case "triangle":
-        return {array: shapes.triangles, class: TriangleClass};
-    }
+  const getShapeArray = (shape) => {
+    return typeof shape.toString === "function" ? shapes[shape.toString().toLowerCase() + "s"] :
+      shapes[shape.toString.toLowerCase() + "s"];
   }
 
 </script>
 
-<Clipboard {selectedShapes} addShape={(shapeString, shapeProperties) => {
-  const shapeAdder = mapShapeToArray(shapeString);
-  addShape(shapeAdder.array, shapeAdder.class, shapeProperties);
+<Clipboard {selectedShapes} addShape={(shapeClass, shapeProperties) => {
+  addShape(shapeClass, shapeProperties);
 }}/>
 
 <div class="container">
   <div class="materials" bind:this={materialsRef}>
     <div class="functional-buttons">
-      <button class="button" onclick={() => addShape(shapes.circles, CircleClass)}>Add Circle</button>
-      <button class="button" onclick={() => addShape(shapes.arrows, ArrowClass)}>Add Arrow</button>
-      <button class="button" onclick={() => addShape(shapes.graphtexts, GraphTextClass)}>Add Text</button>
-      <button class="button" onclick={() => addShape(shapes.squares, SquareClass)}>Add Square</button>
-      <button class="button" onclick={() => addShape(shapes.triangles, TriangleClass)}>Add Triangle</button>
+      <button class="button" onclick={() => addShape(CircleClass)}>Add Circle</button>
+      <button class="button" onclick={() => addShape(ArrowClass)}>Add Arrow</button>
+      <button class="button" onclick={() => addShape(GraphTextClass)}>Add Text</button>
+      <button class="button" onclick={() => addShape(SquareClass)}>Add Square</button>
+      <button class="button" onclick={() => addShape(TriangleClass)}>Add Triangle</button>
       <button class="button" onclick="{clear}">Clear</button>
       <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
       <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>

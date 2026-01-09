@@ -17,25 +17,31 @@
     }
   }
 
+  const insertToClipboard = () => {
+    if (!selectedShapes) return;
+    clipboard = selectedShapes.map(shape => ({
+      shapeClass: shape.constructor,
+      properties: shape.toJSON()
+    }));
+  }
+
   onMount(() => {
     document.addEventListener("copy", async (event) => {
-      if (!selectedShapes) return;
-      clipboard = JSON.parse(JSON.stringify(selectedShapes));
+      insertToClipboard();
       event.preventDefault();
     });
 
     document.addEventListener("cut", async (event) => {
-      if (!selectedShapes) return;
-      clipboard = JSON.parse(JSON.stringify(selectedShapes));
+      insertToClipboard();
       selectedShapes.forEach(shape => shape.delete());
       event.preventDefault();
     });
 
     document.addEventListener("paste", async (event) => {
       if (!clipboard) return;
-      clipboard.forEach(shape => {
-        moveShapePos(shape);
-        addShape(shape.toString, shape)
+      clipboard.forEach(({shapeClass, properties}) => {
+        moveShapePos(properties);
+        addShape(shapeClass, properties)
       });
       event.preventDefault();
     });
