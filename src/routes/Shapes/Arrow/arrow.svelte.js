@@ -6,14 +6,13 @@ const DEFAULT_X1 = 350;
 const DEFAULT_X2 = DEFAULT_X1 + 100
 const DEFAULT_Y = 250;
 const DEFAULT_WIDTH = 5;
-const MARKER_SIZE = 4;
 
 export class Arrow extends Shape {
   #color = $state();
   #rotation = $state();
 
-  constructor(offset, canvasScale, properties = {text: {color: "white"}}, removeShape) {
-    super(offset, canvasScale, properties, removeShape);
+  constructor(offset, properties = {text: {color: "white"}}, removeShape) {
+    super(offset, properties, removeShape);
     this.#color = properties.color ?? "white";
     this.x1 = $state(properties.x1 ?? DEFAULT_X1 - offset.x);
     this.x2 = $state(properties.x2 ?? DEFAULT_X2 - offset.x);
@@ -39,7 +38,6 @@ export class Arrow extends Shape {
       y2: this.endSnapped?.().y ?? this.y2 + this.offset.y
     });
 
-    this.widthWithScale = $derived({marker: MARKER_SIZE * this.canvasScale(), line: this.width * this.canvasScale()});
     this.middle = $derived({
       x: (this.position.x1 + this.position.x2) / 2,
       y: (this.position.y1 + this.position.y2) / 2

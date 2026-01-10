@@ -105,7 +105,7 @@
   const addShape = (ShapeClassRef, shapeProperties) => {
     const array = getShapeArray(ShapeClassRef.name);
     if (!array) return;
-    array.push(new ShapeClassRef(offset, () => canvasScale, shapeProperties, removeShape));
+    array.push(new ShapeClassRef(offset, shapeProperties, removeShape));
   }
 
   const removeShape = (shape) => {
@@ -181,7 +181,7 @@
 
 
   <svg
-    style="background-position: {offset.x}px {offset.y}px;
+    style="background-position: {offset.x * canvasScale}px {offset.y * canvasScale}px;
     --big-line-sep: {DEFAULT_PRIMARY_SEP * canvasScale}px;
     --small-line-sep: {DEFAULT_SECONDARY_SEP * canvasScale}px;"
     onmousedown="{moveGrid.setDrag}"
@@ -192,35 +192,37 @@
   >
 
 
-    <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
-    {#each Object.entries(shapes) as [shapesName, shapeList] (shapesName)}
-      {#each shapeList as shape, index (shape)}
-        <Shape bind:shape={shapeList[index]} {...shapeProps}>
-          {#if shapesName === "circles"}
-            <Circle bind:circle={shapes.circles[index]}/>
-            <ResizeFromEdges bind:shape={shapes.circles[index]}/>
+    <g transform="scale({canvasScale})">
+      <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
+      {#each Object.entries(shapes) as [shapesName, shapeList] (shapesName)}
+        {#each shapeList as shape, index (shape)}
+          <Shape bind:shape={shapeList[index]} {...shapeProps}>
+            {#if shapesName === "circles"}
+              <Circle bind:circle={shapes.circles[index]}/>
+              <ResizeFromEdges bind:shape={shapes.circles[index]}/>
 
-          {:else if shapesName === "squares"}
-            <Square bind:square={shapes.squares[index]}/>
-            <ResizeFromEdges bind:shape={shapes.squares[index]}/>
+            {:else if shapesName === "squares"}
+              <Square bind:square={shapes.squares[index]}/>
+              <ResizeFromEdges bind:shape={shapes.squares[index]}/>
 
-          {:else if shapesName === "graphtexts"}
-            <GraphText bind:text={shapes.graphtexts[index]}/>
-            <ResizeFromEdges bind:shape={shapes.graphtexts[index]}/>
+            {:else if shapesName === "graphtexts"}
+              <GraphText bind:text={shapes.graphtexts[index]}/>
+              <ResizeFromEdges bind:shape={shapes.graphtexts[index]}/>
 
-          {:else if shapesName === "triangles"}
-            <Triangle bind:triangle={shapes.triangles[index]}/>
-            <ResizeFromEdges bind:shape={shapes.triangles[index]}/>
+            {:else if shapesName === "triangles"}
+              <Triangle bind:triangle={shapes.triangles[index]}/>
+              <ResizeFromEdges bind:shape={shapes.triangles[index]}/>
 
-          {:else if shapesName === "arrows"}
-            <Arrow bind:arrow={shapes.arrows[index]}/>
-            <HandleSnap arrow={shape} {shapes}/>
-          {/if}
-        </Shape>
+            {:else if shapesName === "arrows"}
+              <Arrow bind:arrow={shapes.arrows[index]}/>
+              <HandleSnap arrow={shape} {shapes}/>
+            {/if}
+          </Shape>
+        {/each}
       {/each}
-    {/each}
+    </g>
 
-    <circle cx="{offset.x}" cy="{offset.y}" r="2" fill="red"></circle>
+    <circle cx="{offset.x * canvasScale}" cy="{offset.y * canvasScale}" r="2" fill="red"></circle>
 
     {#if highlightSelection === true}
       <polyline out:fade={{duration: 150}}
