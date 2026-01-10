@@ -26,6 +26,7 @@
     untrack(() => {
       Object.values(shapes).flat(4).forEach((shape) => {
         if (arrow === shape) return;
+        if (shape.isDeleting) return;
 
         Object.entries(shape.points).forEach(([key, corner]) => {
           // can't closure corner directory because derived isn't deeply reactive

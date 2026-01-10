@@ -5,7 +5,7 @@ import DraggableObject from "./DraggableObject.svelte.js";
 import extractCoordinates from "$lib/extractCoordinates.js";
 
 export class Shape {
-  constructor(properties = {}, removeShape) {
+  constructor(offset, canvasScale, properties = {}, removeShape) {
     const propertiesWithDefaults = {...this.constructor.defaultProperties, ...properties}
     this.selected = $state(false);
     this.color = $state(propertiesWithDefaults.color ?? "white");
@@ -14,8 +14,12 @@ export class Shape {
     this.text = $state(new ShapeText(propertiesWithDefaults.text ?? {}));
     this.removeShape = removeShape;
     this.isEditing = $state(false);
+    this.isDeleting = $state(false);
     this.shapePosBefore = {};
     this.gRef = $state();
+
+    this.offset = offset;
+    this.canvasScale = canvasScale;
 
     this.drag = new DraggableObject(() => {
         Object.entries(extractCoordinates(this)).forEach(([key, value]) => {
@@ -60,7 +64,7 @@ export class BasicShape extends Shape {
   #height = $state();
 
   constructor(offset, canvasScale, properties = {}, removeShape) {
-    super(properties, removeShape);
+    super(offset, canvasScale, properties, removeShape);
     const propertiesWithDefaults = {...this.constructor.defaultProperties, ...properties}
 
     this.rotation = $state(propertiesWithDefaults.rotation ?? 0);
@@ -101,8 +105,8 @@ export class BasicShape extends Shape {
       };
     });
 
-    this.widthWithScale = $derived((this.#width) * canvasScale());
-    this.heightWithScale = $derived((this.#height) * canvasScale());
+    this.widthWithScale = $derived((this.#width) * this.canvasScale());
+    this.heightWithScale = $derived((this.#height) * this.canvasScale());
 
     // Get the axis-aligned bounding box for handle positioning
     let aabbTopLeft = $derived(this.getAxisAlignedTopLeft());

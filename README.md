@@ -1,7 +1,6 @@
 Simple Graph maker made with Svelte
 
 # bugs:
-- arrow still stays attatched to phantom reference
 
 ## Fixed Bugs
 
@@ -12,6 +11,9 @@ Simple Graph maker made with Svelte
       should follow more
 - can't select text at all anymore
   - Fixed by applying no select when you are dragging instead of using event.preventDefault()
+- arrow still stays attatched to phantom reference
+  - Added isDeleting to shape class so that it won't immediately re-attach
+
 
 # Code adjustments
 

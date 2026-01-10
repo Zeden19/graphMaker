@@ -111,6 +111,7 @@
   const removeShape = (shape) => {
     // need selected to be false so popup transition out plays
     shape.selected = false;
+    shape.isDeleting = true;
 
     shapes.arrows.forEach(arrow => {
       if (arrow.startSnappedShape?.() === shape) {
@@ -118,7 +119,6 @@
         arrow.y1 = arrow.startSnapped().y - offset.y;
         arrow.startSnapped = undefined;
         arrow.startSnappedShape = undefined;
-
       }
       if (arrow.endSnappedShape?.() === shape) {
         arrow.x2 = arrow.endSnapped().x - offset.x;
