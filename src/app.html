@@ -15,7 +15,7 @@
 <style>
   :root {
     --primaryBg: #0F0F0F;
-    --secondaryBg: #171c22;
+    --secondaryBg: #0b0d10;
     --canvasBg: #121212;
     --text: #E1E8EB;
 
@@ -52,6 +52,22 @@
   button {
     background: none;
     border: none;
+  }
+
+  input {
+    border-radius: 8px;
+    background: var(--secondaryBg);
+    border: var(--darkBorder);
+    padding: 7px 10px;
+    color: white;
+  }
+
+  input::placeholder {
+    color: #9aa3ad;
+  }
+
+  input:disabled {
+    opacity: 0.8;
   }
 
   .button {

@@ -52,12 +52,11 @@
 
 <style>
   input[type=number], input[readonly], input[type=text] {
-    border-radius: 8px;
-    background: var(--secondaryBg);
-    border: var(--darkBorder);
-    padding: 7px 10px;
-    color: white;
     width: 4em;
+  }
+
+  input[type=text] {
+    width: 8em;
   }
 
   .circle {
@@ -79,10 +78,6 @@
     position: absolute;
     top: 15%;
     left: 37%;
-  }
-
-  input[type=text] {
-    width: 8em;
   }
 
   input[type=checkbox] {

@@ -25,9 +25,9 @@
   <!--  for consistent transparent background, exclude bg-color-->
   <Input style={colorToChange !== undefined && `background-color: ${colorDisplayed}`}
          onclick={() => showPopup = true} readonly={true}
-         aria-label="Change stroke color" type="displayOnly"/>
+         aria-label="Change color" type="displayOnly"/>
   {#if showPopup}
-    <div class="show-stroke-popup">
+    <div class="show-color-popup">
       <div class="color-container" transition:blur={{duration: 130}}>
         {#each colors as color}
           <button class="{colorDisplayed === color && 'color-selected'}"
@@ -48,9 +48,10 @@
 </div>
 
 <style>
-  .show-stroke-popup {
+  .show-color-popup {
     position: absolute;
     bottom: 35px; /*From 30px height size of circles from ChangeColorPopup + 5px */
+    right: 0;
     z-index: 1;
   }
 

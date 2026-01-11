@@ -92,6 +92,15 @@
     graphtexts: [],
     triangles: [],
   });
+
+  let shapeButtons = [
+    {label: "circle", class: CircleClass, svg: `<circle cx="24" cy="24" r="16"/>`},
+    {label: "square", class: SquareClass, svg: `<rect x="10" y="10" width="28" height="28" rx="2" ry="2"/>`},
+    {label: "triangle", class: TriangleClass, svg: `<path d="M24 8 L40 36 H8 Z"/>`},
+    {label: "arrow", class: ArrowClass, svg: `<path d="M8 24 H34"/><path d="M28 18 L40 24 L28 30"/>`},
+    {label: "graph text", class: GraphTextClass, svg: `<text x="24" y="30" text-anchor="middle">Text</text>`},
+  ]
+
   let selectedShapes = $derived(Object.values(shapes).flat(4).filter(shape => shape.selected))
   let editShapeContainerRef = $state();
 
@@ -156,25 +165,21 @@
 }}/>
 
 <div class="container">
-  <div class="materials" bind:this={materialsRef}>
-    <div class="functional-buttons">
-      <button class="button" onclick={() => addShape(CircleClass)}>Add Circle</button>
-      <button class="button" onclick={() => addShape(ArrowClass)}>Add Arrow</button>
-      <button class="button" onclick={() => addShape(GraphTextClass)}>Add Text</button>
-      <button class="button" onclick={() => addShape(SquareClass)}>Add Square</button>
-      <button class="button" onclick={() => addShape(TriangleClass)}>Add Triangle</button>
+  <div class="paddingTop">
+    <div class="top-actions">
       <button class="button" onclick="{clear}">Clear</button>
       <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
       <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
-      <label> Scale <input type="range" min="0.3" max="2" step="0.1" bind:value={canvasScale}></label>
-      <label> Use Momentum <input type="checkbox" bind:checked={useMomentum}/></label>
     </div>
+  </div>
 
+  <div class="materials" bind:this={materialsRef}>
     <div class="edit-shape-container" bind:this={editShapeContainerRef}>
       {#if selectedShapes.length > 0}
         <EditShape bind:shapes={selectedShapes}/>
       {:else}
-        Select a shape to edit
+        <label> Scale <input type="range" min="0.1" max="5" step="0.1" bind:value={canvasScale}></label>
+        <label> Use Momentum <input type="checkbox" bind:checked={useMomentum}/></label>
       {/if}
     </div>
   </div>
@@ -190,7 +195,6 @@
     aria-label="Interactive canvas"
     xmlns="http://www.w3.org/2000/svg"
   >
-
 
     <g transform="scale({canvasScale})">
       <!-- need to key each block so transition doesn't happen on object that isn't deleted-->
@@ -237,44 +241,117 @@
   </svg>
 
   <div class="toolbox">
-    <p>CanMoveGrid: {selectedShapes.length === 0}</p>
-    <p>Offset: {offset.x}, {offset.y}</p>
-    <p>Drag Position Before: {offsetBefore.x}, {offsetBefore.y}</p>
+    <div class="shape-search-container">
+      <input class="shape-search" type="text" placeholder="Search shapes" disabled/>
+    </div>
+    <div class="shape-grid">
+      {#each shapeButtons as shape}
+        <button class="shape-button" onclick={() => addShape(shape.class)} aria-label="Add {shape.label}">
+          <svg viewBox="0 0 48 48" role="img" aria-hidden="true">
+            {@html shape.svg}
+          </svg>
+        </button>
+      {/each}
+    </div>
   </div>
 </div>
 
 <style>
   .container {
     display: grid;
-    grid-template-columns: 45% 55%;
-    grid-template-rows: 65% 1fr;
+    grid-template-columns: 20% 60% 20%;
+    grid-template-rows: 7% 93%;
     grid-template-areas:
-      'materials canvas'
-      'materials toolbox';
-    height: 98vh;
+      'paddingTop paddingTop paddingTop'
+      'toolbox canvas materials';
+    height: 100vh;
   }
 
   .materials {
     grid-area: materials;
-    border-right: var(--mainBorder);
+    border-left: var(--mainBorder);
+    border-top: var(--mainBorder);
+    border-bottom: var(--mainBorder);
     resize: horizontal;
-    border-right: var(--mainBorder);
     display: flex;
     flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
   }
 
-  .functional-buttons {
-    display: inline;
-    height: 30%;
+  .toolbox {
+    border-right: var(--mainBorder);
+    border-top: var(--mainBorder);
+    border-bottom: var(--mainBorder);
+    grid-area: toolbox;
+    background-color: var(--secondaryBg);
+    box-sizing: border-box;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    min-width: 0;
   }
 
-  .functional-buttons > button {
-    margin: 5px;
+  .paddingTop {
+    grid-area: paddingTop;
+    background-color: #030305;
+    display: flex;
+    align-items: center;
+  }
+
+  .top-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .shape-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .shape-button {
+    border: var(--darkBorder);
+    border-radius: 12px;
+    background-color: #11161c;
+    padding: 8px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+  }
+
+  .shape-button:hover {
+    transform: translateY(-1px);
+    background-color: #18202a;
+  }
+
+  .shape-search-container {
+    display: flex;
+  }
+
+  .shape-search {
+    width: 100%;
+  }
+
+  .shape-button svg {
+    width: 100%;
+    height: 40px;
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 2.5;
+  }
+
+  .shape-button :global(text) {
+    fill: #ffffff;
+    font-size: 18px;
+    font-weight: 400;
+    stroke: none;
+    font-family: inherit;
   }
 
   .edit-shape-container {
-    height: 70%;
-    border-top: var(--mainBorder);
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
@@ -309,14 +386,14 @@
     position: relative;
     overflow: hidden;
 
+    border-top: var(--mainBorder);
+    border-bottom: var(--mainBorder);
+
     width: 100%;
     height: 100%;
+    box-sizing: border-box;
+
   }
 
-  .toolbox {
-    border-top: var(--mainBorder);
-    grid-area: toolbox;
-    background-color: var(--secondaryBg);
-  }
 
 </style>
