@@ -2,7 +2,7 @@
   import {arrowEndpoints} from "$lib/arrowEndpoints.js";
   import {scale} from "svelte/transition";
   import ShapeText from "../Text/ShapeText.svelte";
-  import ResizeCircle from "../ResizeCircle.svelte";
+  import ResizeCircle from "./ResizeCircle.svelte";
 
   let {arrow = $bindable()} = $props();
 
@@ -68,14 +68,14 @@
   <ResizeCircle
     x={arrow.points.start.x}
     y={arrow.points.start.y}
-    cursor="move"
-    setDrag={(event) => {arrow.setDrag(event); arrow.movingStart = true;}}
+    setDrag={arrow.setDrag}
+    moving={() => arrow.movingStart = true}
   />
 
   <ResizeCircle
     x={arrow.points.end.x}
     y={arrow.points.end.y}
-    cursor="move"
-    setDrag={(event) => {arrow.setDrag(event); arrow.movingEnd = true;}}
+    setDrag={arrow.setDrag}
+    moving={() => arrow.movingEnd = true}
   />
 {/if}

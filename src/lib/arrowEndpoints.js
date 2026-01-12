@@ -26,10 +26,11 @@ function offsetInBasis(base, axisX, axisY, dx, dy) {
 
 // Returns a direction vector that points outward from the arrow shaft.
 function outward(arrow, isStart) {
+  const vectors = arrow.getEndpointVectors(isStart);
   const flip = isStart ? -1 : 1;
   return {
-    x: arrow.unitVectors.dir.x * flip,
-    y: arrow.unitVectors.dir.y * flip
+    x: vectors.dir.x * flip,
+    y: vectors.dir.y * flip
   };
 }
 
@@ -41,7 +42,7 @@ export const arrowEndpoints = {
     const {start, end} = getStartAndEnd(isStart, coords);
 
     const out = outward(arrow, isStart);
-    const perp = arrow.unitVectors.perp;
+    const perp = arrow.getEndpointVectors(isStart).perp;
 
     const peak = offsetInBasis(start, out, perp, arrow.width * 2, (arrow.width / 2) - arrow.width);
 
@@ -75,7 +76,7 @@ export const arrowEndpoints = {
     const {start, end} = getStartAndEnd(isStart, coords);
 
     const out = outward(arrow, isStart);
-    const perp = arrow.unitVectors.perp;
+    const perp = arrow.getEndpointVectors(isStart).perp;
 
     const peakDist = arrow.width * 3;
 
@@ -94,7 +95,7 @@ export const arrowEndpoints = {
     const {start, end} = getStartAndEnd(isStart, coords);
 
     const out = outward(arrow, isStart);
-    const perp = arrow.unitVectors.perp;
+    const perp = arrow.getEndpointVectors(isStart).perp;
 
     const peakDist = arrow.width;
 

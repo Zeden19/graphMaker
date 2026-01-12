@@ -1,11 +1,11 @@
 <script>
   import {scale} from "svelte/transition";
 
-  let {shape = $bindable(), x, y, transformOrigin, width, height, style} = $props();
+  let {shape = $bindable(), x, y, transformOrigin, width, height, style, rotation} = $props();
 
 </script>
 
-<foreignObject {x} {y} {width} {height} style="{style} transform: rotate({shape.rotation}deg);
+<foreignObject {x} {y} {width} {height} style="{style} transform: rotate({rotation ?? shape.rotation}deg);
 transform-origin: {transformOrigin.x}px {transformOrigin.y}px;">
   <div class="container">
     <div transition:scale|global={{duration: 120}} draggable="false"

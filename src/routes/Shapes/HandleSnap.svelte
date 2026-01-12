@@ -11,11 +11,10 @@
   }
 
   const isPointSnappedToAnotherArrow = (shape, key) => {
-    return shape.toString().toLowerCase() === "arrow" && shape[key + "Snapped"] !== undefined;
+    const shapeName = shape.toString().toLowerCase();
+    return (shapeName.includes("arrow")) && shape[key + "Snapped"] !== undefined;
   }
 
-  // bug: when a shape that an arrow is snapped to is deleted, the arrow will remain "snapped" to the shape
-  // until the user moves the arrow. Does not cause any errors but its clunky
   $effect(() => {
     // dependencies
     arrow.x1;

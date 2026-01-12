@@ -2,10 +2,12 @@
   import Circle from "./Shapes/Circle/Circle.svelte";
   import {Circle as CircleClass} from "./Shapes/Circle/circle.svelte.js";
   import {Arrow as ArrowClass} from "./Shapes/Arrow/arrow.svelte.js";
+  import {CurvedArrow as CurvedArrowClass} from "./Shapes/Arrow/curvedArrow.svelte.js";
   import {GraphText as GraphTextClass} from "./Shapes/Text/GraphText.svelte.js";
   import {Square as SquareClass} from "./Shapes/Square/square.svelte.js";
   import Square from "./Shapes/Square/Square.svelte";
   import Arrow from "./Shapes/Arrow/Arrow.svelte";
+  import CurvedArrow from "./Shapes/Arrow/CurvedArrow.svelte";
   import DraggableObject from "./Shapes/DraggableObject.svelte.js";
   import Shape from "./Shapes/Shape.svelte";
   import EditShape from "./Edit Shape Window/EditShape.svelte";
@@ -88,6 +90,7 @@
   let shapes = $state({
     circles: [],
     arrows: [],
+    curvedarrows: [],
     squares: [],
     graphtexts: [],
     triangles: [],
@@ -98,6 +101,7 @@
     {label: "square", class: SquareClass, svg: `<rect x="10" y="10" width="28" height="28" rx="2" ry="2"/>`},
     {label: "triangle", class: TriangleClass, svg: `<path d="M24 8 L40 36 H8 Z"/>`},
     {label: "arrow", class: ArrowClass, svg: `<path d="M8 24 H34"/><path d="M28 18 L40 24 L28 30"/>`},
+    {label: "curved arrow", class: CurvedArrowClass, svg: `<path d="M10 36 Q24 12 38 20"/><path d="M34 14 L40 20 L32 22"/>`},
     {label: "graph text", class: GraphTextClass, svg: `<text x="24" y="30" text-anchor="middle">Text</text>`},
   ]
 
@@ -122,7 +126,7 @@
     shape.selected = false;
     shape.isDeleting = true;
 
-    shapes.arrows.forEach(arrow => {
+    [...shapes.arrows, ...shapes.curvedarrows].forEach(arrow => {
       if (arrow.startSnappedShape?.() === shape) {
         arrow.x1 = arrow.startSnapped().x - offset.x;
         arrow.y1 = arrow.startSnapped().y - offset.y;
@@ -219,6 +223,10 @@
 
             {:else if shapesName === "arrows"}
               <Arrow bind:arrow={shapes.arrows[index]}/>
+              <HandleSnap arrow={shape} {shapes}/>
+
+            {:else if shapesName === "curvedarrows"}
+              <CurvedArrow bind:arrow={shapes.curvedarrows[index]}/>
               <HandleSnap arrow={shape} {shapes}/>
             {/if}
           </Shape>

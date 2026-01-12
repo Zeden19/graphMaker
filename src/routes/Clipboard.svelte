@@ -14,6 +14,10 @@
       shape.y1 = shape.y1 + 20;
       shape.x2 = shape.x2 + 20;
       shape.y2 = shape.y2 + 20;
+      if (shape.cx !== undefined) {
+        shape.cx = shape.cx + 20;
+        shape.cy = shape.cy + 20;
+      }
     }
   }
 
