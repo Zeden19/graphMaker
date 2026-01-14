@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+        "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 80 80"
+  width="800px"
+  height="800px"
+  fill="none"
+  stroke-width="4"
+  stroke-linecap="round"
+  stroke-linejoin="round">
+
+  <defs>
+    <mask id="reload-mask">
+      <rect x="0" y="0" width="80" height="80" fill="white"/>
+      <circle cx="58" cy="58" r="16" fill="black"/>
+    </mask>
+  </defs>
+
+  <g stroke="white" mask="url(#reload-mask)">
+    <g transform="translate(40 44) skewX(-30)">
+      <rect x="-24" y="-24" width="48" height="48" fill="none"/>
+      <line x1="-8" y1="-24" x2="-8" y2="24" />
+      <line x1="8" y1="-24" x2="8" y2="24" />
+      <line x1="-24" y1="-8" x2="24" y2="-8" />
+      <line x1="-24" y1="8" x2="24" y2="8" />
+    </g>
+  </g>
+
+  <g stroke="white">
+    <path d="M66 58a8 8 0 1 1-6.6-7.3"/>
+    <path d="M64 49v6h-6"/>
+  </g>
+
+</svg>

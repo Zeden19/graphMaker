@@ -18,6 +18,12 @@
   import HandleSnap from "./Shapes/HandleSnap.svelte";
   import {Triangle as TriangleClass} from "./Shapes/Triangle/triangle.svelte.js";
   import Triangle from "./Shapes/Triangle/Triangle.svelte";
+  import magnifyingPlus from "$lib/assets/magnifyingPlus.svg"
+  import magnifyingMinus from "$lib/assets/magnifyingMinus.svg"
+  import magnifyingReset from "$lib/assets/magnifyingReset.svg"
+  import selectAll from "$lib/assets/selectAll.svg"
+  import deleteAll from "$lib/assets/deleteAll.svg"
+  import resetPosition from "$lib/assets/resetPosition.svg"
 
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
@@ -101,7 +107,11 @@
     {label: "square", class: SquareClass, svg: `<rect x="10" y="10" width="28" height="28" rx="2" ry="2"/>`},
     {label: "triangle", class: TriangleClass, svg: `<path d="M24 8 L40 36 H8 Z"/>`},
     {label: "arrow", class: ArrowClass, svg: `<path d="M8 24 H34"/><path d="M28 18 L40 24 L28 30"/>`},
-    {label: "curved arrow", class: CurvedArrowClass, svg: `<path d="M10 36 Q24 12 38 20"/><path d="M34 14 L40 20 L32 22"/>`},
+    {
+      label: "curved arrow",
+      class: CurvedArrowClass,
+      svg: `<path d="M10 36 Q24 12 38 20"/><path d="M34 14 L40 20 L32 22"/>`
+    },
     {label: "graph text", class: GraphTextClass, svg: `<text x="24" y="30" text-anchor="middle">Text</text>`},
   ]
 
@@ -147,14 +157,22 @@
     });
   }
 
+  const selectAllShapes = () => {
+    Object.keys(shapes).forEach(shapeArray => {
+      shapes[shapeArray].forEach((shape) => {
+        shape.selected = true;
+      });
+    });
+  }
+
   const clear = () => {
     Object.keys(shapes).forEach(shapeArray => {
       shapes[shapeArray] = [];
-    })
+    });
   }
 
-  const changeScale = (event) => {
-    canvasScale = event.target?.value ?? 1;
+  const changeScale = (val) => {
+    canvasScale = Math.min(Math.max(val, 0.1), 5);
   }
 
   const getShapeArray = (shape) => {
@@ -171,9 +189,30 @@
 <div class="container">
   <div class="paddingTop">
     <div class="top-actions">
-      <button class="button" onclick="{clear}">Clear</button>
-      <button class="button" onclick="{() => {offset.x = 0; offset.y = 0;}}">Reset Position</button>
-      <button class="button" onclick="{() => changeScale(1)}">Reset scale</button>
+
+      <div class="action-container">
+        <button class="action-buttons" onclick={() => changeScale(canvasScale + 0.2)}>
+          <img class="action-images" alt="Increase Scale" src={magnifyingPlus}/></button>
+        <button class="action-buttons" onclick={() => changeScale(canvasScale - 0.2)}>
+          <img class="action-images" alt="Decrease Scale" src={magnifyingMinus}/>
+        </button>
+        <button class="action-buttons" onclick={() => changeScale(1)}>
+          <img class="action-images" alt="Reet Scale" src={magnifyingReset}/>
+        </button>
+      </div>
+
+      <div class="action-container">
+        <button class="action-buttons" onclick={selectAllShapes}>
+          <img class="action-images" alt="Increase Scale" src={selectAll}/></button>
+        <button class="action-buttons" onclick={clear}>
+          <img class="action-images" alt="Decrease Scale" src={deleteAll}/>
+        </button>
+      </div>
+
+      <div class="action-container">
+        <button class="action-buttons" onclick={() => {offset.x = 0; offset.y = 0;}}>
+          <img class="action-images" src={resetPosition} alt="Reset Position"></button>
+      </div>
     </div>
   </div>
 
@@ -312,7 +351,26 @@
 
   .top-actions {
     display: flex;
-    gap: 10px;
+    gap: 30px;
+  }
+
+  .action-container {
+    display: flex;
+  }
+
+  .action-buttons {
+    padding: 0
+  }
+
+  .action-images {
+    object-fit: cover;
+    height: 40px;
+    padding: 5px;
+  }
+
+  .action-images:hover {
+    background-color: #424242;
+    cursor: pointer;
   }
 
   .shape-grid {
