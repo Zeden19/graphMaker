@@ -421,9 +421,6 @@
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    padding-top: 15px;
-    padding-left: 15px;
-    padding-right: 15px;
   }
 
   /*.materials-border {*/

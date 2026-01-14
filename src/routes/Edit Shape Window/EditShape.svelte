@@ -1,8 +1,7 @@
 <script>
   import trash from "$lib/assets/trash.png";
-  import Input from "./Input.svelte";
-  import ChangeColorPopup from "./ChangeColorPopup.svelte";
-  import ArrowEndpointSelect from "./ArrowEndpointSelect.svelte";
+  import Style from "./Style.svelte";
+  import Text from "./Text.svelte";
 
   let {shapes = $bindable()} = $props();
   const getProperty = (shape, property) => property.split(".").reduce((a, b) => {
@@ -46,120 +45,20 @@
   const setValue = (value) => {
     return (newValue) => shapes.forEach(shape => setProperty(shape, value, newValue))
   }
+
+  let activeTab = $state(Style);
+  let activeTabProps = $state({ getValue, allHasProperty, setValue, shapes });
 </script>
 <div class="title">{shapes[0]}</div>
-<div class="basics-container">
-  <div class="type-title">Basic</div>
-  <div class="basics">
 
-    {#if !allHasProperty("color", undefined, "some") && !allHasProperty("toString", "GraphText", "every")}
-      <div>Color
-        <ChangeColorPopup
-          bind:colorToChange={getValue("color"), setValue("color")}/>
-      </div>
-    {/if}
-
-    {#if !allHasProperty("x", undefined, "some")}
-      <div>x <Input {shapes} fallback={shapes[0].x} max={50000} min={-50000} type="number"
-                    bind:value={getValue("x"), setValue("x")}/></div>
-      <div>y <Input {shapes} fallback={shapes[0].y} max={50000} min={-50000} type="number"
-                    bind:value={getValue("y"), setValue("y")}/></div>
-    {/if}
-
-    {#if !(allHasProperty("x1", undefined, "some"))}
-      <div>x1 <Input {shapes} fallback={shapes[0].x1} max={50000} min={-50000} type="number"
-                     bind:value={getValue("x1"), setValue("x1")}/></div>
-      <div>y1 <Input {shapes} fallback={shapes[0].y1} max={50000} min={-50000} type="number"
-                     bind:value={getValue("y1"), setValue("y1")}/></div>
-
-      <div>x2 <Input {shapes} fallback={shapes[0].x2} max={50000} min={-50000} type="number"
-                     bind:value={getValue("x2"), setValue("x2")}/></div>
-      <div>y2 <Input {shapes} fallback={shapes[0].y2} max={50000} min={-50000} type="number"
-                     bind:value={getValue("y2"), setValue("y2")}/></div>
-    {/if}
-
-    {#if (!allHasProperty("width", undefined, "some"))}
-      <div>Width:
-        <Input {shapes} fallback={shapes[0].width} max={500} min={1} type="number"
-               bind:value={getValue("width"), setValue("width")}/>
-      </div>
-    {/if}
-
-    {#if (!allHasProperty("height", undefined, "some"))}
-      <div>Height:
-        <Input {shapes} fallback={shapes[0].height} max={500} min={1} type="number"
-               bind:value={getValue("height"), setValue("height")}/>
-      </div>
-    {/if}
-
-    {#if !allHasProperty("rotation", undefined, "some")}
-      <div>Rotation
-        <Input {shapes} fallback={shapes[0].rotation} type="rotation" max={359} min={0}
-               bind:value={getValue("rotation"), setValue("rotation")}/>
-      </div>
-    {/if}
-  </div>
+<div class="tab-container">
+  <button class="tab {activeTab === Style && 'selected'}" onclick={() => activeTab = Style}>Style</button>
+  <button class="tab {activeTab === Text && 'selected'}" onclick={() => activeTab = Text}>Text</button>
 </div>
 
-
-{#if (!allHasProperty("strokeWidth", undefined, "some"))}
-  <div class="basics-container">
-    <div class="type-title">Stroke</div>
-    <div class="basics">
-      <div>Color
-        <ChangeColorPopup
-          bind:colorToChange={getValue("strokeColor"), setValue("strokeColor")}/>
-      </div>
-      <div>Width
-        <Input {shapes} fallback={shapes[0].strokeWidth} min={0} max={30} type="number"
-               bind:value={getValue("strokeWidth"), setValue("strokeWidth")}/>
-      </div>
-    </div>
-  </div>
-{/if}
-
-{#if (!allHasProperty("text", undefined, "some"))}
-  <div class="basics-container">
-    <div class="type-title">Text</div>
-    <div class="basics">
-      <div>Color
-        <ChangeColorPopup bind:colorToChange={getValue("text.color"), setValue("text.color")}/>
-      </div>
-
-      <div>Font Size:
-        <Input {shapes} fallback={shapes[0].text.fontSize} type="number" min="1" max="100"
-               bind:value={getValue("text.fontSize"), setValue("text.fontSize")}/>
-      </div>
-
-      <div>Bold:
-        <Input {shapes} type="checkbox" bind:checked={getValue("text.bold"), setValue("text.bold")}/>
-      </div>
-
-      <div>Italic:
-        <Input {shapes} type="checkbox" bind:checked={getValue("text.italic"), setValue("text.italic")}/>
-      </div>
-      <div>Underline:
-        <Input {shapes} type="checkbox" bind:checked={getValue("text.underline"), setValue("text.underline")}/>
-      </div>
-      <div>Value:
-        <Input {shapes} type="text" bind:value={getValue("text.value"), setValue("text.value")}/></div>
-    </div>
-  </div>
-{/if}
-
-{#if (!allHasProperty("start", undefined, "some"))}
-  <div class="basics-container">
-    <div class="type-title">End Points</div>
-    <div class="basics">
-      <div>Start:
-        <ArrowEndpointSelect bind:endpoint={getValue("start"), setValue("start")}/>
-      </div>
-      <div>End:
-        <ArrowEndpointSelect bind:endpoint={getValue("end"), setValue("end")}/>
-      </div>
-    </div>
-  </div>
-{/if}
+<div class="container">
+  <svelte:component this={activeTab} {...activeTabProps}/>
+</div>
 
 <!--Must be arrow function: https://svelte.dev/docs/svelte/$state#Classes-->
 <button class="trash" onclick={() => shapes.forEach(shape => shape.delete())}>
@@ -169,56 +68,51 @@
 <style>
   .title {
     align-self: center;
-  }
-
-  .type-title {
-    display: flex;
-    align-items: center;
-    justify-content: start;
-
-    font-size: 0.85em;
-    color: rgba(115, 149, 177, 0.65);
-    font-weight: bold;
-    width: 100%;
-  }
-
-  .type-title::before,
-  .type-title::after {
-    display: inline-block;
-    content: '';
-    border-top: .3rem solid rgb(47, 61, 73);
-    width: 50%;
-    margin: 0 0.5em 0 0.5em;
-  }
-
-  .basics-container {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
     margin-top: 10px;
-    align-self: start;
+    margin-bottom: 10px;
   }
 
-  .basics {
+  .tab-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
+    justify-content: space-evenly;
+    align-items: center;
   }
 
-  .basics > div {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    font-size: 0.8em;
-    font-style: italic;
+  .tab {
+    color: white;
+    width: 100%;
+    border-top: var(--mainBorder);
+    border-bottom: var(--mainBorder);
+    padding: 8px;
+    margin-bottom: 10px;
   }
 
+  .tab:first-child {
+    border-right: var(--mainBorder);
+  }
+
+  .tab:hover {
+    cursor: pointer;
+    filter: brightness(0.8);
+  }
+
+  .tab:active {
+     filter: brightness(1.1);
+  }
+
+  .selected {
+    background-color: #B13BFF;
+  }
+
+  .container {
+    padding: 0 1em 4em 1em;
+  }
 
   .trash {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
     padding: 5px;
-    align-self: end;
-    margin-top: auto;
   }
 
 </style>
