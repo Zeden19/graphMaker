@@ -46,18 +46,18 @@
     return (newValue) => shapes.forEach(shape => setProperty(shape, value, newValue))
   }
 
-  let activeTab = $state(Style);
+  let ActiveTab = $state(Style);
   let activeTabProps = $state({ getValue, allHasProperty, setValue, shapes });
 </script>
 <div class="title">{shapes[0]}</div>
 
 <div class="tab-container">
-  <button class="tab {activeTab === Style && 'selected'}" onclick={() => activeTab = Style}>Style</button>
-  <button class="tab {activeTab === Text && 'selected'}" onclick={() => activeTab = Text}>Text</button>
+  <button class="tab {ActiveTab === Style && 'selected'}" onclick={() => ActiveTab = Style}>Style</button>
+  <button class="tab {ActiveTab === Text && 'selected'}" onclick={() => ActiveTab = Text}>Text</button>
 </div>
 
 <div class="container">
-  <svelte:component this={activeTab} {...activeTabProps}/>
+  <ActiveTab {...activeTabProps}/>
 </div>
 
 <!--Must be arrow function: https://svelte.dev/docs/svelte/$state#Classes-->
