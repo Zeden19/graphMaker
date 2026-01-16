@@ -1,7 +1,9 @@
 <script>
-  import ArrowEndpointSelect from "./ArrowEndpointSelect.svelte";
   import Input from "./Input.svelte";
   import ChangeColorPopup from "./ChangeColorPopup.svelte";
+  import Select from "./Select.svelte";
+  import {arrowEndpointLabels} from "$lib/arrowEndpoints.js";
+  import {strokeStyleOptions} from "./strokeStyles.js";
 
   const {allHasProperty, getValue, setValue, shapes} = $props()
 </script>
@@ -125,6 +127,13 @@
                bind:value={getValue("strokeWidth"), setValue("strokeWidth")}/>
       </div>
     </div>
+
+    <div class="basics-holder basics-holder--single">
+      <div class="label">Stroke Style</div>
+      <div class="control">
+        <Select bind:value={getValue("strokeStyle"), setValue("strokeStyle")} options={strokeStyleOptions}/>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -137,11 +146,19 @@
       <div class="label">endpoints</div>
         <div class="multi-inputs">
           <div class="input-with-label">
-            <ArrowEndpointSelect bind:endpoint={getValue("start"), setValue("start")}/>
+            <Select
+              bind:value={getValue("start"), setValue("start")}
+              options={arrowEndpointLabels}
+              size="sm"
+            />
             <div class="input-label">start</div>
           </div>
           <div class="input-with-label">
-            <ArrowEndpointSelect bind:endpoint={getValue("end"), setValue("end")}/>
+            <Select
+              bind:value={getValue("end"), setValue("end")}
+              options={arrowEndpointLabels}
+              size="sm"
+            />
             <div class="input-label">end</div>
           </div>
         </div>

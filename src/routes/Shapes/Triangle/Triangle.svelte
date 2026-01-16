@@ -32,6 +32,7 @@
           {coords.point2.x},{coords.point2.y}
           {coords.point3.x},{coords.point3.y}"
   fill={triangle.color}
+  stroke-dasharray="{triangle.strokeStyle}"
   stroke="{triangle.strokeColor}"
   stroke-width="{triangle.strokeWidth * 2}"
   style="transform: rotate({triangle.rotation}deg);

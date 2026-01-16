@@ -16,6 +16,7 @@
   cy="{circle.center.y}"
   fill="{circle.color}"
   stroke={circle.strokeColor}
+  stroke-dasharray="{circle.strokeStyle}"
   stroke-width="{circle.strokeWidth * 2}"
   style="transform-origin: {circle.center.x}px {circle.center.y}px;
          rotate: {circle.rotation}deg"

@@ -76,6 +76,7 @@
   rotation={textRotation}
 />
 
+<!--todo make curved arrow path similar to that of arrow so that stroke-dash array actually applies-->
 <!--Stroke-->
 <path
   transition:scale|global={{duration: 120}}
@@ -83,8 +84,7 @@
   fill="none"
   stroke="{arrow.strokeColor}"
   stroke-width="{arrow.width + arrow.strokeWidth * 2}"
-  stroke-linecap="round"
-  stroke-linejoin="round"
+  style="stroke-dasharray: {arrow.strokeStyle};"
 />
 
 <!--Main arrow-->
@@ -94,8 +94,6 @@
   fill="none"
   stroke="{arrow.color}"
   stroke-width="{arrow.width}"
-  stroke-linecap="round"
-  stroke-linejoin="round"
 />
 
 <!--Endpoints Path-->
@@ -105,6 +103,7 @@
   fill="{arrow.color}"
   stroke="{arrow.strokeColor}"
   stroke-width="{arrow.strokeWidth * 2}"
+  style="stroke-dasharray: {arrow.strokeStyle};"
 />
 
 {#if arrow.selected}

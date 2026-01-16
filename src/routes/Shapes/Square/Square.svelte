@@ -14,6 +14,7 @@
          rotate: {square.rotation}deg;"
   stroke="{square.strokeColor}"
   stroke-width="{square.strokeWidth * 2}"
+  stroke-dasharray={square.strokeStyle}
   x="{renderPosition.x}"
   y="{renderPosition.y}"
   width="{square.width}"

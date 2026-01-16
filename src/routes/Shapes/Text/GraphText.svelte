@@ -14,6 +14,7 @@
   style="transform-origin: {text.center.x}px {text.center.y}px;
          rotate: {text.rotation}deg;"
   stroke="{text.strokeColor}"
+  stroke-dasharray="{text.strokeStyle}"
   stroke-width="{text.strokeWidth}"
   x="{renderPosition.x - strokeInset}"
   y="{renderPosition.y - strokeInset}"

@@ -113,4 +113,7 @@ export const arrowEndpoints = {
 };
 
 // Get labels for select list
-export const arrowEndpointLabels = Object.keys(arrowEndpoints);
+export const arrowEndpointLabels = Object.keys(arrowEndpoints).map((label) => ({
+  label,
+  value: label
+}));

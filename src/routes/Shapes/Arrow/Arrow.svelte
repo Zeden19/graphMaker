@@ -57,7 +57,7 @@
 <path
   transition:scale|global={{duration: 120}}
   d="{path}"
-  style="transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
+  style="stroke-dasharray: {arrow.strokeStyle}; transform-origin: {arrow.middle.x}px {arrow.middle.y}px;"
   fill="{arrow.color}"
   stroke="{arrow.strokeColor}"
   stroke-width="{arrow.strokeWidth * 2}"

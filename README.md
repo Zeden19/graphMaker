@@ -1,6 +1,11 @@
 Simple Graph maker made with Svelte
 
 # bugs:
+- Arrow connections are jank at conrers (not even working for graphText)
+- when selected multiple shapes, editing a input with delete will delete one or both of the shapes
+- Select elements don't have the gray styling when multiple shapes are selected and the value differs
+- Stroke Styles are pretty bad with high strokeWidths, especially on arrows
+- Curved arrow points are weird due to the removal of rounded lines; i want rounded lines but it messed up stroke
 
 ## Fixed Bugs
 

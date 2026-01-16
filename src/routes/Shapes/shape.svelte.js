@@ -11,6 +11,7 @@ export class Shape {
     this.color = $state(propertiesWithDefaults.color ?? "white");
     this.strokeColor = $state(propertiesWithDefaults.strokeColor ?? "black");
     this.strokeWidth = $state(propertiesWithDefaults.strokeWidth ?? 2);
+    this.strokeStyle = $state("0")
     this.text = $state(new ShapeText(propertiesWithDefaults.text ?? {}));
     this.removeShape = removeShape;
     this.isEditing = $state(false);
@@ -37,6 +38,9 @@ export class Shape {
       color: this.color,
       text: JSON.parse(JSON.stringify(this.text)),
       toString: this.toString(),
+      strokeWidth: this.strokeWidth,
+      strokeColor: this.strokeColor,
+      strokeStyle: this.strokeStyle
     }
   }
 
@@ -266,8 +270,6 @@ export class BasicShape extends Shape {
       ...super.toJSON(),
       width: this.width,
       height: this.height,
-      strokeWidth: this.strokeWidth,
-      strokeColor: this.strokeColor,
       rotation: this.rotation,
       x: this.x,
       y: this.y
