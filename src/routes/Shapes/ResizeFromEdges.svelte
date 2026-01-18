@@ -6,6 +6,7 @@
   let {shape} = $props();
 
   function handleResize(event, resizeFnc) {
+    event.stopPropagation();
     let sizeBefore = {}
     const drag = new DraggableObject(
       () => {

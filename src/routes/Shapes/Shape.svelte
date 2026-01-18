@@ -29,9 +29,11 @@
     const activeElement = document.activeElement;
     const isActiveElementFocusedOnColour = activeElement.readOnly;
     const isActiveElementFocusedOnShapeText = activeElement.contentEditable;
+    console.log(isActiveElementFocusedOnShapeText)
     if (!shape?.selected || event.key.toLowerCase() !== "backspace" ||
       (activeElement instanceof HTMLInputElement && !isActiveElementFocusedOnColour) ||
-      isActiveElementFocusedOnShapeText) return;
+      isActiveElementFocusedOnShapeText === "true") return;
+    // yeah that's some FUCKING FUNNY SHIT JS, MAKE THE FUCKING BOOLEAN A STRING YOU DUMB FUCKS????
     shape.delete();
   }
 

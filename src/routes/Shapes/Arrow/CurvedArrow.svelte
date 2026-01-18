@@ -76,8 +76,6 @@
   rotation={textRotation}
 />
 
-<!--todo make curved arrow path similar to that of arrow so that stroke-dash array actually applies-->
-<!--Stroke-->
 <path
   transition:scale|global={{duration: 120}}
   d="{shaftPath}"
