@@ -2,10 +2,13 @@
   import {onDestroy, onMount} from "svelte";
   import {fade} from "svelte/transition";
 
-  let {value = $bindable(), options = [], size = "md"} = $props();
+  let {shapes, value = $bindable(), options = [], size = "md", fallback} = $props();
 
   let isOpen = $state(false);
   let rootRef = $state();
+
+  let multipleDifferentValues = $derived(value === undefined);
+  let displayedValue = $derived(multipleDifferentValues ? fallback : value);
 
   const normalizedOptions = $derived(options.map((option) => {
     if (typeof option === "string") {
@@ -15,10 +18,10 @@
   }));
 
   const selectedOption = $derived(
-    normalizedOptions.find((option) => option.value === value) ?? normalizedOptions[0]
+    normalizedOptions.find((option) => option.value === displayedValue) ?? normalizedOptions[0]
   );
   const selectedIndex = $derived(
-    Math.max(0, normalizedOptions.findIndex((option) => option.value === value))
+    Math.max(0, normalizedOptions.findIndex((option) => option.value === displayedValue))
   );
 
   const menuOffset = $derived.by(() => {
@@ -75,6 +78,7 @@
 <div class="select {size}" onblur={handleFocusOut} bind:this={rootRef}>
   <button
     class="select-trigger"
+    class:muted={multipleDifferentValues}
     type="button"
     aria-expanded={isOpen}
     onclick={toggleOpen}
@@ -107,7 +111,7 @@
           type="button"
           class="select-option"
           role="option"
-          aria-selected={option.value === value}
+          aria-selected={option.value === displayedValue}
           onclick={() => { value = option.value; close(); }}
         >
           {#if option.dash !== undefined}
@@ -158,6 +162,10 @@
     gap: 8px;
     justify-content: space-between;
     cursor: pointer;
+  }
+
+  .select-trigger.muted {
+    color: #888;
   }
 
   .dash-preview {

@@ -10,8 +10,6 @@ transform-origin: {transformOrigin.x}px {transformOrigin.y}px;">
   <div class="container">
     <div transition:scale|global={{duration: 120}} draggable="false"
          contenteditable
-         onclick="{() => shape && (shape.isEditing = true)}"
-         onblur="{() => shape && (shape.isEditing = false)}"
          bind:innerHTML={shape.text.value}
          style="
            font-size:{shape.text.fontSize}px;

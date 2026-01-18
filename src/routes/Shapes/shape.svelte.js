@@ -14,7 +14,6 @@ export class Shape {
     this.strokeStyle = $state("0")
     this.text = $state(new ShapeText(propertiesWithDefaults.text ?? {}));
     this.removeShape = removeShape;
-    this.isEditing = $state(false);
     this.isDeleting = $state(false);
     this.shapePosBefore = {};
     this.gRef = $state();

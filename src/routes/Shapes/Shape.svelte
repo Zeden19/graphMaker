@@ -19,14 +19,19 @@
     if (shape && gRef && !(gRef.contains(event.target)) && !(editShapeContainerRef.contains(event.target)) &&
       !(event.ctrlKey || event.metaKey) && !selectedShapes.some(shape => shape.gRef().contains(event.target))) {
       selectedShapes.forEach(shape => {
-        shape.isEditing = shape.selected = false;
+        shape.selected = false;
       });
     }
   };
 
   // potentially wasting resources with event listeners; we can just delete all the selected ones; also useful for deleting with button
   const deleteWithKey = (event) => {
-    if (!shape?.selected || event.key.toLowerCase() !== "backspace" || shape?.isEditing) return;
+    const activeElement = document.activeElement;
+    const isActiveElementFocusedOnColour = activeElement.readOnly;
+    const isActiveElementFocusedOnShapeText = activeElement.contentEditable;
+    if (!shape?.selected || event.key.toLowerCase() !== "backspace" ||
+      (activeElement instanceof HTMLInputElement && !isActiveElementFocusedOnColour) ||
+      isActiveElementFocusedOnShapeText) return;
     shape.delete();
   }
 
@@ -34,13 +39,12 @@
     // needed to unselect a shape already selected to prevent the previously selected shape from also moving
     const isAlreadySelected = selectedShapes.some((selectedShape) => selectedShape === shape);
     if (!isAlreadySelected && !(event.ctrlKey || event.metaKey)) {
-      selectedShapes.forEach((shape) => shape.selected = shape.isEditing = false)
+      selectedShapes.forEach((shape) => shape.selected = false)
     }
 
     shape.selected = true; // need this to actually select a individual shape
     selectedShapes.forEach(shape => {
-      if (!shape.isEditing)
-        shape.setDrag(event);
+      shape.setDrag(event);
     });
   }
 

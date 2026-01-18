@@ -31,14 +31,13 @@
   let offset = $state({x: 0, y: 0});
   let canvasScale = $state(1);
 
-  let materialsRef = $state();
-
   let offsetBefore = {x: 0, y: 0};
   let speed = {x: 0, y: 0};
   let previousChange = {x: 0, y: 0};
   let useMomentum = $state(false);
   let highlightSelection = $state(false);
   let highlightDimensions = $state({x1: 0, y1: 0, x2: 0, y2: 0});
+  let canvasRef = $state();
 
   const moveGrid = new DraggableObject(
     (event) => {
@@ -53,8 +52,11 @@
       offsetBefore.x = offset.x;
       offsetBefore.y = offset.y;
 
-      highlightDimensions.x1 = highlightDimensions.x2 = event.clientX - materialsRef.offsetWidth;
-      highlightDimensions.y1 = highlightDimensions.y2 = event.clientY;
+      const canvasRect = canvasRef?.getBoundingClientRect?.();
+      const startX = event.clientX - (canvasRect?.left ?? 0);
+      const startY = event.clientY - (canvasRect?.top ?? 0);
+      highlightDimensions.x1 = highlightDimensions.x2 = startX;
+      highlightDimensions.y1 = highlightDimensions.y2 = startY;
     },
     (dx, dy) => {
       speed.x = dx - previousChange.x;
@@ -216,7 +218,7 @@
     </div>
   </div>
 
-  <div class="materials" bind:this={materialsRef}>
+  <div class="materials">
     <div class="edit-shape-container" bind:this={editShapeContainerRef}>
       {#if selectedShapes.length > 0}
         <EditShape bind:shapes={selectedShapes}/>
@@ -233,6 +235,7 @@
     --big-line-sep: {DEFAULT_PRIMARY_SEP * canvasScale}px;
     --small-line-sep: {DEFAULT_SECONDARY_SEP * canvasScale}px;"
     onmousedown="{moveGrid.setDrag}"
+    bind:this={canvasRef}
     class="canvas"
     role="presentation"
     aria-label="Interactive canvas"

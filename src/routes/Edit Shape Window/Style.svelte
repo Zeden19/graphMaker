@@ -131,7 +131,9 @@
     <div class="basics-holder basics-holder--single">
       <div class="label">Stroke Style</div>
       <div class="control">
-        <Select bind:value={getValue("strokeStyle"), setValue("strokeStyle")} options={strokeStyleOptions}/>
+        <Select
+          {shapes} fallback={shapes[0].strokeStyle}
+          bind:value={getValue("strokeStyle"), setValue("strokeStyle")} options={strokeStyleOptions}/>
       </div>
     </div>
   </div>
@@ -143,10 +145,11 @@
     <div class="type-title">End-Points</div>
     <div class="basics">
       <div class="basics-holder basics-holder--multi">
-      <div class="label">endpoints</div>
+        <div class="label">endpoints</div>
         <div class="multi-inputs">
           <div class="input-with-label">
             <Select
+              {shapes} fallback={shapes[0].start}
               bind:value={getValue("start"), setValue("start")}
               options={arrowEndpointLabels}
               size="sm"
@@ -155,6 +158,7 @@
           </div>
           <div class="input-with-label">
             <Select
+              {shapes} fallback={shapes[0].end}
               bind:value={getValue("end"), setValue("end")}
               options={arrowEndpointLabels}
               size="sm"
@@ -232,7 +236,7 @@
   }
 
   .label,
-  .input-label{
+  .input-label {
     font-size: 0.9em;
     font-style: italic;
     color: rgba(200, 210, 222, 0.75);

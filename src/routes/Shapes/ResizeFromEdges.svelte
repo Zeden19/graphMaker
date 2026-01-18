@@ -9,7 +9,6 @@
     let sizeBefore = {}
     const drag = new DraggableObject(
       () => {
-        shape.isEditing = true;
         sizeBefore.width = shape.width;
         sizeBefore.height = shape.height;
       },
@@ -17,9 +16,6 @@
         const rotatedDeltas = rotateCords(dx, dy, {x: 0, y: 0}, -shape.rotation);
         resizeFnc(rotatedDeltas.x, rotatedDeltas.y, sizeBefore.width, sizeBefore.height);
       },
-      () => {
-        shape.isEditing = false;
-      }
     );
     drag.setDrag(event);
   }

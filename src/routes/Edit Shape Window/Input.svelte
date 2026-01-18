@@ -34,8 +34,6 @@
   <input bind:this={checkboxRef} type="checkbox" bind:checked {...inputProps}/>
 {:else if type === "number" || type === "text"}
   <input {type} {...inputProps} style={multipleDifferentValues && "color: #888"}
-         onfocus={() => shapes.forEach(shape => shape.isEditing = true)}
-         onblur={() => shapes.forEach(shape => shape.isEditing = false)}
          bind:value={() => displayedValue,
          (newValue) => {
             if (newValue === fallback && multipleDifferentValues) return;
