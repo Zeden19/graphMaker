@@ -28,3 +28,10 @@ Simple Graph maker made with Svelte
 - typescript in .svelte.js files
 
 # Features
+
+# Future
+- Create backend with Node
+- Ship with AWS
+- NoSQL database
+- testing
+- docker
