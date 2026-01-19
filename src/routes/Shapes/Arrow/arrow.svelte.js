@@ -40,6 +40,11 @@ export class Arrow extends Shape {
       y2: this.endSnapped?.().y ?? this.y2 + this.offset.y
     });
 
+    this.snapPoints = $derived({
+      start: {x: this.position.x1, y: this.position.y1},
+      end: {x: this.position.x2, y: this.position.y2}
+    });
+
     this.middle = $derived({
       x: (this.position.x1 + this.position.x2) / 2,
       y: (this.position.y1 + this.position.y2) / 2

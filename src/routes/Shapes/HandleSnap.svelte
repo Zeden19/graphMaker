@@ -2,12 +2,22 @@
   // unsnapping happens inside arrow.svelte.js, since movement is easier to track inside there
   import {untrack} from "svelte";
 
-  const BOUNDARY = 20;
+  const BOUNDARY = 10;
+  const MIN_BOUNDARY = 3;
+  const BOUNDARY_SCALE = 0.25;
   let {shapes, arrow} = $props();
 
-  const isInCorner = (arrowPoint, corner) => {
-    return arrowPoint.x > corner.x - BOUNDARY && arrowPoint.x < corner.x + BOUNDARY &&
-      arrowPoint.y > corner.y - BOUNDARY && arrowPoint.y < corner.y + BOUNDARY
+  const getShapeBoundary = (shape) => {
+    if (typeof shape?.width === "number" && typeof shape?.height === "number") {
+      const minDimension = Math.min(shape.width, shape.height);
+      return Math.min(BOUNDARY, Math.max(MIN_BOUNDARY, minDimension * BOUNDARY_SCALE));
+    }
+    return BOUNDARY;
+  }
+
+  const isInCorner = (arrowPoint, corner, boundary) => {
+    return arrowPoint.x > corner.x - boundary && arrowPoint.x < corner.x + boundary &&
+      arrowPoint.y > corner.y - boundary && arrowPoint.y < corner.y + boundary
   }
 
   const isPointSnappedToAnotherArrow = (shape, key) => {
@@ -27,19 +37,23 @@
         if (arrow === shape) return;
         if (shape.isDeleting) return;
 
+        const boundary = getShapeBoundary(shape);
+
         Object.entries(shape.points).forEach(([key, corner]) => {
           // can't closure corner directory because derived isn't deeply reactive
           const cornerRef = () => shape.points[key];
 
           if (isPointSnappedToAnotherArrow(shape, key)) return;
 
-          if (cornerRef && isInCorner(arrow.points.start, corner)) {
+          const arrowStart = arrow.snapPoints?.start ?? arrow.points.start;
+          const arrowEnd = arrow.snapPoints?.end ?? arrow.points.end;
+
+          if (cornerRef && isInCorner(arrowStart, corner, boundary)) {
             arrow.startSnapped = cornerRef;
             arrow.startSnappedShape = () => shape;
-          } else if (cornerRef && isInCorner(arrow.points.end, corner)) {
+          } else if (cornerRef && isInCorner(arrowEnd, corner, boundary)) {
             arrow.endSnapped = cornerRef;
             arrow.endSnappedShape = () => shape;
-
           }
         });
       });

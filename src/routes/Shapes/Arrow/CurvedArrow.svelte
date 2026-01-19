@@ -64,6 +64,24 @@
       ${arrowEndpoints[arrow.end](arrow, false, coords)}
     `;
   });
+
+  const capPath = $derived.by(() => {
+    const halfWidth = arrow.width / 2;
+    const parts = [];
+    if (arrow.start === "") {
+      const perp = arrow.getEndpointVectors(true).perp;
+      const a = {x: curve.start.x - perp.x * halfWidth, y: curve.start.y - perp.y * halfWidth};
+      const b = {x: curve.start.x + perp.x * halfWidth, y: curve.start.y + perp.y * halfWidth};
+      parts.push(`M ${a.x} ${a.y} L ${b.x} ${b.y}`);
+    }
+    if (arrow.end === "") {
+      const perp = arrow.getEndpointVectors(false).perp;
+      const a = {x: curve.end.x - perp.x * halfWidth, y: curve.end.y - perp.y * halfWidth};
+      const b = {x: curve.end.x + perp.x * halfWidth, y: curve.end.y + perp.y * halfWidth};
+      parts.push(`M ${a.x} ${a.y} L ${b.x} ${b.y}`);
+    }
+    return parts.join(" ");
+  });
 </script>
 
 <ShapeText
@@ -93,6 +111,17 @@
   stroke="{arrow.color}"
   stroke-width="{arrow.width}"
 />
+
+{#if capPath}
+  <path
+    transition:scale|global={{duration: 120}}
+    d="{capPath}"
+    fill="none"
+    stroke="{arrow.strokeColor}"
+    stroke-width="{arrow.strokeWidth * 2}"
+    stroke-linecap="butt"
+  />
+{/if}
 
 <!--Endpoints Path-->
 <path

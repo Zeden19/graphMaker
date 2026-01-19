@@ -1,9 +1,7 @@
 Simple Graph maker made with Svelte
 
 # bugs:
-- Arrow connections are jank at conrers (not even working for graphText)
 - Stroke Styles are pretty bad with high strokeWidths, especially on arrows
-- Curved arrow points are weird due to the removal of rounded lines; i want rounded lines but it messed up stroke
 
 ## Fixed Bugs
 
