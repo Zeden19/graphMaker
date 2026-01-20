@@ -15,9 +15,12 @@
   import ResizeFromEdges from "./Shapes/ResizeFromEdges.svelte";
   import Clipboard from "./Clipboard.svelte";
   import {fade} from "svelte/transition";
+  import {onMount} from "svelte";
   import HandleSnap from "./Shapes/HandleSnap.svelte";
   import {Triangle as TriangleClass} from "./Shapes/Triangle/triangle.svelte.js";
   import Triangle from "./Shapes/Triangle/Triangle.svelte";
+  import Share from "./Share.svelte";
+  import {buildGraphPayload} from "$lib/graphShare.js";
   import magnifyingPlus from "$lib/assets/magnifyingPlus.svg"
   import magnifyingMinus from "$lib/assets/magnifyingMinus.svg"
   import magnifyingReset from "$lib/assets/magnifyingReset.svg"
@@ -182,6 +185,61 @@
       shapes[shape.toString.toLowerCase() + "s"];
   }
 
+  const shapeClasses = {
+    Circle: CircleClass,
+    Arrow: ArrowClass,
+    CurvedArrow: CurvedArrowClass,
+    GraphText: GraphTextClass,
+    Square: SquareClass,
+    Triangle: TriangleClass
+  };
+
+  const loadGraphFromId = async (graphId) => {
+    const response = await fetch(`/graphs/${graphId}`);
+    if (!response.ok) {
+      console.error("Failed to load graph", response.status);
+      return;
+    }
+    const graphData = await response.json();
+    if (!Array.isArray(graphData.shapes)) {
+      console.error("Invalid graph payload");
+      return;
+    }
+    clear();
+    graphData.shapes.forEach((shapeData) => {
+      const shapeType = shapeData?.toString;
+      const ShapeClassRef = shapeClasses[shapeType];
+      if (!ShapeClassRef) return;
+      const shapeInstance = new ShapeClassRef(offset, shapeData, removeShape);
+      const shapeArray = getShapeArray(ShapeClassRef.name);
+      shapeArray?.push(shapeInstance);
+    });
+  };
+
+  const createShareLink = async () => {
+    const payload = buildGraphPayload(shapes);
+    const response = await fetch("/graphs", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to create share link (${response.status})`);
+    }
+    const {id} = await response.json();
+    const url = new URL(window.location.href);
+    url.searchParams.set("g", id);
+    return url.toString();
+  };
+
+  onMount(() => {
+    const params = new URLSearchParams(window.location.search);
+    const graphId = params.get("g");
+    if (graphId) {
+      loadGraphFromId(graphId);
+    }
+  });
+
 </script>
 
 <Clipboard {selectedShapes} addShape={(shapeClass, shapeProperties) => {
@@ -214,6 +272,10 @@
       <div class="action-container">
         <button class="action-buttons" onclick={() => {offset.x = 0; offset.y = 0;}}>
           <img class="action-images" src={resetPosition} alt="Reset Position"></button>
+      </div>
+
+      <div class="action-container share">
+        <Share getShareLink={createShareLink}/>
       </div>
     </div>
   </div>
@@ -353,12 +415,19 @@
   }
 
   .top-actions {
+    align-items: center;
     display: flex;
     gap: 30px;
+    width: 100%;
   }
 
   .action-container {
     display: flex;
+  }
+
+  .action-container.share {
+    margin-left: auto;
+    margin-right: 5em;
   }
 
   .action-buttons {

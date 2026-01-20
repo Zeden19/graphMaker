@@ -11,7 +11,7 @@ export class Shape {
     this.color = $state(propertiesWithDefaults.color ?? "white");
     this.strokeColor = $state(propertiesWithDefaults.strokeColor ?? "black");
     this.strokeWidth = $state(propertiesWithDefaults.strokeWidth ?? 2);
-    this.strokeStyle = $state("0")
+    this.strokeStyle = $state(propertiesWithDefaults.strokeStyle ?? "0");
     this.text = $state(new ShapeText(propertiesWithDefaults.text ?? {}));
     this.removeShape = removeShape;
     this.isDeleting = $state(false);
