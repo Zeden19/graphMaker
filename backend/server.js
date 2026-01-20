@@ -1,89 +1,10 @@
 const http = require("http");
-const crypto = require("crypto");
-const fs = require("fs");
 const path = require("path");
+const {createGraphStore} = require("./graphs");
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, "graphs.json");
-
-const ROUND_PRECISION = 3;
-
-const roundNumber = (value) => Number.isFinite(value)
-  ? Number(value.toFixed(ROUND_PRECISION))
-  : value;
-
-const roundDeep = (value) => {
-  if (Array.isArray(value)) {
-    return value.map((item) => roundDeep(item));
-  }
-  if (value && typeof value === "object") {
-    return Object.keys(value).reduce((acc, key) => {
-      acc[key] = roundDeep(value[key]);
-      return acc;
-    }, {});
-  }
-  if (typeof value === "number") {
-    return roundNumber(value);
-  }
-  return value;
-};
-
-const stableStringify = (value) => {
-  if (value === null || typeof value !== "object") {
-    return JSON.stringify(value);
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map((item) => stableStringify(item)).join(",")}]`;
-  }
-  const keys = Object.keys(value).sort();
-  const entries = keys.map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`);
-  return `{${entries.join(",")}}`;
-};
-
-const normalizeGraphData = (rawGraph) => {
-  // TODO: add schema versioning here when graph data evolves.
-  const rounded = roundDeep(rawGraph);
-  if (!rounded || !Array.isArray(rounded.shapes)) {
-    return null;
-  }
-  const shapesWithKeys = rounded.shapes.map((shape) => ({
-    shape,
-    key: stableStringify(shape)
-  }));
-  shapesWithKeys.sort((a, b) => a.key.localeCompare(b.key));
-  return {
-    ...rounded,
-    shapes: shapesWithKeys.map(({shape}) => shape)
-  };
-};
-
-const hashGraph = (graphData) => {
-  const normalized = normalizeGraphData(graphData);
-  if (!normalized) return null;
-  const payload = stableStringify(normalized);
-  return crypto.createHash("sha256").update(payload).digest("hex");
-};
-
-const graphStore = new Map();
-
-const loadGraphs = () => {
-  try {
-    const raw = fs.readFileSync(DATA_FILE, "utf8");
-    const parsed = JSON.parse(raw);
-    Object.entries(parsed).forEach(([id, graph]) => {
-      graphStore.set(id, graph);
-    });
-  } catch (error) {
-    if (error.code !== "ENOENT") {
-      console.error("Failed to load graphs", error);
-    }
-  }
-};
-
-const saveGraphs = () => {
-  const data = Object.fromEntries(graphStore.entries());
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-};
+const graphStore = createGraphStore(DATA_FILE);
 
 const sendJson = (res, statusCode, payload) => {
   res.writeHead(statusCode, {
@@ -118,8 +39,6 @@ const parseBody = (req) => new Promise((resolve, reject) => {
   });
   req.on("error", reject);
 });
-
-loadGraphs();
 
 const server = http.createServer(async (req, res) => {
   const { method } = req;
@@ -167,19 +86,11 @@ const server = http.createServer(async (req, res) => {
       if (!body) {
         return sendJson(res, 400, { error: "missing_body" });
       }
-      const normalized = normalizeGraphData(body);
-      if (!normalized) {
-        return sendJson(res, 400, { error: "invalid_graph" });
+      const result = graphStore.createGraph(body);
+      if (result.error) {
+        return sendJson(res, 400, { error: result.error });
       }
-      const id = hashGraph(normalized);
-      if (!id) {
-        return sendJson(res, 400, { error: "invalid_graph" });
-      }
-      if (!graphStore.has(id)) {
-        graphStore.set(id, normalized);
-        saveGraphs();
-      }
-      return sendJson(res, 200, { id });
+      return sendJson(res, 200, { id: result.id });
     } catch (error) {
       return sendJson(res, 400, { error: "invalid_json" });
     }
@@ -187,7 +98,7 @@ const server = http.createServer(async (req, res) => {
 
   if (method === "GET" && url.startsWith("/graphs/")) {
     const graphId = url.split("/")[2];
-    const graph = graphStore.get(graphId);
+    const graph = graphStore.getGraph(graphId);
     if (!graph) {
       return sendJson(res, 404, { error: "not_found" });
     }
