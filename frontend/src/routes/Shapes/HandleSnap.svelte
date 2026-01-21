@@ -33,7 +33,7 @@
     arrow.y2;
 
     untrack(() => {
-      Object.values(shapes).flat(4).forEach((shape) => {
+      Object.values(shapes).flat().forEach((shape) => {
         if (arrow === shape) return;
         if (shape.isDeleting) return;
 

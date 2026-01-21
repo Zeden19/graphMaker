@@ -28,20 +28,26 @@ const stableStringify = (value) => {
     return `[${value.map((item) => stableStringify(item)).join(",")}]`;
   }
   const keys = Object.keys(value).sort();
-  const entries = keys.map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`);
+  const entries = keys.map((key) => {
+    let stringifiedKey = JSON.stringify(key);
+    let stringifiedValue = stableStringify(value[key]);
+    return `${stringifiedKey}:${stringifiedValue}`;
+  });
   return `{${entries.join(",")}}`;
 };
 
 export const buildGraphPayload = (shapes) => {
   // TODO: include a schema version once graph data needs migrations.
+  // round the JSON Data
   const shapeData = Object.values(shapes)
-    .flat(4)
+    .flat()
     .map((shape) => roundDeep(shape.toJSON()));
 
-  const withKeys = shapeData.map((data) => ({data, key: stableStringify(data)}));
-  withKeys.sort((a, b) => a.key.localeCompare(b.key));
+  // key only used to sort shapes
+  const withKeys = shapeData.map((shape) => ({shape, key: stableStringify(shape)}));
+  const sortedShapes = withKeys.sort((a, b) => a.key.localeCompare(b.key)).map(({shape}) => shape);
 
   return {
-    shapes: withKeys.map(({data}) => data)
+    shapes: sortedShapes,
   };
 };

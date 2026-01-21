@@ -120,7 +120,7 @@
     {label: "graph text", class: GraphTextClass, svg: `<text x="24" y="30" text-anchor="middle">Text</text>`},
   ]
 
-  let selectedShapes = $derived(Object.values(shapes).flat(4).filter(shape => shape.selected))
+  let selectedShapes = $derived(Object.values(shapes).flat().filter(shape => shape.selected))
   let editShapeContainerRef = $state();
 
   let shapeProps = $derived({
