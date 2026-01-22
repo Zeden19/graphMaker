@@ -1,10 +1,8 @@
 const http = require("http");
-const path = require("path");
 const {createGraphStore} = require("./graphs");
 
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, "graphs.json");
-const graphStore = createGraphStore(DATA_FILE);
+const graphStore = createGraphStore();
 
 const sendJson = (res, statusCode, payload) => {
   res.writeHead(statusCode, {
@@ -86,11 +84,11 @@ const server = http.createServer(async (req, res) => {
       if (!body) {
         return sendJson(res, 400, { error: "missing_body" });
       }
-      const result = graphStore.createGraph(body);
+      const result = await graphStore.createGraph(body);
       if (result.error) {
         return sendJson(res, 400, { error: result.error });
       }
-      return sendJson(res, 200, { id: result.id });
+      return sendJson(res, 200, { id: result });
     } catch (error) {
       return sendJson(res, 400, { error: "invalid_json" });
     }
@@ -98,7 +96,7 @@ const server = http.createServer(async (req, res) => {
 
   if (method === "GET" && url.startsWith("/graphs/")) {
     const graphId = url.split("/")[2];
-    const graph = graphStore.getGraph(graphId);
+    const graph = await graphStore.getGraph(graphId);
     if (!graph) {
       return sendJson(res, 404, { error: "not_found" });
     }

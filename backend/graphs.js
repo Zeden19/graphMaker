@@ -1,8 +1,6 @@
 const crypto = require("crypto");
-const fs = require("fs");
-const path = require("path");
+const db = require("./db");
 
-const DEFAULT_DATA_FILE = path.join(__dirname, "graphs.json");
 const ROUND_PRECISION = 3;
 
 const roundNumber = (value) => Number.isFinite(value)
@@ -55,52 +53,38 @@ const normalizeGraphData = (rawGraph) => {
 };
 
 const hashGraph = (graphData) => {
-  const normalized = normalizeGraphData(graphData);
-  if (!normalized) return null;
-  const payload = stableStringify(normalized);
+  const payload = stableStringify(graphData);
   return crypto.createHash("sha256").update(payload).digest("hex");
 };
 
-const loadGraphs = (graphStore, dataFile) => {
-  try {
-    const raw = fs.readFileSync(dataFile, "utf8");
-    const parsed = JSON.parse(raw);
-    Object.entries(parsed).forEach(([id, graph]) => {
-      graphStore.set(id, graph);
-    });
-  } catch (error) {
-    if (error.code !== "ENOENT") {
-      console.error("Failed to load graphs", error);
-    }
-  }
-};
-
-const saveGraphs = (graphStore, dataFile) => {
-  const data = Object.fromEntries(graphStore.entries());
-  fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
-};
-
-const createGraphStore = (dataFile = DEFAULT_DATA_FILE) => {
-  const graphStore = new Map();
-  loadGraphs(graphStore, dataFile);
-
-  const createGraph = (graphData) => {
+const createGraphStore = () => {
+  const createGraph = async (graphData, ownerId = null) => {
     const normalized = normalizeGraphData(graphData);
-    if (!normalized) {
-      return {error: "invalid_graph"};
-    }
-    const id = hashGraph(normalized);
-    if (!id) {
-      return {error: "invalid_graph"};
-    }
-    if (!graphStore.has(id)) {
-      graphStore.set(id, normalized);
-      saveGraphs(graphStore, dataFile);
-    }
-    return {id, graph: normalized};
-  };
+    if (!normalized) return {error: "invalid graph"}
 
-  const getGraph = (graphId) => graphStore.get(graphId);
+    const id = hashGraph(normalized);
+    if (!id) return {error: "invalid graph"}
+
+    await db.query(
+      `INSERT INTO graphs (id, owner_id, payload)
+       VALUES ($1, $2, $3)
+       ON CONFLICT DO NOTHING
+       RETURNING id`, [id, ownerId, normalized]
+    );
+
+    return id
+  }
+
+  const getGraph = async (graphId) => {
+    const result = await db.query(`
+                SELECT payload
+                FROM graphs
+                WHERE id = $1
+                AND owner_id IS NULL`,
+      [graphId]);
+
+    return result.rows[0]?.payload ?? null
+  }
 
   return {
     createGraph,
