@@ -1,8 +1,10 @@
 const http = require("http");
 const {createGraphStore} = require("./graphs");
+const {createUserStore} = require("./users");
 
 const PORT = process.env.PORT || 3000;
 const graphStore = createGraphStore();
+const userStore = createUserStore();
 
 const sendJson = (res, statusCode, payload) => {
   res.writeHead(statusCode, {
@@ -97,8 +99,8 @@ const server = http.createServer(async (req, res) => {
   if (method === "GET" && url.startsWith("/graphs/")) {
     const graphId = url.split("/")[2];
     const graph = await graphStore.getGraph(graphId);
-    if (!graph) {
-      return sendJson(res, 404, { error: "not_found" });
+    if (graph.error) {
+      return sendJson(res, 404, { error: graph.error });
     }
     return sendJson(res, 200, graph);
   }

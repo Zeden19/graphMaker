@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const db = require("./db");
+const {pool : db} = require("./db");
 
 const ROUND_PRECISION = 3;
 
@@ -82,6 +82,9 @@ const createGraphStore = () => {
                 WHERE id = $1
                 AND owner_id IS NULL`,
       [graphId]);
+    if (result.rows.length === 0) {
+      return {error: "Could not find graph"};
+    }
 
     return result.rows[0]?.payload ?? null
   }
