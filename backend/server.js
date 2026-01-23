@@ -90,7 +90,7 @@ const server = http.createServer(async (req, res) => {
       if (result.error) {
         return sendJson(res, 400, { error: result.error });
       }
-      return sendJson(res, 200, { id: result });
+      return sendJson(res, 200, { id: result.id });
     } catch (error) {
       return sendJson(res, 400, { error: "invalid_json" });
     }
@@ -99,10 +99,11 @@ const server = http.createServer(async (req, res) => {
   if (method === "GET" && url.startsWith("/graphs/")) {
     const graphId = url.split("/")[2];
     const graph = await graphStore.getGraph(graphId);
-    if (graph.error) {
-      return sendJson(res, 404, { error: graph.error });
+    if (graph.error || !graph.payload) {
+      const statusCode = graph.error === "db_error" ? 500 : 404;
+      return sendJson(res, statusCode, { error: graph.error ?? "not_found" });
     }
-    return sendJson(res, 200, graph);
+    return sendJson(res, 200, graph.payload);
   }
 
   if (method === "PUT" && url.startsWith("/graphs/")) {

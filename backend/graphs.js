@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const {pool : db} = require("./db");
+const {pool: db} = require("./db");
 
 const ROUND_PRECISION = 3;
 
@@ -60,34 +60,42 @@ const hashGraph = (graphData) => {
 const createGraphStore = () => {
   const createGraph = async (graphData, ownerId = null) => {
     const normalized = normalizeGraphData(graphData);
-    if (!normalized) return {error: "invalid graph"}
+    if (!normalized) return {error: "invalid_graph"};
 
     const id = hashGraph(normalized);
-    if (!id) return {error: "invalid graph"}
+    if (!id) return {error: "invalid_graph"};
 
-    await db.query(
-      `INSERT INTO graphs (id, owner_id, payload)
-       VALUES ($1, $2, $3)
-       ON CONFLICT DO NOTHING
-       RETURNING id`, [id, ownerId, normalized]
-    );
-
-    return id
-  }
+    try {
+      await db.query(
+        `INSERT INTO graphs (id, owner_id, payload)
+         VALUES ($1, $2, $3)
+         ON CONFLICT DO NOTHING`,
+        [id, ownerId, normalized]
+      );
+      return {id};
+    } catch {
+      return {error: "db_error"};
+    }
+  };
 
   const getGraph = async (graphId) => {
-    const result = await db.query(`
-                SELECT payload
-                FROM graphs
-                WHERE id = $1
-                AND owner_id IS NULL`,
-      [graphId]);
-    if (result.rows.length === 0) {
-      return {error: "Could not find graph"};
-    }
+    try {
+      const result = await db.query(
+        `SELECT payload
+         FROM graphs
+         WHERE id = $1
+         AND owner_id IS NULL`,
+        [graphId]
+      );
+      if (result.rows.length === 0) {
+        return {error: "not_found"};
+      }
 
-    return result.rows[0]?.payload ?? null
-  }
+      return {payload: result.rows[0]?.payload ?? null};
+    } catch {
+      return {error: "db_error"};
+    }
+  };
 
   return {
     createGraph,
