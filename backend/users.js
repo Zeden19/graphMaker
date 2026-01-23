@@ -84,7 +84,7 @@ const createUserStore = () => {
   };
   return {
     createUser,
-    verifyUser: logInUser,
+    logInUser,
     getUser,
     deleteUser,
     getUserGraphs,
