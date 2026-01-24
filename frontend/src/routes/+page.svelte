@@ -1,32 +1,35 @@
 <script>
-  import Circle from "./Shapes/Circle/Circle.svelte";
-  import {Circle as CircleClass} from "./Shapes/Circle/circle.svelte.js";
-  import {Arrow as ArrowClass} from "./Shapes/Arrow/arrow.svelte.js";
-  import {CurvedArrow as CurvedArrowClass} from "./Shapes/Arrow/curvedArrow.svelte.js";
-  import {GraphText as GraphTextClass} from "./Shapes/Text/GraphText.svelte.js";
-  import {Square as SquareClass} from "./Shapes/Square/square.svelte.js";
-  import Square from "./Shapes/Square/Square.svelte";
-  import Arrow from "./Shapes/Arrow/Arrow.svelte";
-  import CurvedArrow from "./Shapes/Arrow/CurvedArrow.svelte";
-  import DraggableObject from "./Shapes/DraggableObject.svelte.js";
-  import Shape from "./Shapes/Shape.svelte";
+  import {
+    magnifyingPlus,
+    magnifyingMinus,
+    magnifyingReset,
+    selectAll,
+    deleteAll,
+    resetPosition,
+    account,
+  } from "$lib/assets";
+  import {
+    Arrow,
+    ArrowClass,
+    Circle,
+    CircleClass,
+    CurvedArrow,
+    CurvedArrowClass,
+    DraggableObject,
+    GraphText,
+    GraphTextClass,
+    HandleSnap,
+    ResizeFromEdges,
+    Shape,
+    Square,
+    SquareClass,
+    Triangle,
+    TriangleClass,
+  } from "./Shapes";
   import EditShape from "./Edit Shape Window/EditShape.svelte";
-  import GraphText from "./Shapes/Text/GraphText.svelte";
-  import ResizeFromEdges from "./Shapes/ResizeFromEdges.svelte";
   import Clipboard from "./Clipboard.svelte";
   import {fade} from "svelte/transition";
-  import {onMount} from "svelte";
-  import HandleSnap from "./Shapes/HandleSnap.svelte";
-  import {Triangle as TriangleClass} from "./Shapes/Triangle/triangle.svelte.js";
-  import Triangle from "./Shapes/Triangle/Triangle.svelte";
   import Share from "./Share.svelte";
-  import {buildGraphPayload} from "$lib/graphShare.js";
-  import magnifyingPlus from "$lib/assets/magnifyingPlus.svg"
-  import magnifyingMinus from "$lib/assets/magnifyingMinus.svg"
-  import magnifyingReset from "$lib/assets/magnifyingReset.svg"
-  import selectAll from "$lib/assets/selectAll.svg"
-  import deleteAll from "$lib/assets/deleteAll.svg"
-  import resetPosition from "$lib/assets/resetPosition.svg"
 
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
@@ -120,6 +123,16 @@
     {label: "graph text", class: GraphTextClass, svg: `<text x="24" y="30" text-anchor="middle">Text</text>`},
   ]
 
+  const shapeClasses = {
+    Circle: CircleClass,
+    Arrow: ArrowClass,
+    CurvedArrow: CurvedArrowClass,
+    GraphText: GraphTextClass,
+    Square: SquareClass,
+    Triangle: TriangleClass
+  };
+
+
   let selectedShapes = $derived(Object.values(shapes).flat().filter(shape => shape.selected))
   let editShapeContainerRef = $state();
 
@@ -184,62 +197,6 @@
     return typeof shape.toString === "function" ? shapes[shape.toString().toLowerCase() + "s"] :
       shapes[shape.toString.toLowerCase() + "s"];
   }
-
-  const shapeClasses = {
-    Circle: CircleClass,
-    Arrow: ArrowClass,
-    CurvedArrow: CurvedArrowClass,
-    GraphText: GraphTextClass,
-    Square: SquareClass,
-    Triangle: TriangleClass
-  };
-
-  const loadGraphFromId = async (graphId) => {
-    const response = await fetch(`/graphs/${graphId}`);
-    if (!response.ok) {
-      console.error("Failed to load graph", response.status);
-      return;
-    }
-    const graphData = await response.json();
-    if (!Array.isArray(graphData.shapes)) {
-      console.error("Invalid graph payload");
-      return;
-    }
-    clear();
-    graphData.shapes.forEach((shapeData) => {
-      const shapeType = shapeData?.toString;
-      const ShapeClassRef = shapeClasses[shapeType];
-      if (!ShapeClassRef) return;
-      const shapeInstance = new ShapeClassRef(offset, shapeData, removeShape);
-      const shapeArray = getShapeArray(ShapeClassRef.name);
-      shapeArray?.push(shapeInstance);
-    });
-  };
-
-  const createShareLink = async () => {
-    const payload = buildGraphPayload(shapes);
-    const response = await fetch("/graphs", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(payload)
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to create share link (${response.status})`);
-    }
-    const {id} = await response.json();
-    const url = new URL(window.location.href);
-    url.searchParams.set("g", id);
-    return url.toString();
-  };
-
-  onMount(() => {
-    const params = new URLSearchParams(window.location.search);
-    const graphId = params.get("g");
-    if (graphId) {
-      loadGraphFromId(graphId);
-    }
-  });
-
 </script>
 
 <Clipboard {selectedShapes} addShape={(shapeClass, shapeProperties) => {
@@ -275,7 +232,8 @@
       </div>
 
       <div class="action-container share">
-        <Share getShareLink={createShareLink}/>
+        <Share {shapes} {clear} {offset} {removeShape} {getShapeArray} {shapeClasses}/>
+        <button class="action-buttons"><img class="action-images" src={account} alt="Account Settings"></button>
       </div>
     </div>
   </div>
@@ -428,21 +386,6 @@
   .action-container.share {
     margin-left: auto;
     margin-right: 5em;
-  }
-
-  .action-buttons {
-    padding: 0
-  }
-
-  .action-images {
-    object-fit: cover;
-    height: 40px;
-    padding: 5px;
-  }
-
-  .action-images:hover {
-    background-color: #424242;
-    cursor: pointer;
   }
 
   .shape-grid {

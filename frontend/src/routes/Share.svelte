@@ -1,9 +1,48 @@
 <script>
-  import {onDestroy, onMount} from "svelte";
+  import {onMount} from "svelte";
+  import {fade} from "svelte/transition";
   import share from "$lib/assets/share.svg";
   import copy from "$lib/assets/copy.svg";
+  import {buildGraphPayload} from "$lib/graphShare.js";
 
-  const {getShareLink} = $props();
+  const {shapes, clear, offset, removeShape, getShapeArray, shapeClasses} = $props();
+  const loadGraphFromId = async (graphId) => {
+    const response = await fetch(`/graphs/${graphId}`);
+    if (!response.ok) {
+      console.error("Failed to load graph", response.status);
+      return;
+    }
+    const graphData = await response.json();
+    if (!Array.isArray(graphData.shapes)) {
+      console.error("Invalid graph payload");
+      return;
+    }
+    clear();
+    graphData.shapes.forEach((shapeData) => {
+      const shapeType = shapeData?.toString;
+      const ShapeClassRef = shapeClasses[shapeType];
+      if (!ShapeClassRef) return;
+      const shapeInstance = new ShapeClassRef(offset, shapeData, removeShape);
+      const shapeArray = getShapeArray(ShapeClassRef.name);
+      shapeArray?.push(shapeInstance);
+    });
+  };
+
+  const getShareLink = async () => {
+    const payload = buildGraphPayload(shapes);
+    const response = await fetch("/graphs", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to create share link (${response.status})`);
+    }
+    const {id} = await response.json();
+    const url = new URL(window.location.href);
+    url.searchParams.set("g", id);
+    return url.toString();
+  };
 
   let showPopup = $state(false);
   let popupArea = $state(null);
@@ -60,20 +99,26 @@
   };
 
   onMount(() => {
-    document.addEventListener("click", handleWindowClick);
-  });
+    const params = new URLSearchParams(window.location.search);
+    const graphId = params.get("g");
+    if (graphId) {
+      loadGraphFromId(graphId);
+    }
 
-  // onDestroy(() => {
-  //   document.removeEventListener("click", handleWindowClick);
-  //   clearTimeout(copyTimeout);
-  // });
+    document.addEventListener("click", handleWindowClick);
+
+    return () => {
+      document.removeEventListener("click", handleWindowClick);
+      clearTimeout(copyTimeout);
+    }
+  });
 </script>
 
 <div class="share-root" bind:this={popupArea}>
   <button class="action-buttons" onclick={togglePopup} aria-label="Share">
     <img class="action-images" src={share} alt="Share"></button>
   {#if showPopup}
-    <div class="share-popup">
+    <div transition:fade={{duration: 100}} class="share-popup">
       <div class="share-section">
         <div class="share-title">Account</div>
         <div class="share-placeholder">Placeholder account details</div>
@@ -194,20 +239,5 @@
   .share-copy-text {
     font-size: 0.85em;
     line-height: 1;
-  }
-
-  .action-buttons {
-    padding: 0;
-  }
-
-  .action-images {
-    object-fit: cover;
-    height: 40px;
-    padding: 5px;
-  }
-
-  .action-images:hover {
-    background-color: #424242;
-    cursor: pointer;
   }
 </style>
