@@ -6,7 +6,6 @@
     selectAll,
     deleteAll,
     resetPosition,
-    account,
   } from "$lib/assets";
   import {
     Arrow,
@@ -30,6 +29,9 @@
   import Clipboard from "./Clipboard.svelte";
   import {fade} from "svelte/transition";
   import Share from "./Share.svelte";
+  import Account from "./Account.svelte";
+  import {currentUser, authLoading} from "$lib/stores/auth.js";
+  import {onMount} from "svelte";
 
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
@@ -197,6 +199,24 @@
     return typeof shape.toString === "function" ? shapes[shape.toString().toLowerCase() + "s"] :
       shapes[shape.toString.toLowerCase() + "s"];
   }
+
+  onMount(async () => {
+    console.log($currentUser)
+    if ($currentUser) return;
+    try {
+      const response = await fetch("/accounts/me", {credentials: "include"});
+      if (response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        $currentUser = payload?.user ?? null;
+      } else {
+        $currentUser = null;
+      }
+    } catch {
+      $currentUser = null;
+    } finally {
+      $authLoading = false;
+    }
+  })
 </script>
 
 <Clipboard {selectedShapes} addShape={(shapeClass, shapeProperties) => {
@@ -233,7 +253,7 @@
 
       <div class="action-container share">
         <Share {shapes} {clear} {offset} {removeShape} {getShapeArray} {shapeClasses}/>
-        <button class="action-buttons"><img class="action-images" src={account} alt="Account Settings"></button>
+        <Account/>
       </div>
     </div>
   </div>

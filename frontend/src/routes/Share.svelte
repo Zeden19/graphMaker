@@ -225,6 +225,10 @@
     justify-content: center;
   }
 
+  .share-copy:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
   .share-copy--success {
     background: #30a55c;
     border-color: #30a55c;

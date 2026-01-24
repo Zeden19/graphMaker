@@ -6,7 +6,8 @@ export default defineConfig({
 	server: {
 		proxy: {
 			'/graphs': 'http://localhost:3000',
-			'/health': 'http://localhost:3000'
+			'/health': 'http://localhost:3000',
+			'/accounts': 'http://localhost:3000'
 		}
 	}
 });
