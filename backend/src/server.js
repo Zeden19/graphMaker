@@ -1,6 +1,6 @@
-const {createGraphStore} = require("./graphs");
-const {createUserStore} = require("./users");
-const {createSessionStore} = require("./sessions");
+const {createGraphStore} = require("./stores/graphs");
+const {createUserStore} = require("./stores/users");
+const {createSessionStore} = require("./stores/sessions");
 const {createServer} = require("./createServer");
 
 const PORT = process.env.PORT || 3000;
