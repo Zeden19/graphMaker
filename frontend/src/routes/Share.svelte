@@ -5,6 +5,13 @@
   import copy from "$lib/assets/copy.svg";
   import {buildGraphPayload} from "$lib/graphShare.js";
 
+  let showPopup = $state(false);
+  let popupArea = $state(null);
+  let shareLink = $state("");
+  let copied = $state(false);
+  let isLoadingLink = $state(false);
+  let copyTimeout;
+
   const {shapes, clear, offset, removeShape, getShapeArray, shapeClasses} = $props();
   const loadGraphFromId = async (graphId) => {
     const response = await fetch(`/graphs/${graphId}`);
@@ -44,12 +51,6 @@
     return url.toString();
   };
 
-  let showPopup = $state(false);
-  let popupArea = $state(null);
-  let shareLink = $state("");
-  let copied = $state(false);
-  let isLoadingLink = $state(false);
-  let copyTimeout;
 
   const loadShareLink = async () => {
     if (typeof getShareLink !== "function") return;
@@ -72,19 +73,7 @@
 
   const handleCopy = async () => {
     const text = shareLink ?? "";
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.left = "-9999px";
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-    }
+    await navigator.clipboard.writeText(text);
     copied = true;
     clearTimeout(copyTimeout);
     copyTimeout = setTimeout(() => {
