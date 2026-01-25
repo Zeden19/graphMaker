@@ -1,75 +1,47 @@
 <script>
-  import {authLoading, currentUser} from "$lib/stores/auth.js";
+  import {page} from "$app/state";
 
-  let {
-    title,
-    subtitle = "",
-    primaryLabel,
-    showConfirmPassword = false,
-    showForgotPassword = false,
-    forgotHref = "",
-    showEmailOnly = false,
-    endpoint = "",
-    successRedirect = "/",
-    secondaryText = "",
-    secondaryLinkText = "",
-    secondaryHref = ""
-  } = $props();
-
-  let email = $state("");
   let password = $state("");
   let confirmPassword = $state("");
   let error = $state("");
   let isSubmitting = $state(false);
   let errorTimeout;
 
-  const errorMessages = {
-    missing_fields: "Enter an email and password.",
-    invalid_credentials: "Email or password is incorrect.",
-    email_taken: "That email already has an account.",
-    db_error: "Something went wrong. Try again.",
-    invalid_json: "Invalid data sent.",
-  };
+  const token = $derived(page.url.searchParams.get("token") ?? "");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     error = "";
     clearTimeout(errorTimeout);
-    if (!email || (!showEmailOnly && !password)) {
-      error = errorMessages.missing_fields;
+
+    if (!token) {
+      error = "Reset link is missing or invalid.";
       return;
     }
-    if (showConfirmPassword && password !== confirmPassword) {
+    if (!password) {
+      error = "Enter a new password.";
+      return;
+    }
+    if (password !== confirmPassword) {
       error = "Passwords do not match.";
-      return;
-    }
-    if (!endpoint) {
-      error = "No endpoint configured; Please contact me.";
       return;
     }
 
     isSubmitting = true;
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch("/accounts/reset-password", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         credentials: "include",
-      body: JSON.stringify(showEmailOnly ? {email} : {email, password})
-    });
+        body: JSON.stringify({token, password})
+      });
       if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        error = errorMessages[payload?.error] ?? "Unable to continue.";
+        error = "Unable to reset password.";
         return;
       }
-
-      const payload = await response.json().catch(() => ({}));
-      if (payload?.user) {
-        $currentUser = payload.user;
-      }
-      $authLoading = false;
-      window.location.href = successRedirect;
+      window.location.href = "/login";
     } catch {
-      error = errorMessages.db_error;
+      error = "Unable to reset password.";
     } finally {
       isSubmitting = false;
     }
@@ -83,50 +55,28 @@
 <div class="auth-page">
   <div class="auth-card">
     <div class="auth-header">
-      <h1>{title}</h1>
-      {#if subtitle}
-        <p>{subtitle}</p>
-      {/if}
+      <h1>Set a new password</h1>
+      <p>Choose a strong password to secure your account.</p>
     </div>
 
     <form class="auth-form" onsubmit={handleSubmit}>
       <label class="field">
-        <span class="field-label">Email</span>
-        <input type="email" placeholder="name@domain.com" autocomplete="email" bind:value={email}/>
+        <span class="field-label">New password</span>
+        <input type="password" placeholder="••••••••" autocomplete="new-password" bind:value={password}/>
       </label>
 
-      {#if !showEmailOnly}
-        <label class="field">
-          <span class="field-label">Password</span>
-          <input type="password" placeholder="••••••••" autocomplete="current-password" bind:value={password}/>
-        </label>
-      {/if}
-
-      {#if showForgotPassword}
-        <a class="auth-forgot" href={forgotHref}>Forgot password?</a>
-      {/if}
-
-      {#if showConfirmPassword}
-        <label class="field">
-          <span class="field-label">Confirm password</span>
-          <input type="password" placeholder="••••••••" autocomplete="new-password" bind:value={confirmPassword}/>
-        </label>
-      {/if}
+      <label class="field">
+        <span class="field-label">Confirm password</span>
+        <input type="password" placeholder="••••••••" autocomplete="new-password" bind:value={confirmPassword}/>
+      </label>
 
       {#if error}
         <div class="auth-error" role="alert">{error}</div>
       {/if}
 
       <button class="auth-submit" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Working..." : primaryLabel}
+        {isSubmitting ? "Updating..." : "Update password"}
       </button>
-
-      {#if secondaryText}
-        <div class="auth-footer">
-          <span>{secondaryText}</span>
-          <a href={secondaryHref}>{secondaryLinkText}</a>
-        </div>
-      {/if}
     </form>
   </div>
 </div>
@@ -231,39 +181,12 @@
   }
 
   .auth-error {
+    display: inline-block;
     border: 1px solid rgba(255, 140, 140, 0.5);
     background: rgba(140, 20, 20, 0.25);
     color: #ffd6d6;
-    padding: 10px 15px;
+    padding: 8px 10px;
     border-radius: 10px;
     font-size: 0.85em;
-  }
-
-  .auth-footer {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    font-size: 0.85em;
-    color: rgba(225, 232, 235, 0.7);
-  }
-
-  .auth-footer a {
-    color: white;
-  }
-
-  .auth-footer a:hover {
-    color: #bbb;
-  }
-
-  .auth-forgot {
-    align-self: flex-end;
-    font-size: 0.8em;
-    color: rgba(225, 232, 235, 0.7);
-    text-decoration: none;
-    margin-top: -12px;
-  }
-
-  .auth-forgot:hover {
-    color: white;
   }
 </style>

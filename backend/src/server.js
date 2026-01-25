@@ -2,11 +2,14 @@ const {createGraphStore} = require("./stores/graphs");
 const {createUserStore} = require("./stores/users");
 const {createSessionStore} = require("./stores/sessions");
 const {createServer} = require("./createServer");
+const {createResetTokenStore} = require("./stores/passwordResetTokenStore");
+const {sendPasswordReset} = require("./mailer");
 
 const PORT = process.env.PORT || 3000;
 const graphStore = createGraphStore();
 const userStore = createUserStore();
 const sessionStore = createSessionStore();
+const resetTokenStore = createResetTokenStore();
 
 const sendJson = (res, statusCode, payload) => {
   res.writeHead(statusCode, {
@@ -51,7 +54,7 @@ createServer({
   port: PORT, hostname: "localhost",
   routes: {
     "/health": {GET: ({res}) => sendJson(res, 200, {status: "ok", service: "graphmaker-backend"})},
-
+    
     "/accounts/register": {
       POST: async ({res, body}) => {
         if (!body?.email || !body?.password) {
@@ -62,7 +65,7 @@ createServer({
           const status = result.error === "email_taken" ? 409 : 500;
           return sendJson(res, status, {error: result.error});
         }
-
+        
         const sessionResult = await sessionStore.createSession(result.id);
         if (sessionResult.error) {
           return sendJson(res, 500, {error: sessionResult.error});
@@ -71,7 +74,7 @@ createServer({
         return sendJson(res, 201, {user: result});
       }
     },
-
+    
     "/accounts/login": {
       POST: async ({res, body}) => {
         if (!body?.email || !body?.password) {
@@ -82,7 +85,7 @@ createServer({
           const status = result.error === "invalid_credentials" ? 401 : 500;
           return sendJson(res, status, {error: result.error});
         }
-
+        
         const sessionResult = await sessionStore.createSession(result.id);
         if (sessionResult.error) {
           return sendJson(res, 500, {error: sessionResult.error});
@@ -91,7 +94,7 @@ createServer({
         return sendJson(res, 200, {user: result});
       }
     },
-
+    
     "/accounts/logout": {
       POST: async ({req, res}) => {
         const cookies = parseCookies(req);
@@ -108,7 +111,7 @@ createServer({
         return sendJson(res, 204, {success: true});
       }
     },
-
+    
     "/accounts/me": {
       GET: async ({req, res}) => {
         const cookies = parseCookies(req);
@@ -129,7 +132,50 @@ createServer({
         return sendJson(res, 200, {user: userResult});
       }
     },
-
+    
+    "/accounts/forgot-password": {
+      POST: async ({res, body}) => {
+        if (!body?.email) {
+          return sendJson(res, 400, {error: "missing_fields"});
+        }
+        
+        const userResult = await userStore.getUserByEmail(body.email);
+        if (userResult.error === "db_error") {
+          return sendJson(res, 500, {error: userResult.error});
+        } else if (userResult.error === "not_found") {
+          return sendJson(res, 200, {success: true});
+        }
+        
+        const {token} = resetTokenStore.createToken(userResult.id);
+        const baseUrl = process.env.FRONTEND_BASE_URL ?? "http://localhost:5173";
+        const resetURL = `${baseUrl}/reset-password?token=${token}`;
+        try {
+          await sendPasswordReset({to: userResult.email, resetURL});
+        } catch (e) {
+          console.log(e)
+          return sendJson(res, 200, {success: true});
+        }
+        return sendJson(res, 200, {success: true});
+      }
+    },
+    
+    "/accounts/reset-password": {
+      POST: async ({res, body}) => {
+        if (!body?.token || !body?.password) {
+          return sendJson(res, 400, {error: "missing_fields"});
+        }
+        
+        const user = resetTokenStore.consumeToken(body.token)
+        if (user.error) return sendJson(res, 401, {error: "invalid_token"});
+        
+        const result = await userStore.resetPassword(user.userId, body.password);
+        if (result.error) {
+          return sendJson(res, 500, {error: "db_error"});
+        }
+        return sendJson(res, 200, {success: true});
+      }
+    },
+    
     "/graphs": {
       POST: async ({res, body}) => {
         const result = await graphStore.createGraph(body);
@@ -138,7 +184,7 @@ createServer({
         return sendJson(res, 200, {id: result.id});
       },
     },
-
+    
     "/graphs/:id": {
       GET: async ({res, url}) => {
         const graphId = url.split("/")[2];
@@ -149,9 +195,9 @@ createServer({
         }
         return sendJson(res, 200, graph.payload);
       },
-
+      
       PUT: ({res}) => notImplemented(res),
-
+      
       DELETE: ({res}) => notImplemented(res)
     }
   }
