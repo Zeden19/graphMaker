@@ -201,7 +201,6 @@
   }
 
   onMount(async () => {
-    console.log($currentUser)
     if ($currentUser) return;
     try {
       const response = await fetch("/accounts/me", {credentials: "include"});
@@ -224,6 +223,7 @@
 }}/>
 
 <div class="container">
+
   <div class="paddingTop">
     <div class="top-actions">
 

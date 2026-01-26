@@ -3,6 +3,7 @@
   import {fade} from "svelte/transition";
   import {account} from "$lib/assets/index.js";
   import {authLoading, currentUser} from "$lib/stores/auth.js";
+  import {setToast} from "$lib/stores/toast.js";
 
   const isLoggedIn = $derived(Boolean($currentUser));
 
@@ -15,9 +16,19 @@
 
   const handleLogout = async () => {
     try {
-      await fetch("/accounts/logout", {method: "POST", credentials: "include"});
+      const result = await fetch("/accounts/logout", {method: "POST", credentials: "include"});
+      if (result.ok)
+        setToast({
+          type: "success",
+          title: "Successfully logged out.",
+          subtitle: "You can log back in at any time."
+        });
     } catch {
-      // ignore for now
+      setToast({
+        type: "error",
+        title: "Could not log out",
+        subtitle: "Please try again."
+      });
     } finally {
       currentUser.set(null);
       authLoading.set(false);

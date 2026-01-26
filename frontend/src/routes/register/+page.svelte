@@ -12,4 +12,6 @@
   secondaryText="Already have an account?"
   secondaryLinkText="Log in"
   secondaryHref="/login"
+  successfulToast={{type: "success", title: "Successfully Created Account", subtitle: "You are already logged in"}}
+  errorToast={{type: "error", title: "Failed to create account", subtitle: "Please try again."}}
 />

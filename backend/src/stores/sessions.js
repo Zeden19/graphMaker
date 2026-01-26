@@ -23,12 +23,12 @@ const createSessionStore = () => {
         [sessionId]
       );
       if (result.rows.length === 0) {
-        return {error: "not_found"};
+        return {error: "no_session"};
       }
       const session = result.rows[0];
       if (new Date(session.expires_at).getTime() <= Date.now()) {
         await db.query("DELETE FROM sessions WHERE id = $1", [sessionId]);
-        return {error: "not_found"};
+        return {error: "session_expired"};
       }
       return {session};
     } catch {

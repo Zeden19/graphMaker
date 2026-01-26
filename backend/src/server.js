@@ -117,7 +117,7 @@ createServer({
         const cookies = parseCookies(req);
         const sessionId = cookies.session_id;
         if (!sessionId) {
-          return sendJson(res, 401, {error: "unauthorized"});
+          return sendJson(res, 204, {message: "no active session"});
         }
         const sessionResult = await sessionStore.getSession(sessionId);
         if (sessionResult.error) {
@@ -126,8 +126,7 @@ createServer({
         }
         const userResult = await userStore.getUser(sessionResult.session.user_id);
         if (userResult.error) {
-          const status = userResult.error === "db_error" ? 500 : 404;
-          return sendJson(res, status, {error: userResult.error});
+          return sendJson(res, 500, {error: userResult.error});
         }
         return sendJson(res, 200, {user: userResult});
       }

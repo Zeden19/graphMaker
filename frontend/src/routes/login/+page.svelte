@@ -13,4 +13,6 @@
   secondaryText="Need an account?"
   secondaryLinkText="Create one"
   secondaryHref="/register"
+  successfulToast={{type: "success", title: "Successfully Logged in", subtitle: "Have Fun!"}}
+  errorToast={{type: "error", title: "Failed to log in", subtitle: "Please try again."}}
 />

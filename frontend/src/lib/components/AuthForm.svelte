@@ -1,5 +1,6 @@
 <script>
   import {authLoading, currentUser} from "$lib/stores/auth.js";
+  import {setToast} from "$lib/stores/toast.js";
 
   let {
     title,
@@ -13,7 +14,9 @@
     successRedirect = "/",
     secondaryText = "",
     secondaryLinkText = "",
-    secondaryHref = ""
+    secondaryHref = "",
+    successfulToast,
+    errorToast,
   } = $props();
 
   let email = $state("");
@@ -54,22 +57,25 @@
         method: "POST",
         headers: {"Content-Type": "application/json"},
         credentials: "include",
-      body: JSON.stringify(showEmailOnly ? {email} : {email, password})
-    });
+        body: JSON.stringify(showEmailOnly ? {email} : {email, password})
+      });
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
         error = errorMessages[payload?.error] ?? "Unable to continue.";
+        setToast(errorToast);
         return;
       }
 
       const payload = await response.json().catch(() => ({}));
       if (payload?.user) {
         $currentUser = payload.user;
+        setToast(successfulToast);
       }
       $authLoading = false;
       window.location.href = successRedirect;
     } catch {
       error = errorMessages.db_error;
+      setToast(errorToast);
     } finally {
       isSubmitting = false;
     }
