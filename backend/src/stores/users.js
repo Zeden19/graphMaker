@@ -95,7 +95,7 @@ const createUserStore = () => {
     }
   };
   
-  const resetPassword = async (userId, newPassword, oldPassword) => {
+  const changePassword = async (userId, newPassword, oldPassword) => {
     try {
       const result = await db.query(
         "SELECT id, email, password_hash FROM users WHERE id = $1",
@@ -119,6 +119,28 @@ const createUserStore = () => {
       return {error: "db_error"};
     }
   }
+  
+  
+  const resetPassword = async (userId, newPassword) => {
+    try {
+      const result = await db.query(
+        "SELECT id, email, password_hash FROM users WHERE id = $1",
+        [userId]
+      );
+      if (result.rows.length === 0) {
+        return {error: "user_not_found"};
+      }
+      
+      const hashedPassword = await hashPassword(newPassword);
+      await db.query(`UPDATE users
+                      SET password_hash = $1
+                      WHERE id = $2`, [hashedPassword, userId]);
+      return {success: true};
+      
+    } catch {
+      return {error: "db_error"};
+    }
+  }
   return {
     createUser,
     logInUser,
@@ -126,7 +148,8 @@ const createUserStore = () => {
     deleteUser,
     getUserGraphs,
     getUserByEmail,
-    resetPassword,
+    changePassword,
+    resetPassword
   }
 }
 

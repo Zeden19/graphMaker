@@ -191,7 +191,7 @@ createServer({
           return sendJson(res, status, {error: sessionResult.error});
         }
         
-        const result = await userStore.resetPassword(sessionResult.session.user_id, body.password, body.oldPassword);
+        const result = await userStore.changePassword(sessionResult.session.user_id, body.password, body.oldPassword);
         if (result.error && result.error === "invalid_credentials") {
           return sendJson(res, 404, {error: "invalid_credentials"});
         } else if (result.error) {

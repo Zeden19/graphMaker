@@ -1,5 +1,6 @@
 <script>
   import {page} from "$app/state";
+  import {setToast} from "$lib/stores/toast.js";
 
   let password = $state("");
   let confirmPassword = $state("");
@@ -39,6 +40,7 @@
         error = "Unable to reset password.";
         return;
       }
+      setToast({type: "success", title: "Successfully reset password", subtitle: "Log in with your new password."})
       window.location.href = "/login";
     } catch {
       error = "Unable to reset password.";

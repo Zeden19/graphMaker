@@ -65,6 +65,7 @@
           type: "success",
           title: "Successfully changed password",
         });
+        oldPassword = password = confirmPassword = "";
       } else if (data.error === "invalid_credentials") {
         error = "Incorrect Old Password";
       } else {
@@ -72,13 +73,14 @@
         await fetch("/accounts/logout", {credentials: "include", method: "POST"});
         $currentUser = null;
         window.location.href = "/"
+        oldPassword = password = confirmPassword = "";
       }
     } catch (e) {
-      console.log("here")
       setToast({type: "error", title: "Could not change password", subtitle: "Please log in and try again"});
       await fetch("/accounts/logout", {credentials: "include", method: "POST"});
       $currentUser = null;
       window.location.href = "/"
+      oldPassword = password = confirmPassword = "";
     }
   }
 </script>

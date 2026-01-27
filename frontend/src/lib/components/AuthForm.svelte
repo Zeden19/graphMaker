@@ -69,8 +69,8 @@
       const payload = await response.json().catch(() => ({}));
       if (payload?.user) {
         $currentUser = payload.user;
-        setToast(successfulToast);
       }
+      setToast(successfulToast);
       $authLoading = false;
       window.location.href = successRedirect;
     } catch {
