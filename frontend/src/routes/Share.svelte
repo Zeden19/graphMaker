@@ -4,6 +4,7 @@
   import share from "$lib/assets/share.svg";
   import copy from "$lib/assets/copy.svg";
   import {buildGraphPayload} from "$lib/graphShare.js";
+  import {setToast} from "$lib/stores/toast.js";
 
   let showPopup = $state(false);
   let popupArea = $state(null);
@@ -14,15 +15,27 @@
 
   const {shapes, clear, offset, removeShape, getShapeArray, shapeClasses} = $props();
   const loadGraphFromId = async (graphId) => {
-    const response = await fetch(`/graphs/${graphId}`);
-    if (!response.ok) {
-      console.error("Failed to load graph", response.status);
+    let response;
+    let graphData;
+    try {
+      response = await fetch(`/graphs/${graphId}`);
+      if (!response.ok) {
+        setToast({type: "error", title: "Graph failed to load", subtitle: "Please check the url"});
+        return {error: true};
+      }
+      graphData = await response.json();
+      if (!Array.isArray(graphData.shapes)) {
+        setToast({type: "error", title: "Graph failed to load", subtitle: "Please check the url"});
+        return {error: true};
+      }
+    } catch (e) {
+      setToast({type: "error", title: "Graph failed to load", subtitle: "Please check the url"});
       return;
     }
-    const graphData = await response.json();
+
     if (!Array.isArray(graphData.shapes)) {
-      console.error("Invalid graph payload");
-      return;
+      setToast({type: "error", title: "Graph failed to load", subtitle: "Please check the url"});
+      return {error: true};
     }
     clear();
     graphData.shapes.forEach((shapeData) => {
@@ -33,6 +46,7 @@
       const shapeArray = getShapeArray(ShapeClassRef.name);
       shapeArray?.push(shapeInstance);
     });
+    setToast({type: "success", title: "Graph Successfully Loaded"})
   };
 
   const getShareLink = async () => {

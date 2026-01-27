@@ -4,6 +4,7 @@
   import {account} from "$lib/assets/index.js";
   import {authLoading, currentUser} from "$lib/stores/auth.js";
   import {setToast} from "$lib/stores/toast.js";
+  import Dialog from "$lib/components/Dialog.svelte";
 
   const isLoggedIn = $derived(Boolean($currentUser));
 
@@ -50,6 +51,8 @@
       document.removeEventListener("click", handleWindowClick);
     }
   });
+
+  let showLogOutDialog = $state(false);
 </script>
 
 <div class="account-root" bind:this={popupArea}>
@@ -66,7 +69,7 @@
         <div class="account-actions">
           {#if isLoggedIn}
             <a class="account-item" href="/account">View account</a>
-            <button class="account-item" type="button" onclick={handleLogout}>Log out</button>
+            <button class="account-item" type="button" onclick={() => showLogOutDialog = true}>Log out</button>
           {:else}
             <a class="account-item" href="/login">Log in</a>
             <a class="account-item" href="/register">Register</a>
@@ -76,6 +79,9 @@
     </div>
   {/if}
 </div>
+
+<Dialog title="Are you sure you want to log out?" confirmText="Log Out" bind:showDialog={showLogOutDialog}
+        onConfirm={handleLogout}/>
 
 <style>
   .account-root {

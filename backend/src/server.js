@@ -175,6 +175,53 @@ createServer({
       }
     },
     
+    "/accounts/change-password": {
+      POST: async ({res, req, body}) => {
+        if (!body?.password) {
+          return sendJson(res, 400, {error: "missing_fields"});
+        }
+        const cookies = parseCookies(req);
+        const sessionId = cookies.session_id;
+        if (!sessionId) {
+          return sendJson(res, 204, {message: "no active session"});
+        }
+        const sessionResult = await sessionStore.getSession(sessionId);
+        if (sessionResult.error) {
+          const status = sessionResult.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: sessionResult.error});
+        }
+        
+        const result = await userStore.resetPassword(sessionResult.session.user_id, body.password);
+        if (result.error) {
+          return sendJson(res, 500, {error: "db_error"});
+        }
+        return sendJson(res, 200, {success: true});
+      }
+    },
+    
+    "/accounts/delete": {
+      DELETE: async ({res, req}) => {
+        const cookies = parseCookies(req);
+        const sessionId = cookies.session_id;
+        if (!sessionId) {
+          return sendJson(res, 204, {message: "no active session"});
+        }
+        const sessionResult = await sessionStore.getSession(sessionId);
+        if (sessionResult.error) {
+          const status = sessionResult.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: sessionResult.error});
+        }
+        
+        // could probably do a toDelete param in the DB and send a email before deleting
+        const result = await userStore.deleteUser(sessionResult.session.user_id);
+        if (result.error) {
+          return sendJson(res, 500, {error: result.error});
+        }
+        
+        return sendJson(res, 200, {success: true});
+      }
+    },
+    
     "/graphs": {
       POST: async ({res, body}) => {
         const result = await graphStore.createGraph(body);
