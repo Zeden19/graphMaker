@@ -95,12 +95,24 @@ const createUserStore = () => {
     }
   };
   
-  const resetPassword = async (userId, newPassword) => {
+  const resetPassword = async (userId, newPassword, oldPassword) => {
     try {
+      const result = await db.query(
+        "SELECT id, email, password_hash FROM users WHERE id = $1",
+        [userId]
+      );
+      if (result.rows.length === 0) {
+        return {error: "user_not_found"};
+      }
+      
+      const user = result.rows[0];
+      const verified = await verifyPassword(oldPassword, user.password_hash);
+      if (!verified) return {error: "invalid_credentials"};
+      
       const hashedPassword = await hashPassword(newPassword);
       await db.query(`UPDATE users
-                                     SET password_hash = $1
-                                     WHERE id = $2`, [hashedPassword, userId]);
+                      SET password_hash = $1
+                      WHERE id = $2`, [hashedPassword, userId]);
       return {success: true};
       
     } catch {

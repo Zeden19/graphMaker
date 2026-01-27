@@ -3,10 +3,17 @@
   import {onMount} from "svelte";
   import {goto} from "$app/navigation";
   import Dialog from "$lib/components/Dialog.svelte";
+  import {setToast, toast} from "$lib/stores/toast.js";
 
   let activeSection = $state("graphs");
   let activeTab = $state("profile");
   let showDeleteDialog = $state(false);
+
+  let oldPassword = $state();
+  let password = $state();
+  let confirmPassword = $state();
+
+  let error = $state('')
 
   const setSection = (section) => {
     activeSection = section;
@@ -19,6 +26,61 @@
   onMount(() => {
     if (!$currentUser) goto("/")
   });
+
+  async function deleteAccount() {
+    try {
+      const response = await fetch("/accounts/delete", {credentials: "include", method: "DELETE"});
+      if (response.ok) {
+        setToast({type: "success", title: "Successfully deleted account"});
+      } else {
+        setToast({type: "error", title: "Could not Delete account", subtitle: "Please log in and try again"});
+      }
+    } catch {
+      setToast({type: "error", title: "Could not Delete account", subtitle: "Please log in and try again"});
+    } finally {
+      await fetch("/accounts/logout", {credentials: "include", method: "POST"});
+      $currentUser = null;
+      window.location.href = "/"
+    }
+  }
+
+  async function changePassword() {
+    error = "";
+    if ((!password) || (!confirmPassword) || password !== confirmPassword) {
+      error = "Passwords do not match.";
+      return;
+    }
+
+    let data;
+    try {
+      const response = await fetch("/accounts/change-password", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        credentials: "include",
+        body: JSON.stringify({password, oldPassword})
+      });
+      data = await response.json();
+      if (response.ok) {
+        $toast = ({
+          type: "success",
+          title: "Successfully changed password",
+        });
+      } else if (data.error === "invalid_credentials") {
+        error = "Incorrect Old Password";
+      } else {
+        setToast({type: "error", title: "Could not change password", subtitle: "Please log in and try again"});
+        await fetch("/accounts/logout", {credentials: "include", method: "POST"});
+        $currentUser = null;
+        window.location.href = "/"
+      }
+    } catch (e) {
+      console.log("here")
+      setToast({type: "error", title: "Could not change password", subtitle: "Please log in and try again"});
+      await fetch("/accounts/logout", {credentials: "include", method: "POST"});
+      $currentUser = null;
+      window.location.href = "/"
+    }
+  }
 </script>
 
 {#if $currentUser}
@@ -101,13 +163,6 @@
                     <div class="setting-value">{$currentUser?.email ?? "guest@graphmaker.app"}</div>
                   </div>
                 </div>
-                <div class="setting-row">
-                  <div>
-                    <div class="setting-label">Password</div>
-                    <div class="setting-value">••••••••</div>
-                  </div>
-                  <button class="ghost-button" type="button">Reveal</button>
-                </div>
               </div>
             {:else if activeTab === "security"}
               <div class="settings-panel">
@@ -115,10 +170,11 @@
                   <div class="setting-label">Change password</div>
                   <div class="setting-value">Update your password to keep your account secure.</div>
                   <div class="setting-inputs">
-                    <input type="password" placeholder="New password"/>
-                    <input type="password" placeholder="Confirm password"/>
+                    <input type="password" bind:value={oldPassword} placeholder="Old password"/>
+                    <input type="password" bind:value={password} placeholder="New password"/>
+                    <input type="password" bind:value={confirmPassword} placeholder="Confirm password"/>
                   </div>
-                  <button class="primary-button" type="button">Update password</button>
+                  <button class="primary-button" type="button" onclick={changePassword}>Update password</button>
                 </div>
               </div>
             {:else}
@@ -136,12 +192,16 @@
             {/if}
           </div>
         {/if}
+        {#if error}
+          <div class="auth-error" role="alert">{error}</div>
+        {/if}
       </section>
     </div>
   </div>
 
   <Dialog bind:showDialog={showDeleteDialog}
           confirmText="Confirm Delete"
+          onConfirm={deleteAccount}
           title="Delete Account"
           subtitle="This action is permanent. Your account and graphs will be removed and cannot be restored."/>
 {/if}
@@ -375,6 +435,15 @@
   .danger {
     border-color: rgba(210, 71, 71, 0.5);
     background: rgba(72, 18, 18, 0.3);
+  }
+
+  .auth-error {
+    border: 1px solid rgba(255, 140, 140, 0.5);
+    background: rgba(140, 20, 20, 0.25);
+    color: #ffd6d6;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 0.85em;
   }
 
   @media (max-width: 900px) {

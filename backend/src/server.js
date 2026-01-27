@@ -177,7 +177,7 @@ createServer({
     
     "/accounts/change-password": {
       POST: async ({res, req, body}) => {
-        if (!body?.password) {
+        if (!body?.password || !body?.oldPassword) {
           return sendJson(res, 400, {error: "missing_fields"});
         }
         const cookies = parseCookies(req);
@@ -191,9 +191,11 @@ createServer({
           return sendJson(res, status, {error: sessionResult.error});
         }
         
-        const result = await userStore.resetPassword(sessionResult.session.user_id, body.password);
-        if (result.error) {
-          return sendJson(res, 500, {error: "db_error"});
+        const result = await userStore.resetPassword(sessionResult.session.user_id, body.password, body.oldPassword);
+        if (result.error && result.error === "invalid_credentials") {
+          return sendJson(res, 404, {error: "invalid_credentials"});
+        } else if (result.error) {
+          return sendJson(res, 500, {error: "sever_error"});
         }
         return sendJson(res, 200, {success: true});
       }
