@@ -13,7 +13,15 @@
   let password = $state();
   let confirmPassword = $state();
 
-  let error = $state('')
+  let error = $state('');
+  let graphs = $state([]);
+  let isLoadingGraphs = $state(false);
+  let graphsError = $state("");
+  let editingGraphId = $state(null);
+  let editingName = $state("");
+  let deletingGraphId = $state(null);
+  let showGraphDeleteDialog = $state(false);
+  let graphToDelete = $state(null);
 
   const setSection = (section) => {
     activeSection = section;
@@ -23,8 +31,110 @@
     activeTab = tab;
   };
 
+  const loadGraphs = async () => {
+    if (!$currentUser) {
+      graphs = [];
+      return;
+    }
+    isLoadingGraphs = true;
+    graphsError = "";
+    try {
+      const response = await fetch("/accounts/graphs", {credentials: "include"});
+      if (!response.ok) {
+        graphsError = "Unable to load graphs.";
+        return;
+      }
+      const payload = await response.json().catch(() => ({}));
+      graphs = payload.graphs ?? [];
+    } catch {
+      graphsError = "Unable to load graphs.";
+    } finally {
+      isLoadingGraphs = false;
+    }
+  };
+
+  const startEdit = (graph) => {
+    editingGraphId = graph.id;
+    editingName = graph.name ?? "Untitled graph";
+  };
+
+  const cancelEdit = () => {
+    editingGraphId = null;
+    editingName = "";
+  };
+
+  const saveName = async (graphId) => {
+    try {
+      const response = await fetch(`/accounts/graphs/${graphId}`, {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        credentials: "include",
+        body: JSON.stringify({name: editingName})
+      });
+      if (!response.ok) {
+        $toast = {type: "error", title: "Rename failed", subtitle: "Unable to update graph name."};
+        return;
+      }
+      graphs = graphs.map((graph) => graph.id === graphId ? {...graph, name: editingName} : graph);
+      $toast = {type: "success", title: "Name updated"};
+      cancelEdit();
+    } catch {
+      $toast = {type: "error", title: "Rename failed", subtitle: "Network error."};
+    }
+  };
+
+  const confirmDeleteGraph = (graph) => {
+    graphToDelete = graph;
+    showGraphDeleteDialog = true;
+  };
+
+  const deleteGraph = async () => {
+    if (!graphToDelete) return;
+    const graphId = graphToDelete.id;
+    deletingGraphId = graphId;
+    try {
+      const response = await fetch(`/accounts/graphs/${graphId}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      if (!response.ok) {
+        $toast = {type: "error", title: "Delete failed", subtitle: "Unable to delete graph."};
+        return;
+      }
+
+      graphs = graphs.filter((graph) => graph.id !== graphId);
+      $toast = {type: "success", title: "Graph deleted"};
+    } catch {
+      $toast = {type: "error", title: "Delete failed", subtitle: "Network error."};
+    } finally {
+      deletingGraphId = null;
+      showGraphDeleteDialog = false;
+      graphToDelete = null;
+    }
+  };
+
+  const formatTimestamp = (value) => {
+    if (!value) return "Updated recently";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "Updated recently";
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    }).format(date);
+  };
+
   onMount(() => {
-    if (!$currentUser) goto("/")
+    if (!$currentUser) goto("/");
+    loadGraphs();
+  });
+
+  $effect(() => {
+    if ($currentUser) {
+      loadGraphs();
+    } else {
+      graphs = [];
+    }
   });
 
   async function deleteAccount() {
@@ -125,18 +235,43 @@
               <span class="card-subtitle">Recently created and shared graphs.</span>
             </div>
             <div class="graph-list">
-              <div class="graph-row">
-                <div class="graph-name">Graph concept map</div>
-                <div class="graph-meta">Updated 2 hours ago</div>
-              </div>
-              <div class="graph-row">
-                <div class="graph-name">System architecture</div>
-                <div class="graph-meta">Updated yesterday</div>
-              </div>
-              <div class="graph-row">
-                <div class="graph-name">Sprint planning</div>
-                <div class="graph-meta">Updated last week</div>
-              </div>
+              {#if isLoadingGraphs}
+                <div class="graph-empty">Loading your graphs...</div>
+              {:else if graphsError}
+                <div class="graph-empty">{graphsError}</div>
+              {:else if graphs.length === 0}
+                <div class="graph-empty">No graphs saved yet.</div>
+              {:else}
+                {#each graphs as graph}
+                  <div class="graph-row">
+                    <div class="graph-name">
+                      {#if editingGraphId === graph.id}
+                        <input class="graph-input" type="text" bind:value={editingName}/>
+                      {:else}
+                        {graph.name ?? "Untitled graph"}
+                      {/if}
+                    </div>
+                    <div class="graph-meta">
+                      <span class="graph-time">{formatTimestamp(graph.updated_at)}</span>
+                      {#if editingGraphId === graph.id}
+                        <button class="ghost-button" type="button" onclick={() => saveName(graph.id)}>Save</button>
+                        <button class="ghost-button" type="button" onclick={cancelEdit}>Cancel</button>
+                      {:else}
+                        <a class="ghost-button" href={"/?og=" + graph.id}>Open</a>
+                        <button class="ghost-button" type="button" onclick={() => startEdit(graph)}>Edit</button>
+                        <button
+                          class="ghost-button ghost-button--danger"
+                          type="button"
+                          onclick={() => confirmDeleteGraph(graph)}
+                          disabled={deletingGraphId === graph.id}
+                        >
+                          {deletingGraphId === graph.id ? "Deleting..." : "Delete"}
+                        </button>
+                      {/if}
+                    </div>
+                  </div>
+                {/each}
+              {/if}
             </div>
           </div>
         {:else}
@@ -206,6 +341,12 @@
           onConfirm={deleteAccount}
           title="Delete Account"
           subtitle="This action is permanent. Your account and graphs will be removed and cannot be restored."/>
+
+  <Dialog bind:showDialog={showGraphDeleteDialog}
+          confirmText="Delete Graph"
+          onConfirm={deleteGraph}
+          title="Delete Graph"
+          subtitle={`Delete ${graphToDelete?.name ?? "this graph"}? This cannot be undone.`}/>
 {/if}
 
 <style>
@@ -348,6 +489,32 @@
   .graph-meta {
     color: rgba(225, 232, 235, 0.6);
     font-size: 0.85em;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .graph-time {
+    color: rgba(225, 232, 235, 0.55);
+    font-size: 0.85em;
+  }
+
+  .graph-empty {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px dashed rgba(65, 71, 92, 0.6);
+    color: rgba(225, 232, 235, 0.6);
+    font-size: 0.9em;
+  }
+
+  .graph-input {
+    width: 100%;
+    max-width: 320px;
+    background: transparent;
+    border: 1px solid rgba(65, 71, 92, 0.7);
+    border-radius: 8px;
+    color: white;
+    padding: 4px 8px;
   }
 
   .settings-tabs {
@@ -432,6 +599,37 @@
   .primary-button:hover {
     transform: translateY(-1px);
     box-shadow: 0 8px 16px rgba(31, 106, 59, 0.25);
+  }
+
+  .ghost-button {
+    background: transparent;
+    border: 1px solid rgba(65, 71, 92, 0.7);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    text-decoration: none;
+  }
+
+  .ghost-button:hover {
+    border-color: rgba(65, 71, 92, 0.95);
+    background: rgba(22, 28, 36, 0.8);
+  }
+
+  .ghost-button:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  .ghost-button--danger {
+    border-color: rgba(210, 71, 71, 0.6);
+    color: #ffb3b3;
+  }
+
+  .ghost-button--danger:hover {
+    border-color: rgba(210, 71, 71, 0.9);
+    background: rgba(72, 18, 18, 0.35);
   }
 
   .danger {

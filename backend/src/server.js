@@ -16,7 +16,7 @@ const sendJson = (res, statusCode, payload) => {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
+    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS"
   });
   res.end(JSON.stringify(payload));
 };
@@ -48,6 +48,17 @@ const clearSessionCookie = (res) => {
     "Set-Cookie",
     `session_id=; HttpOnly; SameSite=Lax; Path=/; ${process.env.NODE_ENV === "prod" ? "Secure;" : ''} Expires=Thu, 01 Jan 1970 00:00:00 GMT`
   );
+};
+
+const getSessionUser = async (req) => {
+  const cookies = parseCookies(req);
+  const sessionId = cookies.session_id;
+  if (!sessionId) return {error: "unauthorized"};
+  const sessionResult = await sessionStore.getSession(sessionId);
+  if (sessionResult.error) {
+    return {error: sessionResult.error === "db_error" ? "db_error" : "unauthorized"};
+  }
+  return {userId: sessionResult.session.user_id};
 };
 
 createServer({
@@ -114,21 +125,125 @@ createServer({
     
     "/accounts/me": {
       GET: async ({req, res}) => {
-        const cookies = parseCookies(req);
-        const sessionId = cookies.session_id;
-        if (!sessionId) {
-          return sendJson(res, 204, {message: "no active session"});
+        const session = await getSessionUser(req);
+        if (session.error) {
+          const status = session.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: session.error});
         }
-        const sessionResult = await sessionStore.getSession(sessionId);
-        if (sessionResult.error) {
-          const status = sessionResult.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: sessionResult.error});
-        }
-        const userResult = await userStore.getUser(sessionResult.session.user_id);
+        const userResult = await userStore.getUser(session.userId);
         if (userResult.error) {
           return sendJson(res, 500, {error: userResult.error});
         }
         return sendJson(res, 200, {user: userResult});
+      }
+    },
+    
+    "/accounts/graphs": {
+      GET: async ({req, res}) => {
+        const session = await getSessionUser(req);
+        if (session.error) {
+          const status = session.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: session.error});
+        }
+        const result = await graphStore.getUserGraphs(session.userId);
+        if (result.error) {
+          return sendJson(res, 500, {error: result.error});
+        }
+        return sendJson(res, 200, {graphs: result.graphs});
+      },
+      POST: async ({req, res, body}) => {
+        const session = await getSessionUser(req);
+        if (session.error) {
+          const status = session.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: session.error});
+        }
+        if (!body?.graph) {
+          return sendJson(res, 400, {error: "missing_fields"});
+        }
+        const name = body?.name ?? body.graph?.name ?? "Untitled graph";
+        const graphData = {...body.graph, name};
+        const result = await graphStore.createGraph(graphData, session.userId);
+        if (result.error) {
+          return sendJson(res, 400, {error: result.error});
+        }
+        return sendJson(res, 200, {id: result.id});
+      }
+    },
+    
+    "/accounts/graphs/:id": {
+      GET: async ({req, res, url}) => {
+        const session = await getSessionUser(req);
+        if (session.error) {
+          const status = session.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: session.error});
+        }
+        
+        const graphId = url.split("/")[3];
+        const result = await graphStore.getUserGraph(graphId, session.userId);
+        if (result.error) {
+          const status = result.error === "not_found" ? 404 : 500;
+          return sendJson(res, status, {error: result.error});
+        }
+        return sendJson(res, 200, result.payload);
+      },
+      
+      PUT: async ({req, res, body, url}) => {
+        const session = await getSessionUser(req);
+        if (session.error) {
+          const status = session.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: session.error});
+        }
+        
+        if (!body?.graph) {
+          return sendJson(res, 400, {error: "missing_fields"});
+        }
+        
+        const graphId = url.split("/")[3];
+        const graphData = {...body.graph, name: body.graph?.name ?? body.name};
+        const result = await graphStore.updateGraph(graphId, session.userId, graphData);
+        
+        if (result.error) {
+          const status = result.error === "not_found" ? 404 : 500;
+          return sendJson(res, status, {error: result.error});
+        }
+        return sendJson(res, 200, {success: true});
+      },
+      
+      PATCH: async ({req, res, body, url}) => {
+        const session = await getSessionUser(req);
+        if (session.error) {
+          const status = session.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: session.error});
+        }
+        
+        if (!body?.name) {
+          return sendJson(res, 400, {error: "missing_fields"});
+        }
+        
+        const graphId = url.split("/")[3];
+        const result = await graphStore.updateGraphName(graphId, session.userId, body.name);
+        if (result.error) {
+          const status = result.error === "not_found" ? 404 : 500;
+          return sendJson(res, status, {error: result.error});
+        }
+        return sendJson(res, 200, {success: true});
+      },
+      
+      DELETE: async ({req, res, url}) => {
+        const session = await getSessionUser(req);
+        if (session.error) {
+          const status = session.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: session.error});
+        }
+        
+        const graphId = url.split("/")[3];
+        const result = await graphStore.deleteUserGraph(graphId, session.userId);
+        if (result.error) {
+          const status = result.error === "not_found" ? 404 : 500;
+          return sendJson(res, status, {error: result.error});
+        }
+        
+        return sendJson(res, 200, {success: true});
       }
     },
     
@@ -180,18 +295,13 @@ createServer({
         if (!body?.password || !body?.oldPassword) {
           return sendJson(res, 400, {error: "missing_fields"});
         }
-        const cookies = parseCookies(req);
-        const sessionId = cookies.session_id;
-        if (!sessionId) {
-          return sendJson(res, 204, {message: "no active session"});
-        }
-        const sessionResult = await sessionStore.getSession(sessionId);
-        if (sessionResult.error) {
-          const status = sessionResult.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: sessionResult.error});
+        const session = await getSessionUser(req);
+        if (session.error) {
+          const status = session.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: session.error});
         }
         
-        const result = await userStore.changePassword(sessionResult.session.user_id, body.password, body.oldPassword);
+        const result = await userStore.changePassword(session.session.user_id, body.password, body.oldPassword);
         if (result.error && result.error === "invalid_credentials") {
           return sendJson(res, 404, {error: "invalid_credentials"});
         } else if (result.error) {
@@ -203,19 +313,14 @@ createServer({
     
     "/accounts/delete": {
       DELETE: async ({res, req}) => {
-        const cookies = parseCookies(req);
-        const sessionId = cookies.session_id;
-        if (!sessionId) {
-          return sendJson(res, 204, {message: "no active session"});
-        }
-        const sessionResult = await sessionStore.getSession(sessionId);
-        if (sessionResult.error) {
-          const status = sessionResult.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: sessionResult.error});
+        const session = await getSessionUser(req);
+        if (session.error) {
+          const status = session.error === "db_error" ? 500 : 401;
+          return sendJson(res, status, {error: session.error});
         }
         
         // could probably do a toDelete param in the DB and send a email before deleting
-        const result = await userStore.deleteUser(sessionResult.session.user_id);
+        const result = await userStore.deleteUser(session.session.user_id);
         if (result.error) {
           return sendJson(res, 500, {error: result.error});
         }

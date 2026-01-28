@@ -36,7 +36,7 @@ const stableStringify = (value) => {
   return `{${entries.join(",")}}`;
 };
 
-export const buildGraphPayload = (shapes) => {
+export const buildGraphPayload = (shapes, name) => {
   // TODO: include a schema version once graph data needs migrations.
   // round the JSON Data
   const shapeData = Object.values(shapes)
@@ -49,5 +49,6 @@ export const buildGraphPayload = (shapes) => {
 
   return {
     shapes: sortedShapes,
+    name
   };
 };
