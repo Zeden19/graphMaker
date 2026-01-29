@@ -301,7 +301,7 @@ createServer({
           return sendJson(res, status, {error: session.error});
         }
         
-        const result = await userStore.changePassword(session.session.user_id, body.password, body.oldPassword);
+        const result = await userStore.changePassword(session.userId, body.password, body.oldPassword);
         if (result.error && result.error === "invalid_credentials") {
           return sendJson(res, 404, {error: "invalid_credentials"});
         } else if (result.error) {
@@ -320,7 +320,7 @@ createServer({
         }
         
         // could probably do a toDelete param in the DB and send a email before deleting
-        const result = await userStore.deleteUser(session.session.user_id);
+        const result = await userStore.deleteUser(session.userId);
         if (result.error) {
           return sendJson(res, 500, {error: result.error});
         }
