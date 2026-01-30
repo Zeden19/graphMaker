@@ -30,8 +30,6 @@
   import {fade} from "svelte/transition";
   import Share from "./Share.svelte";
   import Account from "./Account.svelte";
-  import {currentUser, authLoading} from "$lib/stores/auth.js";
-  import {onMount} from "svelte";
 
   const DEFAULT_PRIMARY_SEP = 40;
   const DEFAULT_SECONDARY_SEP = 20;
@@ -199,23 +197,6 @@
     return typeof shape.toString === "function" ? shapes[shape.toString().toLowerCase() + "s"] :
       shapes[shape.toString.toLowerCase() + "s"];
   }
-
-  onMount(async () => {
-    if ($currentUser) return;
-    try {
-      const response = await fetch("/accounts/me", {credentials: "include"});
-      if (response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        $currentUser = payload?.user ?? null;
-      } else {
-        $currentUser = null;
-      }
-    } catch {
-      $currentUser = null;
-    } finally {
-      $authLoading = false;
-    }
-  })
 </script>
 
 <Clipboard {selectedShapes} addShape={(shapeClass, shapeProperties) => {

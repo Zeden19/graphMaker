@@ -15,7 +15,7 @@ const createSessionStore = () => {
       return {error: "db_error"};
     }
   };
-
+  
   const getSession = async (sessionId) => {
     try {
       const result = await db.query(
@@ -35,7 +35,7 @@ const createSessionStore = () => {
       return {error: "db_error"};
     }
   };
-
+  
   const deleteSession = async (sessionId) => {
     try {
       const result = await db.query(
@@ -48,11 +48,23 @@ const createSessionStore = () => {
       return {error: "db_error"};
     }
   };
-
+  
+  const getSessionUser = async (req, cookieStore) => {
+    const cookies = cookieStore.parseCookies(req);
+    const sessionId = cookies.session_id;
+    if (!sessionId) return {error: "unauthorized"};
+    const sessionResult = await getSession(sessionId);
+    if (sessionResult.error) {
+      return {error: sessionResult.error === "db_error" ? "db_error" : "unauthorized"};
+    }
+    return {userId: sessionResult.session.user_id};
+  };
+  
   return {
     createSession,
     getSession,
-    deleteSession
+    deleteSession,
+    getSessionUser
   };
 };
 

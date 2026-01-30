@@ -3,13 +3,15 @@ const {createUserStore} = require("./stores/users");
 const {createSessionStore} = require("./stores/sessions");
 const {createServer} = require("./createServer");
 const {createResetTokenStore} = require("./stores/passwordResetTokenStore");
-const {sendPasswordReset} = require("./mailer");
+const {sendPasswordReset} = require("./stores/mailer");
+const {createCookieStore} = require("./stores/cookies");
 
 const PORT = process.env.PORT || 3000;
 const graphStore = createGraphStore();
 const userStore = createUserStore();
 const sessionStore = createSessionStore();
 const resetTokenStore = createResetTokenStore();
+const cookieStore = createCookieStore();
 
 const sendJson = (res, statusCode, payload) => {
   res.writeHead(statusCode, {
@@ -19,46 +21,6 @@ const sendJson = (res, statusCode, payload) => {
     "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS"
   });
   res.end(JSON.stringify(payload));
-};
-
-const notImplemented = (res) => {
-  sendJson(res, 501, {error: "not_implemented"});
-};
-
-const parseCookies = (req) => {
-  const cookieHeader = req.headers?.cookie;
-  if (!cookieHeader) return {};
-  return cookieHeader.split(";").reduce((acc, pair) => {
-    const [key, ...rest] = pair.trim().split("=");
-    acc[key] = decodeURIComponent(rest.join("="));
-    return acc;
-  }, {});
-};
-
-const setSessionCookie = (res, session) => {
-  const expires = new Date(session.expires_at).toUTCString();
-  res.setHeader(
-    "Set-Cookie",
-    `session_id=${session.id}; HttpOnly; SameSite=Lax; Path=/; ${process.env.NODE_ENV === "prod" ? "Secure;" : ''} Expires=${expires}`
-  );
-};
-
-const clearSessionCookie = (res) => {
-  res.setHeader(
-    "Set-Cookie",
-    `session_id=; HttpOnly; SameSite=Lax; Path=/; ${process.env.NODE_ENV === "prod" ? "Secure;" : ''} Expires=Thu, 01 Jan 1970 00:00:00 GMT`
-  );
-};
-
-const getSessionUser = async (req) => {
-  const cookies = parseCookies(req);
-  const sessionId = cookies.session_id;
-  if (!sessionId) return {error: "unauthorized"};
-  const sessionResult = await sessionStore.getSession(sessionId);
-  if (sessionResult.error) {
-    return {error: sessionResult.error === "db_error" ? "db_error" : "unauthorized"};
-  }
-  return {userId: sessionResult.session.user_id};
 };
 
 createServer({
@@ -81,7 +43,7 @@ createServer({
         if (sessionResult.error) {
           return sendJson(res, 500, {error: sessionResult.error});
         }
-        setSessionCookie(res, sessionResult.session);
+        cookieStore.setSessionCookie(res, sessionResult.session);
         return sendJson(res, 201, {user: result});
       }
     },
@@ -101,31 +63,31 @@ createServer({
         if (sessionResult.error) {
           return sendJson(res, 500, {error: sessionResult.error});
         }
-        setSessionCookie(res, sessionResult.session);
+        cookieStore.setSessionCookie(res, sessionResult.session);
         return sendJson(res, 200, {user: result});
       }
     },
     
     "/accounts/logout": {
       POST: async ({req, res}) => {
-        const cookies = parseCookies(req);
+        const cookies = cookieStore.parseCookies(req);
         const sessionId = cookies.session_id;
         if (!sessionId) {
-          clearSessionCookie(res);
+          cookieStore.clearSessionCookie(res);
           return sendJson(res, 204, {success: true});
         }
         const result = await sessionStore.deleteSession(sessionId);
         if (result.error && result.error !== "not_found") {
           return sendJson(res, 500, {error: result.error});
         }
-        clearSessionCookie(res);
+        cookieStore.clearSessionCookie(res);
         return sendJson(res, 204, {success: true});
       }
     },
     
     "/accounts/me": {
       GET: async ({req, res}) => {
-        const session = await getSessionUser(req);
+        const session = await sessionStore.getSessionUser(req, cookieStore);
         if (session.error) {
           const status = session.error === "db_error" ? 500 : 401;
           return sendJson(res, status, {error: session.error});
@@ -140,7 +102,7 @@ createServer({
     
     "/accounts/graphs": {
       GET: async ({req, res}) => {
-        const session = await getSessionUser(req);
+        const session = await sessionStore.getSessionUser(req, cookieStore);
         if (session.error) {
           const status = session.error === "db_error" ? 500 : 401;
           return sendJson(res, status, {error: session.error});
@@ -152,7 +114,7 @@ createServer({
         return sendJson(res, 200, {graphs: result.graphs});
       },
       POST: async ({req, res, body}) => {
-        const session = await getSessionUser(req);
+        const session = await sessionStore.getSessionUser(req, cookieStore);
         if (session.error) {
           const status = session.error === "db_error" ? 500 : 401;
           return sendJson(res, status, {error: session.error});
@@ -172,7 +134,7 @@ createServer({
     
     "/accounts/graphs/:id": {
       GET: async ({req, res, url}) => {
-        const session = await getSessionUser(req);
+        const session = await sessionStore.getSessionUser(req, cookieStore);
         if (session.error) {
           const status = session.error === "db_error" ? 500 : 401;
           return sendJson(res, status, {error: session.error});
@@ -188,7 +150,7 @@ createServer({
       },
       
       PUT: async ({req, res, body, url}) => {
-        const session = await getSessionUser(req);
+        const session = await sessionStore.getSessionUser(req, cookieStore);
         if (session.error) {
           const status = session.error === "db_error" ? 500 : 401;
           return sendJson(res, status, {error: session.error});
@@ -210,7 +172,7 @@ createServer({
       },
       
       PATCH: async ({req, res, body, url}) => {
-        const session = await getSessionUser(req);
+        const session = await sessionStore.getSessionUser(req, cookieStore);
         if (session.error) {
           const status = session.error === "db_error" ? 500 : 401;
           return sendJson(res, status, {error: session.error});
@@ -230,7 +192,7 @@ createServer({
       },
       
       DELETE: async ({req, res, url}) => {
-        const session = await getSessionUser(req);
+        const session = await sessionStore.getSessionUser(req, cookieStore);
         if (session.error) {
           const status = session.error === "db_error" ? 500 : 401;
           return sendJson(res, status, {error: session.error});
@@ -295,7 +257,7 @@ createServer({
         if (!body?.password || !body?.oldPassword) {
           return sendJson(res, 400, {error: "missing_fields"});
         }
-        const session = await getSessionUser(req);
+        const session = await sessionStore.getSessionUser(req, cookieStore);
         if (session.error) {
           const status = session.error === "db_error" ? 500 : 401;
           return sendJson(res, status, {error: session.error});
@@ -313,13 +275,13 @@ createServer({
     
     "/accounts/delete": {
       DELETE: async ({res, req}) => {
-        const session = await getSessionUser(req);
+        const session = await sessionStore.getSessionUser(req, cookieStore);
         if (session.error) {
           const status = session.error === "db_error" ? 500 : 401;
           return sendJson(res, status, {error: session.error});
         }
         
-        // could probably do a toDelete param in the DB and send a email before deleting
+        // could probably do a toDelete param in the DB and send an email before deleting
         const result = await userStore.deleteUser(session.userId);
         if (result.error) {
           return sendJson(res, 500, {error: result.error});
@@ -348,10 +310,6 @@ createServer({
         }
         return sendJson(res, 200, graph.payload);
       },
-      
-      PUT: ({res}) => notImplemented(res),
-      
-      DELETE: ({res}) => notImplemented(res)
     }
   }
 });
