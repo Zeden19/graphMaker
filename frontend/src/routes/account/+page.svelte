@@ -101,7 +101,7 @@
     display: flex;
     gap: 12px;
     align-items: center;
-    background: #0f141a;
+    background: var(--tertiaryBg);
     border: var(--darkBorder);
     padding: 10px 14px;
     border-radius: 14px;
@@ -145,7 +145,7 @@
     border-radius: 10px;
     border: var(--darkBorder);
     color: white;
-    background: #0f141a;
+    background: var(--tertiaryBg);
     cursor: pointer;
     transition: border-color 0.2s ease, background-color 0.2s ease;
   }
@@ -167,7 +167,7 @@
   }
 
   .content-card {
-    background: #0f141a;
+    background: var(--tertiaryBg);
     border: var(--darkBorder);
     border-radius: 16px;
     padding: 22px;

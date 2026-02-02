@@ -189,7 +189,7 @@
     padding: 12px 12px 10px;
     border: 2px solid #41475c;
     border-radius: 12px;
-    background: #0f141a;
+    background: var(--tertiaryBg);
   }
 
   .field-label {
@@ -200,7 +200,7 @@
     font-size: 0.68em;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    background: #0f141a;
+    background: var(--tertiaryBg);
     color: rgba(225, 232, 235, 0.7);
   }
 

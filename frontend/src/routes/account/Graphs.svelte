@@ -2,6 +2,8 @@
   import Dialog from "$lib/components/Dialog.svelte";
   import {toast} from "$lib/stores/toast.js";
   import {currentUser} from "$lib/stores/auth.js";
+  import Button from "$lib/components/Button.svelte";
+  import {goto} from "$app/navigation";
 
   let graphs = $state([]);
 
@@ -130,19 +132,18 @@
         <div class="graph-meta">
           <span class="graph-time">{formatTimestamp(graph.updated_at)}</span>
           {#if editingGraphId === graph.id}
-            <button class="ghost-button" type="button" onclick={() => saveName(graph.id)}>Save</button>
-            <button class="ghost-button" type="button" onclick={cancelEdit}>Cancel</button>
+            <Button type="ghost" onclick={() => saveName(graph.id)}>Save</Button>
+            <Button type="ghost" onclick={cancelEdit}>Cancel</Button>
           {:else}
-            <a class="ghost-button" href={"/?og=" + graph.id}>Open</a>
-            <button class="ghost-button" type="button" onclick={() => startEdit(graph)}>Edit</button>
-            <button
-              class="ghost-button ghost-button--danger"
-              type="button"
+            <Button type="ghost" onclick={() => goto("/?og=" + graph.id)}>Open</Button>
+            <Button type="ghost" onclick={() => startEdit(graph)}>Edit</Button>
+            <Button
+              type="danger"
               onclick={() => confirmDeleteGraph(graph)}
               disabled={deletingGraphId === graph.id}
             >
               {deletingGraphId === graph.id ? "Deleting..." : "Delete"}
-            </button>
+            </Button>
           {/if}
         </div>
       </div>

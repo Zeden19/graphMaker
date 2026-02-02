@@ -263,20 +263,6 @@
     color: rgba(255, 255, 255, 0.85);
   }
 
-  .share-placeholder {
-    font-size: 0.85em;
-    color: rgba(255, 255, 255, 0.6);
-  }
-
-  .share-login {
-    border: var(--darkBorder);
-    background: #11161c;
-    color: white;
-    padding: 6px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-
   .share-divider {
     height: 1px;
     background: rgba(255, 255, 255, 0.1);
@@ -294,7 +280,7 @@
     flex: 1;
     padding: 6px 8px;
     border: var(--darkBorder);
-    background: #0f141a;
+    background: var(--tertiaryBg);
     color: white;
     border-radius: 8px;
   }

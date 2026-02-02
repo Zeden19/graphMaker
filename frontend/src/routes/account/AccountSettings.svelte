@@ -3,6 +3,7 @@
   import {toast} from "$lib/stores/toast.js";
   import Dialog from "$lib/components/Dialog.svelte";
   import {setToast} from "$lib/stores/toast.js";
+  import Button from "$lib/components/Button.svelte";
 
   let error = $state('');
   let errorTimeout;
@@ -107,7 +108,7 @@
         <input type="password" bind:value={password} placeholder="New password"/>
         <input type="password" bind:value={confirmPassword} placeholder="Confirm password"/>
       </div>
-      <button class="primary-button" type="button" onclick={changePassword}>Update password</button>
+      <Button type="primary" style="align-self: flex-start" onclick={changePassword}>Update password</Button>
     </div>
   </div>
 {:else}
@@ -117,9 +118,9 @@
       <div class="setting-value">
         Permanently delete your account and associated graphs. This cannot be undone.
       </div>
-      <button class="danger-button" type="button" onclick={() => showDeleteDialog = true}>
+      <Button type="danger" style="align-self: start" onclick={() => showDeleteDialog = true}>
         Delete account
-      </button>
+      </Button>
     </div>
   </div>
 {/if}
@@ -201,22 +202,6 @@
   .setting-inputs {
     display: grid;
     gap: 10px;
-  }
-
-  .primary-button {
-    align-self: flex-start;
-    background: #1f6a3b;
-    border: none;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .primary-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 16px rgba(31, 106, 59, 0.25);
   }
 
   .danger {

@@ -471,8 +471,20 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-
   }
 
+  :global .action-buttons {
+    padding: 0
+  }
 
+  :global .action-images {
+    object-fit: cover;
+    height: 40px;
+    padding: 5px;
+  }
+
+  :global .action-images:hover {
+    background-color: #424242;
+    cursor: pointer;
+  }
 </style>

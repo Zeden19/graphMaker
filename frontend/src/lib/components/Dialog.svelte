@@ -1,5 +1,6 @@
 <script>
   import {fly} from "svelte/transition";
+  import Button from "$lib/components/Button.svelte";
 
   let {confirmText, onConfirm, title, subtitle, showDialog = $bindable()} = $props();
 </script>
@@ -12,8 +13,8 @@
         {subtitle}
       </div>
       <div class="dialog-actions">
-        <button class="ghost-button" type="button" onclick={() => showDialog = false}>Cancel</button>
-        <button class="danger-button" type="button" onclick={onConfirm}>{confirmText}</button>
+        <Button type="ghost" onclick={() => showDialog = false}>Cancel</Button>
+        <Button type="danger" onclick={onConfirm}>{confirmText}</Button>
       </div>
     </div>
   </div>
@@ -31,7 +32,7 @@
 
   .dialog-card {
     width: min(420px, 90vw);
-    background: #0f141a;
+    background: var(--tertiaryBg);
     border: 1px solid rgba(210, 71, 71, 0.6);
     border-radius: 16px;
     padding: 20px;
