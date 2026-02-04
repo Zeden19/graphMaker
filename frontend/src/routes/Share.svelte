@@ -1,14 +1,16 @@
 <script>
   import {onMount} from "svelte";
-  import {fade} from "svelte/transition";
   import share from "$lib/assets/share.svg";
   import copy from "$lib/assets/copy.svg";
   import {buildGraphPayload} from "$lib/graphShare.js";
   import {toast} from "$lib/stores/toast.js";
   import {currentUser} from "$lib/stores/auth.js";
+  import Popup from "$lib/components/Popup/Popup.svelte";
+  import PopupTrigger from "$lib/components/Popup/PopupTrigger.svelte";
+  import PopupContent from "$lib/components/Popup/PopupContent.svelte";
+  import PopupTitle from "$lib/components/Popup/PopupTitle.svelte";
+  import PopupDivider from "$lib/components/Popup/PopupDivider.svelte";
 
-  let showPopup = $state(false);
-  let popupArea = $state(null);
   let shareLink = $state("");
   let graphName = $state("Untitled graph");
   let accountGraphId = $state(null);
@@ -116,13 +118,6 @@
     }
   };
 
-  const togglePopup = () => {
-    showPopup = !showPopup;
-    if (showPopup) {
-      loadShareLink();
-    }
-  };
-
   const handleSave = async () => {
     if (!$currentUser) {
       $toast = {type: "error", title: "Sign in required", subtitle: "Log in to save your graph."};
@@ -165,9 +160,9 @@
     }, 1200);
   };
 
-  const handleWindowClick = (event) => {
-    if (popupArea && !(popupArea.contains(event.target))) {
-      showPopup = false;
+  const onToggle = (open) => {
+    if (open) {
+      loadShareLink();
     }
   };
 
@@ -182,74 +177,50 @@
       loadAccountGraph(ownedGraphId);
     }
 
-    document.addEventListener("click", handleWindowClick);
-
     return () => {
-      document.removeEventListener("click", handleWindowClick);
       clearTimeout(copyTimeout);
     }
   });
 </script>
 
-<div class="share-root" bind:this={popupArea}>
-  <button class="action-buttons" onclick={togglePopup} aria-label="Share">
-    <img class="action-images" src={share} alt="Share"></button>
-  {#if showPopup}
-    <div transition:fade={{duration: 100}} class="share-popup">
-      <div class="share-section">
-        <div class="share-title">Share link</div>
-        <div class="share-input-row">
-          <input class="share-input" type="text" bind:value={shareLink} aria-label="Share link"
-                 placeholder={isLoadingLink ? "Generating link..." : ""}/>
-          <button class="share-copy" class:share-copy--success={copied} onclick={handleCopy} aria-live="polite">
-            <img class="share-copy-icon" src={copy} alt="Copy Graph link" aria-hidden="true"/>
-            <span class="share-copy-text">{copied ? "Copied!" : "Copy"}</span>
-          </button>
-        </div>
-      </div>
-      <div class="share-divider"></div>
-      <div class="share-section">
-        <div class="share-title">Save to account</div>
-        {#if $currentUser}
-          <div class="share-input-row">
-            <input class="share-input" type="text" bind:value={graphName} aria-label="Graph name"/>
-            <button class="share-save" type="button" onclick={handleSave} disabled={isSaving}>
-              {#if isSaving}
-                <span class="spinner" aria-hidden="true"></span>
-              {/if}
-              <span>{isSaving ? "Saving" : "Save"}</span>
-            </button>
-          </div>
-        {:else}
-          <div class="share-empty">Log in to save graphs to your account.</div>
-        {/if}
+<Popup {onToggle}>
+  <PopupTrigger>
+    <img class="action-images" src={share} alt="Share"/>
+  </PopupTrigger>
+  <PopupContent>
+    <PopupTitle>Share Link</PopupTitle>
+    <div class="share-section">
+      <div class="share-input-row">
+        <input class="share-input" type="text" bind:value={shareLink} aria-label="Share link"
+               placeholder={isLoadingLink ? "Generating link..." : ""}/>
+        <button class="share-copy" class:share-copy--success={copied} onclick={handleCopy} aria-live="polite">
+          <img class="share-copy-icon" src={copy} alt="Copy Graph link" aria-hidden="true"/>
+          <span class="share-copy-text">{copied ? "Copied!" : "Copy"}</span>
+        </button>
       </div>
     </div>
-  {/if}
-</div>
+
+    <PopupDivider/>
+    <div class="share-section">
+      <div class="share-title">Save to account</div>
+      {#if $currentUser}
+        <div class="share-input-row">
+          <input class="share-input" type="text" bind:value={graphName} aria-label="Graph name"/>
+          <button class="share-save" type="button" onclick={handleSave} disabled={isSaving}>
+            {#if isSaving}
+              <span class="spinner" aria-hidden="true"></span>
+            {/if}
+            <span>{isSaving ? "Saving" : "Save"}</span>
+          </button>
+        </div>
+      {:else}
+        <div class="share-empty">Log in to save graphs to your account.</div>
+      {/if}
+    </div>
+  </PopupContent>
+</Popup>
 
 <style>
-  .share-root {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .share-popup {
-    position: absolute;
-    top: 48px;
-    right: 0;
-    z-index: 2;
-    min-width: 280px;
-    background: var(--secondaryBg);
-    border: var(--darkBorder);
-    border-radius: 12px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
   .share-section {
     display: flex;
     flex-direction: column;
@@ -261,11 +232,6 @@
     font-weight: 600;
     font-size: 0.9em;
     color: rgba(255, 255, 255, 0.85);
-  }
-
-  .share-divider {
-    height: 1px;
-    background: rgba(255, 255, 255, 0.1);
   }
 
   .share-input-row {

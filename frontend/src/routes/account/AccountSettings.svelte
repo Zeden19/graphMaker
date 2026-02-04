@@ -1,14 +1,14 @@
 <script>
   import {currentUser} from "$lib/stores/auth.js";
   import {toast} from "$lib/stores/toast.js";
-  import Dialog from "$lib/components/Dialog.svelte";
   import {setToast} from "$lib/stores/toast.js";
   import Button from "$lib/components/Button.svelte";
+  import Dialog from "$lib/components/Dialog/Dialog.svelte";
+  import DialogTrigger from "$lib/components/Dialog/DialogTrigger.svelte";
+  import DialogContent from "$lib/components/Dialog/DialogContent.svelte";
 
   let error = $state('');
   let errorTimeout;
-
-  let showDeleteDialog = $state(false);
 
   let oldPassword = $state();
   let password = $state();
@@ -118,9 +118,16 @@
       <div class="setting-value">
         Permanently delete your account and associated graphs. This cannot be undone.
       </div>
-      <Button type="danger" style="align-self: start" onclick={() => showDeleteDialog = true}>
-        Delete account
-      </Button>
+      <Dialog>
+        <DialogTrigger style="align-self: start" type="danger">
+          Delete account
+        </DialogTrigger>
+
+        <DialogContent confirmText="Confirm Delete"
+                       onConfirm={deleteAccount}
+                       title="Delete Account"
+                       subtitle="This action is permanent. Your account and graphs will be removed and cannot be restored."/>
+      </Dialog>
     </div>
   </div>
 {/if}
@@ -128,12 +135,6 @@
 {#if error}
   <div class="auth-error" role="alert">{error}</div>
 {/if}
-
-<Dialog bind:showDialog={showDeleteDialog}
-        confirmText="Confirm Delete"
-        onConfirm={deleteAccount}
-        title="Delete Account"
-        subtitle="This action is permanent. Your account and graphs will be removed and cannot be restored."/>
 
 <style>
   .settings-tabs {

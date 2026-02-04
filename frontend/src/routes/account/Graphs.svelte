@@ -1,9 +1,11 @@
 <script>
-  import Dialog from "$lib/components/Dialog.svelte";
   import {toast} from "$lib/stores/toast.js";
   import {currentUser} from "$lib/stores/auth.js";
   import Button from "$lib/components/Button.svelte";
   import {goto} from "$app/navigation";
+  import DialogContent from "$lib/components/Dialog/DialogContent.svelte";
+  import DialogTrigger from "$lib/components/Dialog/DialogTrigger.svelte";
+  import Dialog from "$lib/components/Dialog/Dialog.svelte";
 
   let graphs = $state([]);
 
@@ -12,7 +14,6 @@
   let editingGraphId = $state(null);
   let editingName = $state("");
   let deletingGraphId = $state(null);
-  let showGraphDeleteDialog = $state(false);
   let graphToDelete = $state(null);
 
   const startEdit = (graph) => {
@@ -47,7 +48,6 @@
 
   const confirmDeleteGraph = (graph) => {
     graphToDelete = graph;
-    showGraphDeleteDialog = true;
   };
 
   const deleteGraph = async () => {
@@ -70,7 +70,6 @@
       $toast = {type: "error", title: "Delete failed", subtitle: "Network error."};
     } finally {
       deletingGraphId = null;
-      showGraphDeleteDialog = false;
       graphToDelete = null;
     }
   };
@@ -137,13 +136,18 @@
           {:else}
             <Button type="ghost" onclick={() => goto("/?og=" + graph.id)}>Open</Button>
             <Button type="ghost" onclick={() => startEdit(graph)}>Edit</Button>
-            <Button
-              type="danger"
-              onclick={() => confirmDeleteGraph(graph)}
-              disabled={deletingGraphId === graph.id}
-            >
-              {deletingGraphId === graph.id ? "Deleting..." : "Delete"}
-            </Button>
+            <Dialog>
+              <DialogTrigger type="danger"
+                             onclick={() => confirmDeleteGraph(graph)}
+                             disabled={deletingGraphId === graph.id}>
+                {deletingGraphId === graph.id ? "Deleting..." : "Delete"}
+              </DialogTrigger>
+
+              <DialogContent confirmText="Delete Graph"
+                             onConfirm={deleteGraph}
+                             title="Delete Graph"
+                             subtitle={`Delete ${graphToDelete?.name ?? "this graph"}? This cannot be undone.`}></DialogContent>
+            </Dialog>
           {/if}
         </div>
       </div>
@@ -151,11 +155,6 @@
   {/if}
 </div>
 
-<Dialog bind:showDialog={showGraphDeleteDialog}
-        confirmText="Delete Graph"
-        onConfirm={deleteGraph}
-        title="Delete Graph"
-        subtitle={`Delete ${graphToDelete?.name ?? "this graph"}? This cannot be undone.`}/>
 
 <style>
   .graph-list {

@@ -1,19 +1,22 @@
 <script>
-  import {fly} from "svelte/transition";
   import Button from "$lib/components/Button.svelte";
+  import {fly} from "svelte/transition";
+  import {getContext} from "svelte";
 
-  let {confirmText, onConfirm, title, subtitle, showDialog = $bindable()} = $props();
+  let {confirmText, onConfirm, title, subtitle} = $props();
+  let dialog = getContext("dialog");
 </script>
 
-{#if showDialog}
-  <div class="dialog-backdrop" role="dialog" tabindex="0" onclick={() => showDialog = false}>
-    <div transition:fly={{y: -100}} class="dialog-card" role="dialog" tabindex="1" onclick={(event) => event.stopPropagation()}>
+{#if dialog.open}
+  <div class="dialog-backdrop" role="dialog" tabindex="0" onclick={() => dialog.setOpen(false)}>
+    <div transition:fly={{y: -100}} class="dialog-card" role="dialog" tabindex="1"
+         onclick={(event) => event.stopPropagation()}>
       <div class="dialog-title">{title}</div>
       <div class="dialog-message">
         {subtitle}
       </div>
       <div class="dialog-actions">
-        <Button type="ghost" onclick={() => showDialog = false}>Cancel</Button>
+        <Button type="ghost" onclick={() => dialog.setOpen(false)}>Cancel</Button>
         <Button type="danger" onclick={onConfirm}>{confirmText}</Button>
       </div>
     </div>
