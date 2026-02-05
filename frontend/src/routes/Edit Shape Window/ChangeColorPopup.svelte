@@ -2,6 +2,10 @@
   import {blur} from "svelte/transition";
   import Input from "./Input.svelte";
   import {onMount} from "svelte";
+  import Dialog from "$lib/components/Dialog/Dialog.svelte";
+  import Popup from "$lib/components/Popup/Popup.svelte";
+  import PopupTrigger from "$lib/components/Popup/PopupTrigger.svelte";
+  import PopupContent from "$lib/components/Popup/PopupContent.svelte";
 
   let {colorToChange = $bindable()} = $props();
   let colors = ["white", "black", "red", "orange", "yellow", "lime", "green", "blue", "cyan", "pink", "purple"];
@@ -21,40 +25,35 @@
 
 </script>
 
-<div style="position: relative;" bind:this={popupArea}>
-  <!--  for consistent transparent background, exclude bg-color-->
-  <Input style={colorToChange !== undefined && `background-color: ${colorDisplayed}`}
-         onclick={() => showPopup = true} readonly={true}
-         aria-label="Change color" type="displayOnly"/>
-  {#if showPopup}
-    <div class="show-color-popup">
-      <div class="color-container" transition:blur={{duration: 130}}>
-        {#each colors as color}
-          <button class="{colorDisplayed === color && 'color-selected'}"
-                  style="background-color: {color};"
-                  onclick={() => colorToChange = color}
-                  aria-label="Change color to {color}">
-          </button>
-        {/each}
-        <!--This logic is very very similar to what happens in Input, figure out a way to reuse-->
-        <input class="{colors.every((color) => colorDisplayed !== color) && 'color-selected'}" type="color"
-               bind:value={() => colorDisplayed, (newColor) => {
+<Popup>
+  <PopupTrigger>
+      <!--  for consistent transparent background, exclude bg-color-->
+
+    <Input style={colorToChange !== undefined && `background-color: ${colorDisplayed}`}
+           onclick={() => showPopup = true} readonly={true}
+           aria-label="Change color" type="displayOnly"/>
+  </PopupTrigger>
+
+  <PopupContent style="border: none; background: none; padding: 0;">
+    <div class="color-container" transition:blur={{duration: 130}}>
+      {#each colors as color}
+        <button class="{colorDisplayed === color && 'color-selected'}"
+                style="background-color: {color};"
+                onclick={() => colorToChange = color}
+                aria-label="Change color to {color}">
+        </button>
+      {/each}
+      <!--This logic is very very similar to what happens in Input, figure out a way to reuse-->
+      <input class="{colors.every((color) => colorDisplayed !== color) && 'color-selected'}" type="color"
+             bind:value={() => colorDisplayed, (newColor) => {
                 if (colorToChange === undefined && newColor === colorDisplayed) return;
                 colorDisplayed = colorToChange = newColor
             }}/>
-      </div>
     </div>
-  {/if}
-</div>
+  </PopupContent>
+</Popup>
 
 <style>
-  .show-color-popup {
-    position: absolute;
-    bottom: 35px; /*From 30px height size of circles from ChangeColorPopup + 5px */
-    right: 0;
-    z-index: 1;
-  }
-
   .color-container {
     display: flex;
     align-self: start;

@@ -17,6 +17,8 @@
     secondaryHref = "",
     successfulToast,
     errorToast,
+    resetPassword,
+    token,
   } = $props();
 
   let email = $state("");
@@ -38,13 +40,23 @@
     event.preventDefault();
     error = "";
     clearTimeout(errorTimeout);
-    if (!email || (!showEmailOnly && !password)) {
+    if (!resetPassword && (!email || (!showEmailOnly && !password))) {
       error = errorMessages.missing_fields;
       return;
     }
     if (showConfirmPassword && password !== confirmPassword) {
       error = "Passwords do not match.";
       return;
+    }
+    if (resetPassword) {
+      if (!token) {
+        error = "Reset link is missing or invalid."
+        return;
+      }
+      if (!password) {
+        error = "Enter a new password.";
+        return;
+      }
     }
     if (!endpoint) {
       error = "No endpoint configured; Please contact me.";
@@ -57,7 +69,7 @@
         method: "POST",
         headers: {"Content-Type": "application/json"},
         credentials: "include",
-        body: JSON.stringify(showEmailOnly ? {email} : {email, password})
+        body: JSON.stringify(showEmailOnly ? {email} : {email, password, token})
       });
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
@@ -67,9 +79,8 @@
       }
 
       const payload = await response.json().catch(() => ({}));
-      if (payload?.user) {
-        $currentUser = payload.user;
-      }
+      $currentUser = payload.user;
+
       setToast(successfulToast);
       $authLoading = false;
       window.location.href = successRedirect;
@@ -96,10 +107,13 @@
     </div>
 
     <form class="auth-form" onsubmit={handleSubmit}>
-      <label class="field">
-        <span class="field-label">Email</span>
-        <input type="email" placeholder="name@domain.com" autocomplete="email" bind:value={email}/>
-      </label>
+
+      {#if !resetPassword}
+        <label class="field">
+          <span class="field-label">Email</span>
+          <input type="email" placeholder="name@domain.com" autocomplete="email" bind:value={email}/>
+        </label>
+      {/if}
 
       {#if !showEmailOnly}
         <label class="field">
