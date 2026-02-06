@@ -1,6 +1,6 @@
 <script>
   import {toast} from "$lib/stores/toast.js";
-  import {currentUser} from "$lib/stores/auth.js";
+  import {authLoading, resolvedUser} from "$lib/stores/auth.js";
   import Button from "$lib/components/Button.svelte";
   import {goto} from "$app/navigation";
   import DialogContent from "$lib/components/Dialog/DialogContent.svelte";
@@ -86,7 +86,7 @@
   };
 
   const loadGraphs = async () => {
-    if (!$currentUser) {
+    if (!$resolvedUser) {
       graphs = [];
       return;
     }
@@ -107,7 +107,15 @@
     }
   };
 
-  loadGraphs();
+  $effect(() => {
+    if ($authLoading) return;
+    if ($resolvedUser) {
+      loadGraphs();
+    } else {
+      graphs = [];
+      isLoadingGraphs = false;
+    }
+  });
 </script>
 
 

@@ -3,7 +3,7 @@
 
   let {onToggle, children} = $props();
 
-  let open = $state();
+  let open = $state(false);
   let popupArea = $state();
 
   const api = {
@@ -14,8 +14,8 @@
       open = value;
     },
     toggle() {
-      onToggle?.(open)
       open = !open;
+      onToggle?.(open)
     }
   };
 

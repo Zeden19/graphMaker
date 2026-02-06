@@ -4,7 +4,7 @@
   import copy from "$lib/assets/copy.svg";
   import {buildGraphPayload} from "$lib/graphShare.js";
   import {toast} from "$lib/stores/toast.js";
-  import {currentUser} from "$lib/stores/auth.js";
+  import {authLoading, resolvedUser} from "$lib/stores/auth.js";
   import Popup from "$lib/components/Popup/Popup.svelte";
   import PopupTrigger from "$lib/components/Popup/PopupTrigger.svelte";
   import PopupContent from "$lib/components/Popup/PopupContent.svelte";
@@ -14,6 +14,7 @@
   let shareLink = $state("");
   let graphName = $state("Untitled graph");
   let accountGraphId = $state(null);
+  let ownedGraphId = $state(null);
   let copied = $state(false);
   let isLoadingLink = $state(false);
   let isSaving = $state(false);
@@ -27,22 +28,18 @@
       response = await fetch(`/graphs/${graphId}`);
       if (!response.ok) {
         $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
-        return {error: true};
+        return;
       }
       graphData = await response.json();
       if (!Array.isArray(graphData.shapes)) {
         $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
-        return {error: true};
+        return;
       }
     } catch (e) {
       $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
       return;
     }
 
-    if (!Array.isArray(graphData.shapes)) {
-      $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
-      return {error: true};
-    }
     clear();
     graphData.shapes.forEach((shapeData) => {
       const shapeType = shapeData?.toString;
@@ -64,12 +61,12 @@
       response = await fetch(`/accounts/graphs/${graphId}`, {credentials: "include"});
       if (!response.ok) {
         $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
-        return {error: true};
+        return;
       }
       graphData = await response.json();
       if (!Array.isArray(graphData.shapes)) {
         $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
-        return {error: true};
+        return;
       }
     } catch (e) {
       $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
@@ -98,7 +95,7 @@
       body: JSON.stringify(payload)
     });
     if (!response.ok) {
-      throw new Error(`Failed to create share link (${response.status})`);
+      $toast = ({type: "error", title: "Graph failed to load", subtitle: "Please check the url"});
     }
     const {id} = await response.json();
     const url = new URL(window.location.href);
@@ -106,20 +103,8 @@
     return url.toString();
   };
 
-  const loadShareLink = async () => {
-    if (typeof getShareLink !== "function") return;
-    isLoadingLink = true;
-    try {
-      shareLink = await getShareLink();
-    } catch (error) {
-      console.error("Failed to create share link", error);
-    } finally {
-      isLoadingLink = false;
-    }
-  };
-
   const handleSave = async () => {
-    if (!$currentUser) {
+    if (!$resolvedUser) {
       $toast = {type: "error", title: "Sign in required", subtitle: "Log in to save your graph."};
       return;
     }
@@ -160,25 +145,36 @@
     }, 1200);
   };
 
-  const onToggle = (open) => {
+  const onToggle = async (open) => {
     if (open) {
-      loadShareLink();
+      if (typeof getShareLink !== "function") return;
+      isLoadingLink = true;
+      try {
+        shareLink = await getShareLink();
+      } catch (error) {
+        console.error("Failed to create share link", error);
+      } finally {
+        isLoadingLink = false;
+      }
     }
   };
 
   onMount(() => {
     const params = new URLSearchParams(window.location.search);
     const graphId = params.get("g");
-    const ownedGraphId = params.get("og");
+    ownedGraphId = params.get("og");
     if (graphId) {
       loadGraphFromId(graphId);
-    }
-    if (ownedGraphId) {
-      loadAccountGraph(ownedGraphId);
     }
 
     return () => {
       clearTimeout(copyTimeout);
+    }
+  });
+
+  $effect(() => {
+    if (ownedGraphId && $resolvedUser) {
+      loadAccountGraph(ownedGraphId);
     }
   });
 </script>
@@ -203,7 +199,9 @@
     <PopupDivider/>
     <div class="share-section">
       <div class="share-title">Save to account</div>
-      {#if $currentUser}
+      {#if $authLoading}
+        <div class="share-empty">Checking account status...</div>
+      {:else if $resolvedUser}
         <div class="share-input-row">
           <input class="share-input" type="text" bind:value={graphName} aria-label="Graph name"/>
           <button class="share-save" type="button" onclick={handleSave} disabled={isSaving}>

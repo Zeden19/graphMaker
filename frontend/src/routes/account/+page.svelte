@@ -1,6 +1,5 @@
 <script>
-  import {currentUser} from "$lib/stores/auth.js";
-  import {onMount} from "svelte";
+  import {authLoading, resolvedUser} from "$lib/stores/auth.js";
   import {goto} from "$app/navigation";
   import Graphs from "./Graphs.svelte";
   import AccountSettings from "./AccountSettings.svelte";
@@ -11,12 +10,13 @@
     activeSection = section;
   };
 
-  onMount(() => {
-    if (!$currentUser) goto("/");
+  $effect(() => {
+    if ($authLoading) return;
+    if (!$resolvedUser) goto("/");
   });
 </script>
 
-{#if $currentUser}
+{#if $resolvedUser}
   <div class="account-page">
     <header class="account-header">
       <div class="header-title">
@@ -27,7 +27,7 @@
         <div class="user-avatar">GM</div>
         <div class="user-meta">
           <div class="user-label">Signed in as</div>
-          <div class="user-email">{$currentUser?.email ?? "guest@graphmaker.app"}</div>
+          <div class="user-email">{$resolvedUser?.email ?? "guest@graphmaker.app"}</div>
         </div>
       </div>
     </header>

@@ -1,5 +1,5 @@
 <script>
-  import {currentUser} from "$lib/stores/auth.js";
+  import {currentUser, resolvedUser} from "$lib/stores/auth.js";
   import {toast} from "$lib/stores/toast.js";
   import {setToast} from "$lib/stores/toast.js";
   import Button from "$lib/components/Button.svelte";
@@ -94,7 +94,7 @@
     <div class="setting-row">
       <div>
         <div class="setting-label">Email</div>
-        <div class="setting-value">{$currentUser?.email ?? "guest@graphmaker.app"}</div>
+        <div class="setting-value">{$resolvedUser?.email ?? "guest@graphmaker.app"}</div>
       </div>
     </div>
   </div>

@@ -1,6 +1,6 @@
 <script>
   import {account} from "$lib/assets/index.js";
-  import {authLoading, currentUser} from "$lib/stores/auth.js";
+  import {authLoading, currentUser, resolvedUser} from "$lib/stores/auth.js";
   import {setToast} from "$lib/stores/toast.js";
   import Popup from "$lib/components/Popup/Popup.svelte";
   import PopupTrigger from "$lib/components/Popup/PopupTrigger.svelte";
@@ -11,7 +11,7 @@
   import Dialog from "$lib/components/Dialog/Dialog.svelte";
   import DialogContent from "$lib/components/Dialog/DialogContent.svelte";
 
-  const isLoggedIn = $derived($currentUser);
+  const isLoggedIn = $derived(!!$resolvedUser);
 
   const handleLogout = async () => {
     try {
@@ -47,7 +47,9 @@
       <PopupTitle>Account</PopupTitle>
       <PopupDivider/>
       <div class="account-actions">
-        {#if isLoggedIn}
+        {#if $authLoading}
+          <span class="account-item account-item--disabled">Checking account...</span>
+        {:else if isLoggedIn}
           <a class="account-item" href="/account">View account</a>
           <Dialog>
             <DialogTrigger class="account-item">
@@ -95,5 +97,10 @@
 
   .account-item:hover, :global(.account-item:hover) {
     background: rgba(255, 255, 255, 0.08);
+  }
+
+  .account-item--disabled {
+    opacity: 0.6;
+    cursor: default;
   }
 </style>
