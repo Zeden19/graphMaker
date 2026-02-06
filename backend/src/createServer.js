@@ -1,4 +1,5 @@
 const http = require("node:http");
+const {AppError, errorStatus} = require("./errors");
 
 const parseBody = (req) => new Promise((resolve, reject) => {
   let body = "";
@@ -39,6 +40,12 @@ const notFound = (res) => {
   sendJson(res, 404, {error: "not_found"});
 };
 
+const handleError = (res, error) => {
+  const code = error?.code ?? "db_error";
+  const status = errorStatus[code] ?? 500;
+  sendJson(res, status, {error: code});
+};
+
 // Inspired from bun: https://bun.com/docs/runtime/http/server#/
 const createServer = ({port, hostname, routes}) => {
   const server = http.createServer(async (req, res) => {
@@ -49,8 +56,8 @@ const createServer = ({port, hostname, routes}) => {
     let body;
     try {
       body = await parseBody(req);
-    } catch (e) {
-      sendJson(res, 400, {error: "invalid_json"});
+    } catch {
+      handleError(res, new AppError("invalid_json"));
       return;
     }
 
@@ -77,13 +84,21 @@ const createServer = ({port, hostname, routes}) => {
     }
 
     if (typeof caller === "function") {
-      caller({req, res, body, url});
+      try {
+        await caller({req, res, body, url});
+      } catch (error) {
+        handleError(res, error);
+      }
       return;
     }
 
     const handler = caller[methodRequest];
     if (!handler) return notFound(res);
-    handler({req, res, body, url});
+    try {
+      await handler({req, res, body, url});
+    } catch (error) {
+      handleError(res, error);
+    }
   });
 
   server.listen(port, hostname, () => {

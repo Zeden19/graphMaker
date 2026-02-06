@@ -1,5 +1,6 @@
 const {pool: db} = require("./db");
 const bcrypt = require("bcrypt");
+const {AppError} = require("../errors");
 
 const hashPassword = async (plainPassword) => {
   const saltRounds = 12;
@@ -22,53 +23,56 @@ const createUserStore = () => {
       return result.rows[0];
     } catch (error) {
       if (error?.code === "23505") {
-        return {error: "email_taken"};
+        throw new AppError("email_taken");
       }
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
   };
   
   const logInUser = async (email, password) => {
+    let result;
     try {
-      const result = await db.query(
+      result = await db.query(
         "SELECT id, email, password_hash FROM users WHERE email = $1",
         [email]
       );
-      if (result.rows.length === 0) {
-        return {error: "invalid_credentials"};
-      }
-      
-      const user = result.rows[0];
-      const verified = await verifyPassword(password, user.password_hash);
-      if (!verified) return {error: "invalid_credentials"};
-      
-      return {id: user.id, email: user.email};
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rows.length === 0) {
+      throw new AppError("invalid_credentials");
+    }
+    
+    const user = result.rows[0];
+    const verified = await verifyPassword(password, user.password_hash);
+    if (!verified) throw new AppError("invalid_credentials");
+    
+    return {id: user.id, email: user.email};
   };
   
   const getUser = async (id) => {
+    let result;
     try {
-      const result = await db.query(
+      result = await db.query(
         "SELECT id, email, created_at, updated_at FROM users WHERE id = $1",
         [id]
       );
-      if (result.rows.length === 0) return {error: "not_found"};
-      return result.rows[0];
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rows.length === 0) throw new AppError("not_found");
+    return result.rows[0];
   };
   
   const deleteUser = async (id) => {
+    let result;
     try {
-      const result = await db.query("DELETE FROM users WHERE id = $1", [id]);
-      if (result.rowCount === 0) return {error: "not_found"};
-      return {success: true};
+      result = await db.query("DELETE FROM users WHERE id = $1", [id]);
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rowCount === 0) throw new AppError("not_found");
+    return {success: true};
   };
   
   const getUserGraphs = async (id) => {
@@ -79,67 +83,70 @@ const createUserStore = () => {
       );
       return result.rows;
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
   };
   
   const getUserByEmail = async (email) => {
+    let result;
     try {
-      const result = await db.query(`SELECT id, email
-                                     FROM users
-                                     WHERE email = $1`, [email])
-      if (result.rows.length === 0) return {error: "not_found"};
-      return result.rows[0];
+      result = await db.query(`SELECT id, email
+                               FROM users
+                               WHERE email = $1`, [email])
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rows.length === 0) throw new AppError("not_found");
+    return result.rows[0];
   };
   
   const changePassword = async (userId, newPassword, oldPassword) => {
+    let result;
     try {
-      const result = await db.query(
+      result = await db.query(
         "SELECT id, email, password_hash FROM users WHERE id = $1",
         [userId]
       );
-      if (result.rows.length === 0) {
-        return {error: "user_not_found"};
-      }
-      
-      const user = result.rows[0];
-      const verified = await verifyPassword(oldPassword, user.password_hash);
-      if (!verified) return {error: "invalid_credentials"};
-      
-      const hashedPassword = await hashPassword(newPassword);
-      await db.query(`UPDATE users
-                      SET password_hash = $1
-                      WHERE id = $2`, [hashedPassword, userId]);
-      return {success: true};
-      
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rows.length === 0) {
+      throw new AppError("not_found");
+    }
+    
+    const user = result.rows[0];
+    const verified = await verifyPassword(oldPassword, user.password_hash);
+    if (!verified) throw new AppError("invalid_credentials");
+    
+    const hashedPassword = await hashPassword(newPassword);
+    await db.query(`UPDATE users
+                    SET password_hash = $1
+                    WHERE id = $2`, [hashedPassword, userId]);
+    return {success: true};
+    
   }
   
   
   const resetPassword = async (userId, newPassword) => {
+    let result;
     try {
-      const result = await db.query(
+      result = await db.query(
         "SELECT id, email, password_hash FROM users WHERE id = $1",
         [userId]
       );
-      if (result.rows.length === 0) {
-        return {error: "user_not_found"};
-      }
-      
-      const hashedPassword = await hashPassword(newPassword);
-      await db.query(`UPDATE users
-                      SET password_hash = $1
-                      WHERE id = $2`, [hashedPassword, userId]);
-      return {success: true};
-      
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rows.length === 0) {
+      throw new AppError("not_found");
+    }
+    
+    const hashedPassword = await hashPassword(newPassword);
+    await db.query(`UPDATE users
+                    SET password_hash = $1
+                    WHERE id = $2`, [hashedPassword, userId]);
+    return {success: true};
+    
   }
   return {
     createUser,

@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const {pool: db} = require("./db");
+const {AppError} = require("../errors");
 
 const ROUND_PRECISION = 3;
 
@@ -60,10 +61,10 @@ const hashGraph = (shapes) => {
 const createGraphStore = () => {
   const createGraph = async (graphData, ownerId = null) => {
     const normalized = normalizeGraphData(graphData);
-    if (!normalized) return {error: "invalid_graph"};
+    if (!normalized) throw new AppError("invalid_graph");
     
     const id = hashGraph(normalized.shapes);
-    if (!id) return {error: "invalid_graph"};
+    if (!id) throw new AppError("invalid_graph");
     
     try {
       await db.query(
@@ -74,45 +75,47 @@ const createGraphStore = () => {
       );
       return {id};
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
   };
   
   const getGraph = async (graphId) => {
+    let result;
     try {
-      const result = await db.query(
+      result = await db.query(
         `SELECT payload
          FROM graphs
          WHERE id = $1
            AND owner_id IS NULL`,
         [graphId]
       );
-      if (result.rows.length === 0) {
-        return {error: "not_found"};
-      }
-      
-      return {payload: result.rows[0]?.payload ?? null};
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rows.length === 0) {
+      throw new AppError("not_found");
+    }
+    
+    return {payload: result.rows[0]?.payload ?? null};
   };
   
   const getUserGraph = async (graphId, userId) => {
+    let result;
     try {
-      const result = await db.query(
+      result = await db.query(
         `SELECT payload
          FROM graphs
          WHERE id = $1
            AND owner_id = $2`,
         [graphId, userId]
       );
-      if (result.rows.length === 0) {
-        return {error: "not_found"};
-      }
-      return {payload: result.rows[0]?.payload ?? null};
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rows.length === 0) {
+      throw new AppError("not_found");
+    }
+    return {payload: result.rows[0]?.payload ?? null};
   };
   
   const getUserGraphs = async (userId) => {
@@ -128,30 +131,32 @@ const createGraphStore = () => {
       );
       return {graphs: result.rows};
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
   };
   
   const deleteUserGraph = async (graphId, userId) => {
+    let result;
     try {
-      const result = await db.query(
+      result = await db.query(
         `DELETE
          FROM graphs
          WHERE id = $1
            AND owner_id = $2`,
         [graphId, userId]
       );
-      if (result.rowCount === 0) return {error: "not_found"};
-      
-      return {graphs: result.rows};
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rowCount === 0) throw new AppError("not_found");
+    
+    return {graphs: result.rows};
   };
   
   const updateGraphName = async (graphId, userId, name) => {
+    let result;
     try {
-      const result = await db.query(
+      result = await db.query(
         `UPDATE graphs
          SET payload    = jsonb_set(payload, '{name}', to_jsonb($1::text), true),
              updated_at = NOW()
@@ -159,18 +164,19 @@ const createGraphStore = () => {
            AND owner_id = $3`,
         [name, graphId, userId]
       );
-      if (result.rowCount === 0) return {error: "not_found"};
-      return {success: true};
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rowCount === 0) throw new AppError("not_found");
+    return {success: true};
   };
   
   const updateGraph = async (graphId, userId, graphData) => {
     const normalized = normalizeGraphData(graphData);
-    if (!normalized) return {error: "invalid_graph"};
+    if (!normalized) throw new AppError("invalid_graph");
+    let result;
     try {
-      const result = await db.query(
+      result = await db.query(
         `UPDATE graphs
          SET payload    = $1,
              updated_at = NOW()
@@ -178,11 +184,11 @@ const createGraphStore = () => {
            AND owner_id = $3`,
         [normalized, graphId, userId]
       );
-      if (result.rowCount === 0) return {error: "not_found"};
-      return {success: true};
     } catch {
-      return {error: "db_error"};
+      throw new AppError("db_error");
     }
+    if (result.rowCount === 0) throw new AppError("not_found");
+    return {success: true};
   };
   
   return {

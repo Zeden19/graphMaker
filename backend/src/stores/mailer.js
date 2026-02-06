@@ -1,4 +1,6 @@
 const nodemailer = require("nodemailer");
+const {AppError} = require("../errors");
+
 
 const SMTP_HOST = process.env.SMTP_HOST;
 const SMTP_PORT = process.env.SMPT_PORT || 587;
@@ -18,6 +20,7 @@ const transporter = nodemailer.createTransport({
 
 const sendPasswordReset = async ({to, resetURL}) => {
   const from = SMTP_USER
+  try {
     return await transporter.sendMail({
       from,
       to,
@@ -26,6 +29,9 @@ const sendPasswordReset = async ({to, resetURL}) => {
       html: `<p>Reset your password using this link:</p>
            <p><a href="${resetURL}">${resetURL}</a></p>`
     });
+  } catch {
+    throw new AppError("db_error")
+  }
 }
 
 module.exports = {

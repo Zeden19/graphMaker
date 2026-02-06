@@ -2,6 +2,7 @@ const {createGraphStore} = require("./stores/graphs");
 const {createUserStore} = require("./stores/users");
 const {createSessionStore} = require("./stores/sessions");
 const {createServer} = require("./createServer");
+const {AppError} = require("./errors");
 const {createResetTokenStore} = require("./stores/passwordResetTokenStore");
 const {sendPasswordReset} = require("./stores/mailer");
 const {createCookieStore} = require("./stores/cookies");
@@ -31,18 +32,11 @@ createServer({
     "/accounts/register": {
       POST: async ({res, body}) => {
         if (!body?.email || !body?.password) {
-          return sendJson(res, 400, {error: "missing_fields"});
+          throw new AppError("missing_fields");
         }
         const result = await userStore.createUser(body.email, body.password);
-        if (result.error) {
-          const status = result.error === "email_taken" ? 409 : 500;
-          return sendJson(res, status, {error: result.error});
-        }
         
         const sessionResult = await sessionStore.createSession(result.id);
-        if (sessionResult.error) {
-          return sendJson(res, 500, {error: sessionResult.error});
-        }
         cookieStore.setSessionCookie(res, sessionResult.session);
         return sendJson(res, 201, {user: result});
       }
@@ -51,18 +45,11 @@ createServer({
     "/accounts/login": {
       POST: async ({res, body}) => {
         if (!body?.email || !body?.password) {
-          return sendJson(res, 400, {error: "missing_fields"});
+          throw new AppError("missing_fields");
         }
         const result = await userStore.logInUser(body.email, body.password);
-        if (result.error) {
-          const status = result.error === "invalid_credentials" ? 401 : 500;
-          return sendJson(res, status, {error: result.error});
-        }
         
         const sessionResult = await sessionStore.createSession(result.id);
-        if (sessionResult.error) {
-          return sendJson(res, 500, {error: sessionResult.error});
-        }
         cookieStore.setSessionCookie(res, sessionResult.session);
         return sendJson(res, 200, {user: result});
       }
@@ -76,9 +63,12 @@ createServer({
           cookieStore.clearSessionCookie(res);
           return sendJson(res, 204, {success: true});
         }
-        const result = await sessionStore.deleteSession(sessionId);
-        if (result.error && result.error !== "not_found") {
-          return sendJson(res, 500, {error: result.error});
+        try {
+          await sessionStore.deleteSession(sessionId);
+        } catch (error) {
+          if (error?.code !== "not_found") {
+            throw error;
+          }
         }
         cookieStore.clearSessionCookie(res);
         return sendJson(res, 204, {success: true});
@@ -88,14 +78,7 @@ createServer({
     "/accounts/me": {
       GET: async ({req, res}) => {
         const session = await sessionStore.getSessionUser(req, cookieStore);
-        if (session.error) {
-          const status = session.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: session.error});
-        }
         const userResult = await userStore.getUser(session.userId);
-        if (userResult.error) {
-          return sendJson(res, 500, {error: userResult.error});
-        }
         return sendJson(res, 200, {user: userResult});
       }
     },
@@ -103,31 +86,17 @@ createServer({
     "/accounts/graphs": {
       GET: async ({req, res}) => {
         const session = await sessionStore.getSessionUser(req, cookieStore);
-        if (session.error) {
-          const status = session.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: session.error});
-        }
         const result = await graphStore.getUserGraphs(session.userId);
-        if (result.error) {
-          return sendJson(res, 500, {error: result.error});
-        }
         return sendJson(res, 200, {graphs: result.graphs});
       },
       POST: async ({req, res, body}) => {
         const session = await sessionStore.getSessionUser(req, cookieStore);
-        if (session.error) {
-          const status = session.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: session.error});
-        }
         if (!body?.graph) {
-          return sendJson(res, 400, {error: "missing_fields"});
+          throw new AppError("missing_fields");
         }
         const name = body?.name ?? body.graph?.name ?? "Untitled graph";
         const graphData = {...body.graph, name};
         const result = await graphStore.createGraph(graphData, session.userId);
-        if (result.error) {
-          return sendJson(res, 400, {error: result.error});
-        }
         return sendJson(res, 200, {id: result.id});
       }
     },
@@ -135,75 +104,43 @@ createServer({
     "/accounts/graphs/:id": {
       GET: async ({req, res, url}) => {
         const session = await sessionStore.getSessionUser(req, cookieStore);
-        if (session.error) {
-          const status = session.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: session.error});
-        }
         
         const graphId = url.split("/")[3];
         const result = await graphStore.getUserGraph(graphId, session.userId);
-        if (result.error) {
-          const status = result.error === "not_found" ? 404 : 500;
-          return sendJson(res, status, {error: result.error});
-        }
         return sendJson(res, 200, result.payload);
       },
       
       PUT: async ({req, res, body, url}) => {
         const session = await sessionStore.getSessionUser(req, cookieStore);
-        if (session.error) {
-          const status = session.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: session.error});
-        }
         
         if (!body?.graph) {
-          return sendJson(res, 400, {error: "missing_fields"});
+          throw new AppError("missing_fields");
         }
         
         const graphId = url.split("/")[3];
         const graphData = {...body.graph, name: body.graph?.name ?? body.name};
-        const result = await graphStore.updateGraph(graphId, session.userId, graphData);
+        await graphStore.updateGraph(graphId, session.userId, graphData);
         
-        if (result.error) {
-          const status = result.error === "not_found" ? 404 : 500;
-          return sendJson(res, status, {error: result.error});
-        }
         return sendJson(res, 200, {success: true});
       },
       
       PATCH: async ({req, res, body, url}) => {
         const session = await sessionStore.getSessionUser(req, cookieStore);
-        if (session.error) {
-          const status = session.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: session.error});
-        }
         
         if (!body?.name) {
-          return sendJson(res, 400, {error: "missing_fields"});
+          throw new AppError("missing_fields");
         }
         
         const graphId = url.split("/")[3];
-        const result = await graphStore.updateGraphName(graphId, session.userId, body.name);
-        if (result.error) {
-          const status = result.error === "not_found" ? 404 : 500;
-          return sendJson(res, status, {error: result.error});
-        }
+        await graphStore.updateGraphName(graphId, session.userId, body.name);
         return sendJson(res, 200, {success: true});
       },
       
       DELETE: async ({req, res, url}) => {
         const session = await sessionStore.getSessionUser(req, cookieStore);
-        if (session.error) {
-          const status = session.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: session.error});
-        }
         
         const graphId = url.split("/")[3];
-        const result = await graphStore.deleteUserGraph(graphId, session.userId);
-        if (result.error) {
-          const status = result.error === "not_found" ? 404 : 500;
-          return sendJson(res, status, {error: result.error});
-        }
+        await graphStore.deleteUserGraph(graphId, session.userId);
         
         return sendJson(res, 200, {success: true});
       }
@@ -212,25 +149,23 @@ createServer({
     "/accounts/forgot-password": {
       POST: async ({res, body}) => {
         if (!body?.email) {
-          return sendJson(res, 400, {error: "missing_fields"});
+          throw new AppError("missing_fields");
         }
         
-        const userResult = await userStore.getUserByEmail(body.email);
-        if (userResult.error === "db_error") {
-          return sendJson(res, 500, {error: userResult.error});
-        } else if (userResult.error === "not_found") {
-          return sendJson(res, 200, {success: true});
+        let userResult;
+        try {
+          userResult = await userStore.getUserByEmail(body.email);
+        } catch (error) {
+          if (error?.code === "not_found") {
+            return sendJson(res, 200, {success: true});
+          }
+          throw error;
         }
         
         const {token} = resetTokenStore.createToken(userResult.id);
         const baseUrl = process.env.FRONTEND_BASE_URL ?? "http://localhost:5173";
         const resetURL = `${baseUrl}/reset-password?token=${token}`;
-        try {
-          await sendPasswordReset({to: userResult.email, resetURL});
-        } catch (e) {
-          console.log(e)
-          return sendJson(res, 200, {success: true});
-        }
+        await sendPasswordReset({to: userResult.email, resetURL});
         return sendJson(res, 200, {success: true});
       }
     },
@@ -238,16 +173,11 @@ createServer({
     "/accounts/reset-password": {
       POST: async ({res, body}) => {
         if (!body?.token || !body?.password) {
-          return sendJson(res, 400, {error: "missing_fields"});
+          throw new AppError("missing_fields");
         }
         
-        const user = resetTokenStore.consumeToken(body.token)
-        if (user.error) return sendJson(res, 401, {error: "invalid_token"});
-        
-        const result = await userStore.resetPassword(user.userId, body.password);
-        if (result.error) {
-          return sendJson(res, 500, {error: "db_error"});
-        }
+        const user = resetTokenStore.consumeToken(body.token);
+        await userStore.resetPassword(user.userId, body.password);
         return sendJson(res, 200, {success: true});
       }
     },
@@ -255,20 +185,11 @@ createServer({
     "/accounts/change-password": {
       POST: async ({res, req, body}) => {
         if (!body?.password || !body?.oldPassword) {
-          return sendJson(res, 400, {error: "missing_fields"});
+          throw new AppError("missing_fields");
         }
         const session = await sessionStore.getSessionUser(req, cookieStore);
-        if (session.error) {
-          const status = session.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: session.error});
-        }
         
-        const result = await userStore.changePassword(session.userId, body.password, body.oldPassword);
-        if (result.error && result.error === "invalid_credentials") {
-          return sendJson(res, 404, {error: "invalid_credentials"});
-        } else if (result.error) {
-          return sendJson(res, 500, {error: "sever_error"});
-        }
+        await userStore.changePassword(session.userId, body.password, body.oldPassword);
         return sendJson(res, 200, {success: true});
       }
     },
@@ -276,16 +197,9 @@ createServer({
     "/accounts/delete": {
       DELETE: async ({res, req}) => {
         const session = await sessionStore.getSessionUser(req, cookieStore);
-        if (session.error) {
-          const status = session.error === "db_error" ? 500 : 401;
-          return sendJson(res, status, {error: session.error});
-        }
         
         // could probably do a toDelete param in the DB and send an email before deleting
-        const result = await userStore.deleteUser(session.userId);
-        if (result.error) {
-          return sendJson(res, 500, {error: result.error});
-        }
+        await userStore.deleteUser(session.userId);
         
         return sendJson(res, 200, {success: true});
       }
@@ -294,8 +208,6 @@ createServer({
     "/graphs": {
       POST: async ({res, body}) => {
         const result = await graphStore.createGraph(body);
-        if (result.error)
-          return sendJson(res, 400, {error: result.error});
         return sendJson(res, 200, {id: result.id});
       },
     },
@@ -304,10 +216,6 @@ createServer({
       GET: async ({res, url}) => {
         const graphId = url.split("/")[2];
         const graph = await graphStore.getGraph(graphId);
-        if (graph.error || !graph.payload) {
-          const statusCode = graph.error === "db_error" ? 500 : 404;
-          return sendJson(res, statusCode, {error: graph.error ?? "not_found"});
-        }
         return sendJson(res, 200, graph.payload);
       },
     }
