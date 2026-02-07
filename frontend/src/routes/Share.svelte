@@ -21,11 +21,12 @@
   let copyTimeout;
 
   const {shapes, clear, offset, removeShape, getShapeArray, shapeClasses} = $props();
-  const loadGraphFromId = async (graphId) => {
+
+  const loadGraphId = async (graphId, isAccount) => {
     let response;
     let graphData;
     try {
-      response = await fetch(`/graphs/${graphId}`);
+      response = await fetch(`${isAccount ? "/accounts" : ""}/graphs/${graphId}`, {credentials: "include"});
       if (!response.ok) {
         $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
         return;
@@ -50,42 +51,9 @@
       shapeArray?.push(shapeInstance);
     });
     graphName = graphData.name ?? graphName;
-    accountGraphId = null;
+    accountGraphId = isAccount ? graphId : null;
     $toast = {type: "success", title: "Graph Successfully Loaded"};
-  };
-
-  const loadAccountGraph = async (graphId) => {
-    let response;
-    let graphData;
-    try {
-      response = await fetch(`/accounts/graphs/${graphId}`, {credentials: "include"});
-      if (!response.ok) {
-        $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
-        return;
-      }
-      graphData = await response.json();
-      if (!Array.isArray(graphData.shapes)) {
-        $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
-        return;
-      }
-    } catch (e) {
-      $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
-      return;
-    }
-
-    clear();
-    graphData.shapes.forEach((shapeData) => {
-      const shapeType = shapeData?.toString;
-      const ShapeClassRef = shapeClasses[shapeType];
-      if (!ShapeClassRef) return;
-      const shapeInstance = new ShapeClassRef(offset, shapeData, removeShape);
-      const shapeArray = getShapeArray(ShapeClassRef.name);
-      shapeArray?.push(shapeInstance);
-    });
-    graphName = graphData.name ?? graphName;
-    accountGraphId = graphId;
-    $toast = {type: "success", title: "Graph Successfully Loaded"};
-  };
+  }
 
   const getShareLink = async () => {
     const payload = buildGraphPayload(shapes, graphName);
@@ -164,7 +132,7 @@
     const graphId = params.get("g");
     ownedGraphId = params.get("og");
     if (graphId) {
-      loadGraphFromId(graphId);
+      loadGraphId(graphId, false);
     }
 
     return () => {
@@ -174,7 +142,7 @@
 
   $effect(() => {
     if (ownedGraphId && $resolvedUser) {
-      loadAccountGraph(ownedGraphId);
+      loadGraphId(ownedGraphId, true);
     }
   });
 </script>
