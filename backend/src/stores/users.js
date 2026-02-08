@@ -75,18 +75,6 @@ const createUserStore = () => {
     return {success: true};
   };
   
-  const getUserGraphs = async (id) => {
-    try {
-      const result = await db.query(
-        "SELECT * FROM graphs WHERE owner_id = $1",
-        [id]
-      );
-      return result.rows;
-    } catch {
-      throw new AppError("db_error");
-    }
-  };
-  
   const getUserByEmail = async (email) => {
     let result;
     try {
@@ -153,7 +141,6 @@ const createUserStore = () => {
     logInUser,
     getUser,
     deleteUser,
-    getUserGraphs,
     getUserByEmail,
     changePassword,
     resetPassword
