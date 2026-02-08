@@ -1,7 +1,6 @@
 const {test, expect, beforeEach, afterEach, afterAll} = require("@jest/globals")
 const {createUserStore} = require("../stores/users");
 const db = require("../stores/db");
-const {AppError} = require("../errors");
 
 const userStore = createUserStore();
 const TEST_EMAIL = "test@email.com";
@@ -29,13 +28,12 @@ test("Creating user", async () => {
 });
 
 test("Deleting user", async () => {
-  const data = await userStore.deleteUser(id);
-  expect(data.success).toBe(true);
+  await userStore.deleteUser(id);
+  await expect(userStore.getUserByEmail(TEST_EMAIL)).rejects.toMatchObject({code: "not_found"})
 });
 
-
 test("Creating user with existing email", async () => {
-  await expect(userStore.createUser(TEST_EMAIL, "123")).rejects.toThrow(AppError);
+  await expect(userStore.createUser(TEST_EMAIL, "123")).rejects.toMatchObject({code: "email_taken"});
 });
 
 test("Log in user with email and password", async () => {
@@ -43,14 +41,12 @@ test("Log in user with email and password", async () => {
   expect(data.email).toBe(TEST_EMAIL)
 });
 
-test("Get user by email", async () => {
-  const data = await userStore.getUserByEmail(TEST_EMAIL);
+test("Get user by id and email", async () => {
+  let data = await userStore.getUser(id);
   expect(data.email).toBe(TEST_EMAIL);
-});
-
-test("Get user by id", async () => {
-  const data = await userStore.getUser(id);
-  expect(data.email).toBe(TEST_EMAIL)
+  
+  data = await userStore.getUserByEmail(TEST_EMAIL);
+  expect(data.email).toBe(TEST_EMAIL);
 });
 
 test("Resetting Password", async () => {
@@ -66,5 +62,5 @@ test("Change Password", async () => {
 });
 
 test("Change password invalid old password", async () => {
-  await expect(userStore.changePassword(id, "1234", "12")).rejects.toThrow(AppError);
+  await expect(userStore.changePassword(id, "1234", "12")).rejects.toMatchObject({code: "invalid_credentials"});
 })

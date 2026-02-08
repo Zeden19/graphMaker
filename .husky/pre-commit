@@ -2,7 +2,7 @@
   # Only run if backend changed
   if git diff --name-only | grep -q '^backend/'; then
     echo "Running backend tests..."
-    (cd ../backend && npm test)
+    (cd ./backend && npm test)
     status=$?
     if [ $status -ne 0 ]; then
       echo "Tests failed, aborting commit."
