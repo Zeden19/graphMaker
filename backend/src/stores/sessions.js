@@ -57,7 +57,7 @@ const createSessionStore = () => {
     const sessionId = cookies.session_id;
     if (!sessionId) throw new AppError("unauthorized");
     const sessionResult = await getSession(sessionId);
-    return {userId: sessionResult.session.user_id};
+    return {userId: sessionResult.session.user_id, id: sessionResult.session.id};
   };
   
   return {

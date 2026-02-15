@@ -47,8 +47,8 @@ const handleError = (res, error) => {
 };
 
 // Inspired from bun: https://bun.com/docs/runtime/http/server#/
-const createServer = ({port, hostname, routes}) => {
-  const server = http.createServer(async (req, res) => {
+const createServer = ({hostname, routes}) => {
+  return http.createServer(async (req, res) => {
     const {method: methodRequest} = req;
     const requestUrl = new URL(req.url, `http://${hostname}`);
     let url = requestUrl.pathname;
@@ -101,9 +101,7 @@ const createServer = ({port, hostname, routes}) => {
     }
   });
 
-  server.listen(port, hostname, () => {
-    console.log(`GraphMaker backend listening on port http://${hostname}:${port}`);
-  });
+
 }
 
 module.exports = {createServer};

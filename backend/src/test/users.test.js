@@ -3,18 +3,21 @@ const {createUserStore} = require("../stores/users");
 const db = require("../stores/db");
 
 const userStore = createUserStore();
-const TEST_EMAIL = "test@email.com";
+
+const makeEmail = () => `test+${Date.now()}-${Math.random().toString(16).slice(2)}@email.com`;
 
 let id;
+let email;
 beforeEach(async () => {
   if (expect.getState().currentTestName === "Creating user") return
   
-  const data = await userStore.createUser(TEST_EMAIL, "123");
+  const data = await userStore.createUser(makeEmail(), "123");
   id = data.id;
+  email = data.email;
 });
 
 afterEach(async () => {
-  await db.query("DELETE FROM users where email = 'test@email.com'");
+  await db.query("DELETE FROM users where id = $1", [id]);
   id = undefined;
 });
 
@@ -23,42 +26,43 @@ afterAll(async () => {
 });
 
 test("Creating user", async () => {
-  const data = await userStore.createUser(TEST_EMAIL, "123");
-  expect(data.email).toBe(TEST_EMAIL);
+  const email = makeEmail();
+  const data = await userStore.createUser(email, "123");
+  expect(data.email).toBe(email);
 });
 
 test("Deleting user", async () => {
   await userStore.deleteUser(id);
-  await expect(userStore.getUserByEmail(TEST_EMAIL)).rejects.toMatchObject({code: "not_found"})
+  await expect(userStore.getUserByEmail(email)).rejects.toMatchObject({code: "not_found"})
 });
 
 test("Creating user with existing email", async () => {
-  await expect(userStore.createUser(TEST_EMAIL, "123")).rejects.toMatchObject({code: "email_taken"});
+  await expect(userStore.createUser(email, "123")).rejects.toMatchObject({code: "email_taken"});
 });
 
 test("Log in user with email and password", async () => {
-  const data = await userStore.logInUser(TEST_EMAIL, "123");
-  expect(data.email).toBe(TEST_EMAIL)
+  const data = await userStore.logInUser(email, "123");
+  expect(data.email).toBe(email)
 });
 
 test("Get user by id and email", async () => {
   let data = await userStore.getUser(id);
-  expect(data.email).toBe(TEST_EMAIL);
+  expect(data.email).toBe(email);
   
-  data = await userStore.getUserByEmail(TEST_EMAIL);
-  expect(data.email).toBe(TEST_EMAIL);
+  data = await userStore.getUserByEmail(email);
+  expect(data.email).toBe(email);
 });
 
 test("Resetting Password", async () => {
   await userStore.resetPassword(id, "1234");
-  const data = await userStore.logInUser(TEST_EMAIL, "1234");
-  expect(data.email).toBe(TEST_EMAIL);
+  const data = await userStore.logInUser(email, "1234");
+  expect(data.email).toBe(email);
 });
 
 test("Change Password", async () => {
   await userStore.changePassword(id, "1234", "123");
-  const data = await userStore.logInUser(TEST_EMAIL, "1234");
-  expect(data.email).toBe(TEST_EMAIL);
+  const data = await userStore.logInUser(email, "1234");
+  expect(data.email).toBe(email);
 });
 
 test("Change password invalid old password", async () => {
