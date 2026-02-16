@@ -150,7 +150,6 @@
   }
 
   const removeShape = (shape) => {
-    // need selected to be false so popup transition out plays
     shape.selected = false;
     shape.isDeleting = true;
 
@@ -169,10 +168,8 @@
       }
     });
 
-    setTimeout(() => { // idk why but we also need timemeout
-      const index = getShapeArray(shape).indexOf(shape);
-      getShapeArray(shape).splice(index, 1);
-    });
+    const index = getShapeArray(shape).indexOf(shape);
+    getShapeArray(shape).splice(index, 1);
   }
 
   const selectAllShapes = () => {
