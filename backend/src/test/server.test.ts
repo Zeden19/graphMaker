@@ -1,12 +1,15 @@
-const request = require("supertest");
-const db = require("../stores/db");
-const {createServer} = require("../createServer");
-const {test, expect, afterAll, describe, beforeEach, afterEach} = require("@jest/globals");
-const {routes, resetTokenStore} = require("../routes");
+import request from "supertest";
+import {db} from "../stores/db";
+import {createServer} from "../createServer";
+import {test, expect, afterAll, describe, beforeEach, afterEach} from "@jest/globals";
+import {routes, resetTokenStore} from "../routes";
+import {GraphPayload} from "../types/graph";
+import TestAgent from "supertest/lib/agent";
+import supertest from "supertest";
 
 const server = createServer({hostname: "localhost", routes});
 const makeEmail = () => `test+${Date.now()}-${Math.random().toString(16).slice(2)}@email.com`;
-const makeGraph = (name = "Test graph") => ({
+const makeGraph = (name = "Test graph") : GraphPayload => ({
   name,
   shapes: [
     {toString: "Square", x: 1, y: 2, width: 3, height: 4},
@@ -15,14 +18,13 @@ const makeGraph = (name = "Test graph") => ({
 });
 
 afterAll(async () => {
-  await db.pool.end();
+  await db.end();
 });
 
-
 describe("User tests", () => {
-  let email;
-  let agent;
-  let userId;
+  let email : string;
+  let agent: TestAgent<supertest.Test>;
+  let userId : string;
   beforeEach(async () => {
     agent = request.agent(server);
     email = makeEmail();
@@ -123,9 +125,9 @@ describe("User tests", () => {
 });
 
 describe("Graph Tests", () => {
-  let agent;
-  let userId;
-  let sharedGraphIds = [];
+  let agent: TestAgent<supertest.Test>;
+  let userId : string;
+  let sharedGraphIds : string[] = [];
   
   beforeEach(async () => {
     agent = request.agent(server);
@@ -148,7 +150,6 @@ describe("Graph Tests", () => {
     if (sharedGraphIds.length) {
       await db.query("DELETE FROM graphs WHERE id = ANY($1)", [sharedGraphIds]);
     }
-    userId = undefined;
     sharedGraphIds = [];
   });
   
@@ -166,7 +167,7 @@ describe("Graph Tests", () => {
     expect(body.shapes).toEqual(shapes);
   });
   
-  test("Account graph saving and opening. Gettinga all graphs", async () => {
+  test("Account graph saving and opening. Getting all graphs", async () => {
     const graph = makeGraph();
     
     await request(server).post("/accounts/graphs").send({graph}).expect(401);

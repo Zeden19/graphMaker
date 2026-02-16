@@ -1,5 +1,5 @@
-const {test, expect, afterAll} = require("@jest/globals");
-const {createResetTokenStore} = require("../stores/passwordResetTokenStore");
+import {test, expect, afterAll} from "@jest/globals";
+import {createResetTokenStore} from "../stores/passwordResetTokenStore";
 
 const tokenStore = createResetTokenStore();
 

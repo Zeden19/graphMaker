@@ -1,22 +1,25 @@
-const crypto = require("crypto");
-const {pool: db} = require("./db");
-const {AppError} = require("../errors");
+import crypto from "crypto";
+import {db} from "./db";
+import {AppError} from "../errors";
+import type {GetGraph, GraphPayload, ShapeData} from "../types/graph";
+import {QueryResult} from "pg";
 
 const ROUND_PRECISION = 3;
 
-const roundNumber = (value) => Number.isFinite(value)
+const roundNumber = (value: number) => Number.isFinite(value)
   ? Number(value.toFixed(ROUND_PRECISION))
   : value;
 
-const roundDeep = (value) => {
+const roundDeep = (value: unknown): unknown => {
   if (Array.isArray(value)) {
     return value.map((item) => roundDeep(item));
   }
   if (value && typeof value === "object") {
-    return Object.keys(value).reduce((acc, key) => {
-      acc[key] = roundDeep(value[key]);
+    return Object.keys(value as Record<string, unknown>).reduce((acc, key) => {
+      const record = value as Record<string, unknown>;
+      acc[key] = roundDeep(record[key]);
       return acc;
-    }, {});
+    }, {} as Record<string, unknown>);
   }
   if (typeof value === "number") {
     return roundNumber(value);
@@ -24,22 +27,31 @@ const roundDeep = (value) => {
   return value;
 };
 
-const stableStringify = (value) => {
+const stableStringify = (value: unknown): string => {
   if (value === null || typeof value !== "object") {
     return JSON.stringify(value);
   }
   if (Array.isArray(value)) {
     return `[${value.map((item) => stableStringify(item)).join(",")}]`;
   }
-  const keys = Object.keys(value).sort();
-  const entries = keys.map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`);
+  const keys = Object.keys(value as Record<string, unknown>).sort();
+  const entries = keys.map((key) => {
+    const record = value as Record<string, unknown>;
+    return `${JSON.stringify(key)}:${stableStringify(record[key])}`;
+  });
   return `{${entries.join(",")}}`;
 };
 
-const normalizeGraphData = (rawGraph) => {
+const isGraphPayload = (value: unknown): value is GraphPayload => {
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  return Array.isArray(record.shapes);
+};
+
+const normalizeGraphData = (rawGraph: GraphPayload): GraphPayload | null => {
   // TODO: add schema versioning here when graph data evolves.
   const rounded = roundDeep(rawGraph);
-  if (!rounded || !Array.isArray(rounded.shapes)) {
+  if (!isGraphPayload(rounded)) {
     return null;
   }
   const shapesWithKeys = rounded.shapes.map((shape) => ({
@@ -53,13 +65,13 @@ const normalizeGraphData = (rawGraph) => {
   };
 };
 
-const hashGraph = (shapes) => {
+const hashGraph = (shapes: ShapeData[]) => {
   const payload = stableStringify(shapes);
   return crypto.createHash("sha256").update(payload).digest("hex");
 };
 
 const createGraphStore = () => {
-  const createGraph = async (graphData, ownerId = null) => {
+  const createGraph = async (graphData: GraphPayload, ownerId: string | null = null) => {
     const normalized = normalizeGraphData(graphData);
     if (!normalized) throw new AppError("invalid_graph");
     
@@ -79,8 +91,8 @@ const createGraphStore = () => {
     }
   };
   
-  const getGraph = async (graphId) => {
-    let result;
+  const getGraph = async (graphId: string) => {
+    let result: QueryResult<GetGraph>;
     try {
       result = await db.query(
         `SELECT payload
@@ -99,8 +111,8 @@ const createGraphStore = () => {
     return {payload: result.rows[0]?.payload ?? null};
   };
   
-  const getUserGraph = async (graphId, userId) => {
-    let result;
+  const getUserGraph = async (graphId: string, userId: string) => {
+    let result: QueryResult<GetGraph>;
     try {
       result = await db.query(
         `SELECT payload
@@ -118,9 +130,9 @@ const createGraphStore = () => {
     return {payload: result.rows[0]?.payload ?? null};
   };
   
-  const getUserGraphs = async (userId) => {
+  const getUserGraphs = async (userId: string) => {
     try {
-      const result = await db.query(
+      const result = await db.query<GetGraph>(
         `SELECT id,
                 payload ->> 'name' AS name,
                 updated_at
@@ -135,8 +147,8 @@ const createGraphStore = () => {
     }
   };
   
-  const deleteUserGraph = async (graphId, userId) => {
-    let result;
+  const deleteUserGraph = async (graphId: string, userId: string) => {
+    let result: QueryResult<never>;
     try {
       result = await db.query(
         `DELETE
@@ -153,8 +165,8 @@ const createGraphStore = () => {
     return {graphs: result.rows};
   };
   
-  const updateGraphName = async (graphId, userId, name) => {
-    let result;
+  const updateGraphName = async (graphId: string, userId: string, name: string) => {
+    let result: QueryResult<never>;
     try {
       result = await db.query(
         `UPDATE graphs
@@ -171,10 +183,10 @@ const createGraphStore = () => {
     return {success: true};
   };
   
-  const updateGraph = async (graphId, userId, graphData) => {
+  const updateGraph = async (graphId: string, userId: string, graphData: GraphPayload) => {
     const normalized = normalizeGraphData(graphData);
     if (!normalized) throw new AppError("invalid_graph");
-    let result;
+    let result: QueryResult<never>;
     try {
       result = await db.query(
         `UPDATE graphs
@@ -201,6 +213,8 @@ const createGraphStore = () => {
     deleteUserGraph
   };
 };
+
+export {createGraphStore};
 
 module.exports = {
   createGraphStore

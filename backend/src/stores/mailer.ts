@@ -1,14 +1,13 @@
-const nodemailer = require("nodemailer");
-const {AppError} = require("../errors");
+import {createTransport} from "nodemailer";
+import {AppError} from "../errors";
 
+const SMTP_HOST = process.env.SMTP_HOST as string;
+const SMTP_PORT = process.env.SMPT_PORT as unknown as number || 587;
+const SMTP_USER = process.env.SMTP_USER;
+const SMTP_PASSWORD = process.env.SMTP_PASSWORD;
+const SMTP_SECURE = SMTP_PORT === 465;
 
-const SMTP_HOST = process.env.SMTP_HOST;
-const SMTP_PORT = process.env.SMPT_PORT || 587;
-const SMTP_USER = process.env.SMTP_USER
-const SMTP_PASSWORD = process.env.SMTP_PASSWORD
-const SMTP_SECURE = SMTP_PORT === 465
-
-const transporter = nodemailer.createTransport({
+const transporter = createTransport({
   host: SMTP_HOST,
   port: SMTP_PORT,
   secure: SMTP_SECURE,
@@ -18,7 +17,7 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-const sendPasswordReset = async ({to, resetURL}) => {
+export const sendPasswordReset = async ({to, resetURL}: { to: string, resetURL: string }) => {
   const from = SMTP_USER
   try {
     return await transporter.sendMail({
@@ -32,8 +31,4 @@ const sendPasswordReset = async ({to, resetURL}) => {
   } catch {
     throw new AppError("db_error")
   }
-}
-
-module.exports = {
-  sendPasswordReset
 }

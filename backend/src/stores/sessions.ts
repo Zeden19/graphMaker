@@ -1,13 +1,15 @@
-const {pool: db} = require("./db");
-const {AppError} = require("../errors");
+import {db} from "./db";
+import {AppError} from "../errors";
+import {GetSession, Session} from "../types/session";
+import {QueryResult} from "pg";
 
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-const createSessionStore = () => {
-  const createSession = async (userId) => {
+export const createSessionStore = () => {
+  const createSession = async (userId: string) => {
     const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
     try {
-      const result = await db.query(
+      const result = await db.query<Session>(
         "INSERT INTO sessions (user_id, expires_at) VALUES ($1, $2) RETURNING id, expires_at",
         [userId, expiresAt]
       );
@@ -17,10 +19,10 @@ const createSessionStore = () => {
     }
   };
   
-  const getSession = async (sessionId) => {
-    let result;
+  const getSession = async (sessionId: string) => {
+    let result: QueryResult<GetSession>;
     try {
-      result = await db.query(
+      result = await db.query<GetSession>(
         "SELECT id, user_id, expires_at FROM sessions WHERE id = $1",
         [sessionId]
       );
@@ -38,10 +40,10 @@ const createSessionStore = () => {
     return {session};
   };
   
-  const deleteSession = async (sessionId) => {
-    let result;
+  const deleteSession = async (sessionId: string) => {
+    let result: QueryResult<never>;
     try {
-      result = await db.query(
+      result = await db.query<never>(
         "DELETE FROM sessions WHERE id = $1",
         [sessionId]
       );
@@ -52,22 +54,10 @@ const createSessionStore = () => {
     return {success: true};
   };
   
-  const getSessionUser = async (req, cookieStore) => {
-    const cookies = cookieStore.parseCookies(req);
-    const sessionId = cookies.session_id;
-    if (!sessionId) throw new AppError("unauthorized");
-    const sessionResult = await getSession(sessionId);
-    return {userId: sessionResult.session.user_id, id: sessionResult.session.id};
-  };
-  
   return {
     createSession,
     getSession,
     deleteSession,
-    getSessionUser
   };
 };
 
-module.exports = {
-  createSessionStore
-};

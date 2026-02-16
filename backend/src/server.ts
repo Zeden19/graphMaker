@@ -1,5 +1,5 @@
-const {createServer} = require("./createServer");
-const {routes} = require("./routes");
+import {createServer} from "./createServer";
+import {routes} from "./routes";
 
 const PORT = 3000
 const HOSTNAME = "localhost";

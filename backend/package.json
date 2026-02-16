@@ -5,8 +5,8 @@
   "main": "graphs.js",
   "scripts": {
     "test": "jest",
-    "dev": "NODE_ENV=dev node --watch ./src/server.js",
-    "start": "NODE_ENV=prod node ./src/server.js"
+    "dev": "NODE_ENV=dev npx tsx --watch ./src/server.ts",
+    "start": "NODE_ENV=prod npx tsx ./src/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +20,16 @@
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",
+    "@types/bcrypt": "^6.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.2.3",
+    "@types/nodemailer": "^7.0.10",
+    "@types/pg": "^8.16.0",
+    "@types/supertest": "^6.0.3",
     "jest": "^30.2.0",
-    "supertest": "^7.2.2"
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }

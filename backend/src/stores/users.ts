@@ -1,38 +1,41 @@
-const {pool: db} = require("./db");
-const bcrypt = require("bcrypt");
-const {AppError} = require("../errors");
+import {db} from "./db";
+import bcrypt from "bcrypt"
+import {AppError} from "../errors";
+import {DatabaseError} from "pg"
+import {ChangeUserPassword, GetUser, LoginUser, UserCreate} from "../types/user";
+import {QueryResult} from "pg";
 
-const hashPassword = async (plainPassword) => {
+const hashPassword = async (plainPassword: string) => {
   const saltRounds = 12;
   return bcrypt.hash(plainPassword, saltRounds);
 };
 
-const verifyPassword = async (plainPassword, hash) => {
+const verifyPassword = async (plainPassword: string, hash: string) => {
   return bcrypt.compare(plainPassword, hash);
 };
 
-const createUserStore = () => {
-  const createUser = async (email, password) => {
+export const createUserStore = () => {
+  const createUser = async (email: string, password: string) => {
     try {
       const hashedPassword = await hashPassword(password);
       
-      const result = await db.query(
+      const result = await db.query<UserCreate>(
         "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, created_at",
         [email, hashedPassword]
       );
       return result.rows[0];
     } catch (error) {
-      if (error?.code === "23505") {
+      if (error instanceof DatabaseError && error?.code === "23505") {
         throw new AppError("email_taken");
       }
       throw new AppError("db_error");
     }
   };
   
-  const logInUser = async (email, password) => {
-    let result;
+  const logInUser = async (email: string, password: string) => {
+    let result: QueryResult<LoginUser>;
     try {
-      result = await db.query(
+      result = await db.query<LoginUser>(
         "SELECT id, email, password_hash FROM users WHERE email = $1",
         [email]
       );
@@ -50,10 +53,10 @@ const createUserStore = () => {
     return {id: user.id, email: user.email};
   };
   
-  const getUser = async (id) => {
-    let result;
+  const getUser = async (id: string) => {
+    let result: QueryResult<GetUser>;
     try {
-      result = await db.query(
+      result = await db.query<GetUser>(
         "SELECT id, email, created_at, updated_at FROM users WHERE id = $1",
         [id]
       );
@@ -64,8 +67,8 @@ const createUserStore = () => {
     return result.rows[0];
   };
   
-  const deleteUser = async (id) => {
-    let result;
+  const deleteUser = async (id: string) => {
+    let result: QueryResult<never>;
     try {
       result = await db.query("DELETE FROM users WHERE id = $1", [id]);
     } catch {
@@ -75,12 +78,12 @@ const createUserStore = () => {
     return {success: true};
   };
   
-  const getUserByEmail = async (email) => {
-    let result;
+  const getUserByEmail = async (email: string) => {
+    let result: QueryResult<GetUser>;
     try {
-      result = await db.query(`SELECT id, email
-                               FROM users
-                               WHERE email = $1`, [email])
+      result = await db.query<GetUser>(`SELECT id, email, created_at, updated_at
+                                        FROM users
+                                        WHERE email = $1`, [email])
     } catch {
       throw new AppError("db_error");
     }
@@ -88,10 +91,10 @@ const createUserStore = () => {
     return result.rows[0];
   };
   
-  const changePassword = async (userId, newPassword, oldPassword) => {
-    let result;
+  const changePassword = async (userId: string, newPassword: string, oldPassword: string) => {
+    let result: QueryResult<ChangeUserPassword>;
     try {
-      result = await db.query(
+      result = await db.query<ChangeUserPassword>(
         "SELECT id, email, password_hash FROM users WHERE id = $1",
         [userId]
       );
@@ -114,11 +117,10 @@ const createUserStore = () => {
     
   }
   
-  
-  const resetPassword = async (userId, newPassword) => {
-    let result;
+  const resetPassword = async (userId: string, newPassword: string) => {
+    let result: QueryResult<ChangeUserPassword>;
     try {
-      result = await db.query(
+      result = await db.query<ChangeUserPassword>(
         "SELECT id, email, password_hash FROM users WHERE id = $1",
         [userId]
       );
@@ -145,8 +147,4 @@ const createUserStore = () => {
     changePassword,
     resetPassword
   }
-}
-
-module.exports = {
-  createUserStore
 }

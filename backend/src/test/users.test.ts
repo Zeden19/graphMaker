@@ -1,13 +1,13 @@
-const {test, expect, beforeEach, afterEach, afterAll} = require("@jest/globals")
-const {createUserStore} = require("../stores/users");
-const db = require("../stores/db");
+import {test, expect, beforeEach, afterEach, afterAll} from "@jest/globals";
+import {createUserStore} from "../stores/users";
+import {db} from "../stores/db";
 
 const userStore = createUserStore();
 
 const makeEmail = () => `test+${Date.now()}-${Math.random().toString(16).slice(2)}@email.com`;
 
-let id;
-let email;
+let id : string;
+let email : string;
 beforeEach(async () => {
   if (expect.getState().currentTestName === "Creating user") return
   
@@ -18,11 +18,10 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await db.query("DELETE FROM users where id = $1", [id]);
-  id = undefined;
 });
 
 afterAll(async () => {
-  db.pool.end?.();
+  await db.end();
 });
 
 test("Creating user", async () => {

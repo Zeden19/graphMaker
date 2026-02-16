@@ -1,14 +1,15 @@
-const {test, expect, beforeEach, afterEach, afterAll} = require("@jest/globals");
-const {createGraphStore} = require("../stores/graphs");
-const {createUserStore} = require("../stores/users");
-const db = require("../stores/db");
+import {test, expect, beforeEach, afterEach, afterAll} from "@jest/globals";
+import {createGraphStore} from "../stores/graphs";
+import {createUserStore} from "../stores/users";
+import {db} from "../stores/db";
+import {GraphPayload} from "../types/graph";
 
 const graphStore = createGraphStore();
 const userStore = createUserStore();
 
 const makeEmail = () => `test+${Date.now()}-${Math.random().toString(16).slice(2)}@email.com`;
 
-const makeGraph = (name = "Test graph") => ({
+const makeGraph = (name = "Test graph") : GraphPayload => ({
   name,
   shapes: [
     {toString: "Square", x: 1, y: 2, width: 3, height: 4},
@@ -16,8 +17,8 @@ const makeGraph = (name = "Test graph") => ({
   ]
 });
 
-let userId;
-let sharedGraphIds = [];
+let userId : string;
+let sharedGraphIds : String[] = [];
 
 beforeEach(async () => {
   const user = await userStore.createUser(makeEmail(), "123");
@@ -33,12 +34,11 @@ afterEach(async () => {
   if (sharedGraphIds.length) {
     await db.query("DELETE FROM graphs WHERE id = ANY($1)", [sharedGraphIds]);
   }
-  userId = undefined;
   sharedGraphIds = [];
 });
 
 afterAll(async () => {
-  await db.pool.end();
+  await db.end();
 });
 
 test("Create and fetch shared graph", async () => {
@@ -52,6 +52,7 @@ test("Create and fetch shared graph", async () => {
 });
 
 test("Create shared graph with invalid payload", async () => {
+  // @ts-ignore
   await expect(graphStore.createGraph({})).rejects.toMatchObject({code: "invalid_graph"});
 });
 
