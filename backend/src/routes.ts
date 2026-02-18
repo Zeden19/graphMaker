@@ -106,45 +106,49 @@ export const routes: Args["routes"] = {
   },
   
   "/accounts/graphs/:id": {
-    GET: async ({req, res, url}) => {
+    GET: async ({req, res, params: {id}}) => {
+      if (typeof id !== "string") throw new AppError("not_found")
+      
       const session = await getSessionUser(req);
       
-      const graphId = url.split("/")[3];
-      const result = await graphStore.getUserGraph(graphId, session.userId);
+      const result = await graphStore.getUserGraph(id, session.userId);
       return sendJson(res, 200, result.payload);
     },
     
-    PUT: async ({req, res, body, url}) => {
+    PUT: async ({req, res, body, params: {id}}) => {
       const session = await getSessionUser(req);
       
       if (!isObject(body?.graph) || !body?.graph.shapes) {
         throw new AppError("missing_fields");
       }
       
-      const graphId = url.split("/")[3];
+      if (typeof id !== "string") throw new AppError("not_found")
+      
       const graphData = {...body.graph, name: body.graph?.name ?? body.name} as GraphPayload;
-      await graphStore.updateGraph(graphId, session.userId, graphData);
+      await graphStore.updateGraph(id, session.userId, graphData);
       
       return sendJson(res, 200, {success: true});
     },
     
-    PATCH: async ({req, res, body, url}) => {
+    PATCH: async ({req, res, body, params: {id}}) => {
       const session = await getSessionUser(req);
       
       if (typeof body?.name !== "string") {
         throw new AppError("missing_fields");
       }
       
-      const graphId = url.split("/")[3];
-      await graphStore.updateGraphName(graphId, session.userId, body.name);
+      if (typeof id !== "string") throw new AppError("not_found")
+      
+      
+      await graphStore.updateGraphName(id, session.userId, body.name);
       return sendJson(res, 200, {success: true});
     },
     
-    DELETE: async ({req, res, url}) => {
+    DELETE: async ({req, res, params: {id}}) => {
+      if (typeof id !== "string") throw new AppError("not_found");
       const session = await getSessionUser(req);
       
-      const graphId = url.split("/")[3];
-      await graphStore.deleteUserGraph(graphId, session.userId);
+      await graphStore.deleteUserGraph(id, session.userId);
       
       return sendJson(res, 200, {success: true});
     }
@@ -229,9 +233,10 @@ export const routes: Args["routes"] = {
   },
   
   "/graphs/:id": {
-    GET: async ({res, url}) => {
-      const graphId = url.split("/")[2];
-      const graph = await graphStore.getGraph(graphId);
+    GET: async ({res, params: {id}}) => {
+      if (typeof id !== "string") throw new AppError("not_found")
+      
+      const graph = await graphStore.getGraph(id);
       return sendJson(res, 200, graph.payload);
     },
   }

@@ -10,6 +10,7 @@ export interface RouteContext {
   req: http.IncomingMessage;
   res: http.ServerResponse;
   body: Body | undefined;
+  params: Record<string, unknown>
   url: string
 }
 

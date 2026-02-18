@@ -63,10 +63,12 @@ export const createServer = ({hostname, routes}: Args) => {
       return;
     }
     
+    let params: RouteContext["params"] = {};
     const foundRoute = Object.entries(routes).find(([endpoint]) => {
       
       const dynamic = endpoint.indexOf(":");
       if (dynamic >= 0) {
+        params[endpoint.slice(dynamic + 1)] = url.slice(dynamic)
         endpoint = endpoint.slice(0, dynamic);
         return endpoint === url.replace(url.slice(dynamic), "");
       }
@@ -87,8 +89,8 @@ export const createServer = ({hostname, routes}: Args) => {
     
     if (typeof caller === "function") {
       try {
-        await caller({req, res, body, url});
-      } catch (error ) {
+        await caller({req, res, body, url, params})
+      } catch (error) {
         handleError(res, error as AppError);
       }
       return;
@@ -97,7 +99,7 @@ export const createServer = ({hostname, routes}: Args) => {
     const handler = caller[methodRequest];
     if (!handler) return notFound(res);
     try {
-      await handler({req, res, body, url});
+      await handler({req, res, body, url, params});
     } catch (error) {
       handleError(res, error as AppError);
     }
