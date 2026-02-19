@@ -1,24 +1,33 @@
 import http = require("node:http");
+import * as z from "zod";
 
-export type requestMethod = "GET" | "POST" | "PUT" | "DELETE" | "OPTIONS" | "PATCH";
+export type RequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "OPTIONS" | "PATCH";
 
-type Body = {
-  [key: string]: unknown;
-};
+export interface RouteObject<
+  B extends z.ZodTypeAny | undefined = undefined,
+  P extends ReadonlyArray<string> | undefined = undefined> {
+  body?: B;
+  params?: P;
+  method: (ctx: RouteContext & {
+    body: B extends z.ZodTypeAny ? z.output<B> : undefined,
+    params: P extends string[] ? Record<P[number], string> : undefined
+  }) => void | Promise<void>
+}
+
 
 export interface RouteContext {
   req: http.IncomingMessage;
   res: http.ServerResponse;
-  body: Body | undefined;
-  params: Record<string, unknown>
   url: string
 }
 
-type RouteHandler = (context: RouteContext) => void | Promise<void>;
+export type RouteCaller = ((context: RouteContext) => void | Promise<void>)
 
-type RouteEntry = Partial<Record<requestMethod, RouteHandler>> | RouteHandler
+export type RouteHandler = RouteCaller | RouteObject;
 
-export interface Args {
+type RouteEntry = Partial<Record<RequestMethod, RouteHandler | RouteObject<z.ZodTypeAny | undefined, ReadonlyArray<string> | undefined>>> | RouteCaller;
+
+export interface Routes {
   hostname: string;
   routes: Record<string, RouteEntry>
 }

@@ -5,10 +5,12 @@ import {createResetTokenStore} from "./stores/passwordResetTokenStore";
 import {createCookieStore} from "./stores/cookies";
 import {sendPasswordReset} from "./stores/mailer";
 import {AppError} from "./errors";
-import {Args} from "./types/server";
+import {RouteObject, Routes} from "./types/server";
 import {sendJson} from "./sendJson";
 import http from "node:http";
 import {GraphPayload} from "./types/graph";
+import * as z from "zod";
+import {accountGraphBody, accountGraphNameBody, accountLoginBody, changePasswordBody, forgotPasswordBody, resetPasswordBody, shapes} from "./schemas";
 
 const graphStore = createGraphStore();
 const userStore = createUserStore();
@@ -28,34 +30,39 @@ const getSessionUser = async (req: http.IncomingMessage) => {
   return {userId: sessionResult.session.user_id, id: sessionResult.session.id};
 };
 
-export const routes: Args["routes"] = {
+const createRoute = <B extends z.ZodTypeAny, P extends ReadonlyArray<string>>(route: RouteObject<B, P>) => {
+  return route
+};
+
+export const routes: Routes["routes"] = {
   "/health": {GET: ({res}) => sendJson(res, 200, {status: "ok", service: "graphmaker-backend"})},
   
   "/accounts/register": {
-    POST: async ({res, body}) => {
-      if (typeof body?.email !== "string" || typeof body?.password !== "string") {
-        throw new AppError("missing_fields");
-      }
-      
-      const result = await userStore.createUser(body.email, body.password);
-      
-      const sessionResult = await sessionStore.createSession(result.id);
-      cookieStoreg.setSessionCookie(res, sessionResult.session);
-      return sendJson(res, 201, {user: result});
-    }
+    POST:
+      createRoute({
+        body: accountLoginBody,
+        method: async ({res, body}) => {
+          
+          const result = await userStore.createUser(body.email, body.password);
+          
+          const sessionResult = await sessionStore.createSession(result.id);
+          cookieStoreg.setSessionCookie(res, sessionResult.session);
+          return sendJson(res, 201, {user: result});
+        }
+      })
   },
   
   "/accounts/login": {
-    POST: async ({res, body}) => {
-      if (typeof body?.email !== "string" || typeof body?.password !== "string") {
-        throw new AppError("missing_fields");
+    POST: createRoute({
+      body: accountLoginBody,
+      method: async ({res, body}) => {
+        const result = await userStore.logInUser(body.email, body.password);
+        
+        const sessionResult = await sessionStore.createSession(result.id);
+        cookieStoreg.setSessionCookie(res, sessionResult.session);
+        return sendJson(res, 200, {user: result});
       }
-      const result = await userStore.logInUser(body.email, body.password);
-      
-      const sessionResult = await sessionStore.createSession(result.id);
-      cookieStoreg.setSessionCookie(res, sessionResult.session);
-      return sendJson(res, 200, {user: result});
-    }
+    })
   },
   
   "/accounts/logout": {
@@ -91,122 +98,127 @@ export const routes: Args["routes"] = {
       const result = await graphStore.getUserGraphs(session.userId);
       return sendJson(res, 200, {graphs: result.graphs});
     },
-    POST: async ({req, res, body}) => {
-      const session = await getSessionUser(req);
-      
-      if (!isObject(body?.graph) || !body?.graph.shapes) {
-        throw new AppError("missing_fields");
+    POST: createRoute({
+      body: accountGraphBody,
+      method: async ({req, res, body}) => {
+        const session = await getSessionUser(req);
+        
+        const name = body?.name ?? body.graph?.name ?? "Untitled graph";
+        const graphData = {...body.graph, name} as GraphPayload;
+        const result = await graphStore.createGraph(graphData, session.userId);
+        return sendJson(res, 200, {id: result.id});
       }
-      
-      const name = body?.name ?? body.graph?.name ?? "Untitled graph";
-      const graphData = {...body.graph, name} as GraphPayload;
-      const result = await graphStore.createGraph(graphData, session.userId);
-      return sendJson(res, 200, {id: result.id});
-    }
+    })
   },
   
   "/accounts/graphs/:id": {
-    GET: async ({req, res, params: {id}}) => {
-      if (typeof id !== "string") throw new AppError("not_found")
-      
-      const session = await getSessionUser(req);
-      
-      const result = await graphStore.getUserGraph(id, session.userId);
-      return sendJson(res, 200, result.payload);
-    },
-    
-    PUT: async ({req, res, body, params: {id}}) => {
-      const session = await getSessionUser(req);
-      
-      if (!isObject(body?.graph) || !body?.graph.shapes) {
-        throw new AppError("missing_fields");
+    GET: createRoute({
+      params: ["id"],
+      method: async ({req, res, params: {id}}) => {
+        const session = await getSessionUser(req);
+        
+        const result = await graphStore.getUserGraph(id, session.userId);
+        return sendJson(res, 200, result.payload);
       }
-      
-      if (typeof id !== "string") throw new AppError("not_found")
-      
-      const graphData = {...body.graph, name: body.graph?.name ?? body.name} as GraphPayload;
-      await graphStore.updateGraph(id, session.userId, graphData);
-      
-      return sendJson(res, 200, {success: true});
-    },
+    }),
     
-    PATCH: async ({req, res, body, params: {id}}) => {
-      const session = await getSessionUser(req);
-      
-      if (typeof body?.name !== "string") {
-        throw new AppError("missing_fields");
+    PUT: createRoute({
+      params: ["id"],
+      body: accountGraphBody,
+      method: async ({req, res, body, params: {id}}) => {
+        const session = await getSessionUser(req);
+        
+        if (!isObject(body?.graph) || !body?.graph.shapes) {
+          throw new AppError("missing_fields");
+        }
+        
+        if (typeof id !== "string") throw new AppError("not_found")
+        
+        const graphData = {...body.graph, name: body.graph?.name ?? body.name} as GraphPayload;
+        await graphStore.updateGraph(id, session.userId, graphData);
+        
+        return sendJson(res, 200, {success: true});
+      },
+    }),
+    
+    PATCH: createRoute({
+      params: ["id"],
+      body: accountGraphNameBody,
+      method: async ({req, res, body, params: {id}}) => {
+        const session = await getSessionUser(req);
+        
+        if (typeof id !== "string") throw new AppError("not_found")
+        
+        
+        await graphStore.updateGraphName(id, session.userId, body.name);
+        return sendJson(res, 200, {success: true});
       }
-      
-      if (typeof id !== "string") throw new AppError("not_found")
-      
-      
-      await graphStore.updateGraphName(id, session.userId, body.name);
-      return sendJson(res, 200, {success: true});
-    },
+    }),
     
-    DELETE: async ({req, res, params: {id}}) => {
-      if (typeof id !== "string") throw new AppError("not_found");
-      const session = await getSessionUser(req);
-      
-      await graphStore.deleteUserGraph(id, session.userId);
-      
-      return sendJson(res, 200, {success: true});
-    }
+    DELETE: createRoute({
+      params: ["id"],
+      method: async ({req, res, params: {id}}) => {
+        if (typeof id !== "string") throw new AppError("not_found");
+        const session = await getSessionUser(req);
+        
+        await graphStore.deleteUserGraph(id, session.userId);
+        
+        return sendJson(res, 200, {success: true});
+      }
+    })
   },
   
   "/accounts/forgot-password": {
-    POST: async ({res, body}) => {
-      if (typeof body?.email !== "string") {
-        throw new AppError("missing_fields");
-      }
-      
-      let userResult;
-      try {
-        userResult = await userStore.getUserByEmail(body.email);
-      } catch (error) {
-        if (error instanceof AppError && error?.code === "not_found") {
-          return sendJson(res, 200, {success: true});
+    POST: createRoute({
+      body: forgotPasswordBody,
+      method: async ({res, body}) => {
+        let userResult;
+        try {
+          userResult = await userStore.getUserByEmail(body.email);
+        } catch (error) {
+          if (error instanceof AppError && error?.code === "not_found") {
+            return sendJson(res, 200, {success: true});
+          }
+          throw error;
         }
-        throw error;
+        
+        const {token} = resetTokenStore.createToken(userResult.id);
+        const baseUrl = process.env.FRONTEND_BASE_URL ?? "http://localhost:5173";
+        const resetURL = `${baseUrl}/reset-password?token=${token}`;
+        await sendPasswordReset({to: userResult.email, resetURL});
+        return sendJson(res, 200, {success: true});
       }
-      
-      const {token} = resetTokenStore.createToken(userResult.id);
-      const baseUrl = process.env.FRONTEND_BASE_URL ?? "http://localhost:5173";
-      const resetURL = `${baseUrl}/reset-password?token=${token}`;
-      await sendPasswordReset({to: userResult.email, resetURL});
-      return sendJson(res, 200, {success: true});
-    }
+    })
   },
   
   "/accounts/reset-password": {
-    POST: async ({res, body}) => {
-      if (typeof body?.token !== "string" || typeof body?.password !== "string") {
-        throw new AppError("missing_fields");
+    POST: createRoute({
+      body: resetPasswordBody,
+      method: async ({res, body}) => {
+        const user = resetTokenStore.consumeToken(body.token);
+        await userStore.resetPassword(user.userId, body.password);
+        return sendJson(res, 200, {success: true});
       }
-      
-      const user = resetTokenStore.consumeToken(body.token);
-      await userStore.resetPassword(user.userId, body.password);
-      return sendJson(res, 200, {success: true});
-    }
+    })
   },
   
   "/accounts/change-password": {
-    POST: async ({res, req, body}) => {
-      if (typeof body?.password !== "string" || typeof body?.oldPassword !== "string") {
-        throw new AppError("missing_fields");
+    POST: createRoute({
+      body: changePasswordBody,
+      method: async ({res, req, body}) => {
+        const session = await getSessionUser(req);
+        
+        await userStore.changePassword(session.userId, body.password, body.oldPassword);
+        
+        cookieStoreg.clearSessionCookie(res);
+        try {
+          await sessionStore.deleteSession(session.id);
+        } catch (error) {
+          throw error;
+        }
+        return sendJson(res, 200, {success: true});
       }
-      const session = await getSessionUser(req);
-      
-      await userStore.changePassword(session.userId, body.password, body.oldPassword);
-      
-      cookieStoreg.clearSessionCookie(res);
-      try {
-        await sessionStore.deleteSession(session.id);
-      } catch (error) {
-        throw error;
-      }
-      return sendJson(res, 200, {success: true});
-    }
+    })
   },
   
   "/accounts/delete": {
@@ -221,23 +233,29 @@ export const routes: Args["routes"] = {
   },
   
   "/graphs": {
-    POST: async ({res, body}) => {
-      if (!body?.shapes) {
-        throw new AppError("missing_fields");
+    POST: createRoute({
+      body: shapes,
+      method: async ({res, body}) => {
+        if (!body?.shapes) {
+          throw new AppError("missing_fields");
+        }
+        
+        const graph = body as unknown as GraphPayload;
+        const result = await graphStore.createGraph(graph);
+        return sendJson(res, 200, {id: result.id});
       }
-      
-      const graph = body as unknown as GraphPayload;
-      const result = await graphStore.createGraph(graph);
-      return sendJson(res, 200, {id: result.id});
-    },
+    }),
   },
   
   "/graphs/:id": {
-    GET: async ({res, params: {id}}) => {
-      if (typeof id !== "string") throw new AppError("not_found")
-      
-      const graph = await graphStore.getGraph(id);
-      return sendJson(res, 200, graph.payload);
-    },
+    GET: createRoute({
+      params: ["id"],
+      method: async ({res, params: {id}}) => {
+        if (typeof id !== "string") throw new AppError("not_found")
+        
+        const graph = await graphStore.getGraph(id);
+        return sendJson(res, 200, graph.payload);
+      }
+    }),
   }
 }

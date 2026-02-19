@@ -9,7 +9,7 @@ import supertest from "supertest";
 
 const server = createServer({hostname: "localhost", routes});
 const makeEmail = () => `test+${Date.now()}-${Math.random().toString(16).slice(2)}@email.com`;
-const makeGraph = (name = "Test graph") : GraphPayload => ({
+const makeGraph = (name = "Test graph"): GraphPayload => ({
   name,
   shapes: [
     {toString: "Square", x: 1, y: 2, width: 3, height: 4},
@@ -22,9 +22,9 @@ afterAll(async () => {
 });
 
 describe("User tests", () => {
-  let email : string;
+  let email: string;
   let agent: TestAgent<supertest.Test>;
-  let userId : string;
+  let userId: string;
   beforeEach(async () => {
     agent = request.agent(server);
     email = makeEmail();
@@ -126,8 +126,8 @@ describe("User tests", () => {
 
 describe("Graph Tests", () => {
   let agent: TestAgent<supertest.Test>;
-  let userId : string;
-  let sharedGraphIds : string[] = [];
+  let userId: string;
+  let sharedGraphIds: string[] = [];
   
   beforeEach(async () => {
     agent = request.agent(server);
@@ -196,8 +196,8 @@ describe("Graph Tests", () => {
     
     graph = {name: "New Graph Name", shapes: [...graph.shapes, {toString: "Triangle", x: 10, y: 11, size: 4}]};
     
-    await request(server).patch(`/accounts/graphs/${graphId}`).expect(401);
-    await request(server).put(`/accounts/graphs/${graphId}`).expect(401);
+    await request(server).patch(`/accounts/graphs/${graphId}`).send({name: "New Graph Name"}).expect(401);
+    await request(server).put(`/accounts/graphs/${graphId}`).send({graph}).expect(401);
     await request(server).delete(`/accounts/graphs/${graphId}`).expect(401);
     
     await request(server).patch(`/accounts/graphs/oops`).send({name: "New Graph Name"}).expect(401);

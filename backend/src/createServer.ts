@@ -1,9 +1,10 @@
 import http = require("node:http");
 import {AppError, errorStatus} from "./errors";
-import {Args, requestMethod, RouteContext} from "./types/server";
+import {Routes, RequestMethod, RouteContext} from "./types/server";
 import {sendJson} from "./sendJson";
+import * as z from "zod";
 
-const parseBody = (req: http.IncomingMessage): Promise<RouteContext["body"]> => new Promise((resolve, reject) => {
+const parseBody = (req: http.IncomingMessage): Promise<unknown> => new Promise((resolve, reject) => {
   let body = "";
   req.on("data", (chunk) => {
     body += chunk;
@@ -39,9 +40,9 @@ const handleError = (res: http.ServerResponse, error: AppError) => {
 };
 
 // Inspired from bun: https://bun.com/docs/runtime/http/server#/
-export const createServer = ({hostname, routes}: Args) => {
+export const createServer = ({hostname, routes}: Routes) => {
   return http.createServer(async (req, res) => {
-    const methodRequest = req.method as requestMethod | undefined;
+    const methodRequest = req.method as RequestMethod | undefined;
     
     if (!req.url) {
       return;
@@ -55,7 +56,7 @@ export const createServer = ({hostname, routes}: Args) => {
       return;
     }
     
-    let body: RouteContext["body"]
+    let body: unknown;
     try {
       body = await parseBody(req);
     } catch {
@@ -63,7 +64,7 @@ export const createServer = ({hostname, routes}: Args) => {
       return;
     }
     
-    let params: RouteContext["params"] = {};
+    let params: { [key: string]: string } = {};
     const foundRoute = Object.entries(routes).find(([endpoint]) => {
       
       const dynamic = endpoint.indexOf(":");
@@ -89,20 +90,59 @@ export const createServer = ({hostname, routes}: Args) => {
     
     if (typeof caller === "function") {
       try {
-        await caller({req, res, body, url, params})
+        await caller({req, res, url});
       } catch (error) {
         handleError(res, error as AppError);
       }
       return;
     }
     
-    const handler = caller[methodRequest];
+    let handler = caller[methodRequest];
     if (!handler) return notFound(res);
+    
+    if (typeof handler === "function") {
+      try {
+        await handler({req, res, url});
+      } catch (error) {
+        handleError(res, error as AppError);
+      }
+      return;
+    }
+    
+    let context: RouteContext & {
+      body: any, params: any // i'm fed up
+    } = {
+      req,
+      res,
+      url,
+      body: undefined,
+      params: undefined
+    }
+    if (handler.body) {
+      try {
+        context.body = handler.body.parse(body);
+      } catch (e) {
+        if (e instanceof z.ZodError) {
+          handleError(res, new AppError("invalid_json"));
+          return;
+        }
+        throw new AppError("db_error");
+      }
+    }
+    if (handler.params) {
+      if (!handler.params.every(param => Object.keys(params).includes(param))) {
+        throw new AppError("missing_fields");
+      }
+      
+      context.params = {...params}
+    }
+    
     try {
-      await handler({req, res, body, url, params});
+      await handler.method(context);
     } catch (error) {
       handleError(res, error as AppError);
     }
+    
   });
 }
 
