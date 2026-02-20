@@ -1,6 +1,7 @@
 <script>
   import {authLoading, currentUser} from "$lib/stores/auth.js";
   import {setToast} from "$lib/stores/toast.js";
+  import {apiUrl} from "$lib/api.js";
 
   let {
     title,
@@ -65,7 +66,7 @@
 
     isSubmitting = true;
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch(apiUrl(endpoint), {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         credentials: "include",

@@ -6,9 +6,9 @@
   import DialogContent from "$lib/components/Dialog/DialogContent.svelte";
   import DialogTrigger from "$lib/components/Dialog/DialogTrigger.svelte";
   import Dialog from "$lib/components/Dialog/Dialog.svelte";
+  import {apiUrl} from "$lib/api.js";
 
   let graphs = $state([]);
-
   let isLoadingGraphs = $state(false);
   let graphsError = $state("");
   let editingGraphId = $state(null);
@@ -28,7 +28,7 @@
 
   const saveName = async (graphId) => {
     try {
-      const response = await fetch(`/accounts/graphs/${graphId}`, {
+      const response = await fetch(apiUrl(`/accounts/graphs/${graphId}`), {
         method: "PATCH",
         headers: {"Content-Type": "application/json"},
         credentials: "include",
@@ -55,7 +55,7 @@
     const graphId = graphToDelete.id;
     deletingGraphId = graphId;
     try {
-      const response = await fetch(`/accounts/graphs/${graphId}`, {
+      const response = await fetch(apiUrl(`/accounts/graphs/${graphId}`), {
         method: "DELETE",
         credentials: "include"
       });
@@ -93,7 +93,7 @@
     isLoadingGraphs = true;
     graphsError = "";
     try {
-      const response = await fetch("/accounts/graphs", {credentials: "include"});
+      const response = await fetch(apiUrl("/accounts/graphs"), {credentials: "include"});
       if (!response.ok) {
         graphsError = "Unable to load graphs.";
         return;

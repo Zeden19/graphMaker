@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "dev": "NODE_ENV=dev npx tsx --watch ./src/server.ts",
-    "start": "NODE_ENV=prod npx tsx ./src/server.ts"
+    "start": "NODE_ENV=production npx tsx ./src/server.ts"
   },
   "keywords": [],
   "author": "",

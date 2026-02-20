@@ -4,6 +4,8 @@ import {Routes, RequestMethod, RouteContext} from "./types/server";
 import {sendJson} from "./sendJson";
 import * as z from "zod";
 
+const origin = process.env.FRONTEND_ORIGIN ?? "http://localhost:5173";
+
 const parseBody = (req: http.IncomingMessage): Promise<unknown> => new Promise((resolve, reject) => {
   let body = "";
   req.on("data", (chunk) => {
@@ -22,9 +24,11 @@ const parseBody = (req: http.IncomingMessage): Promise<unknown> => new Promise((
 
 const sendNoContent = (res: http.ServerResponse) => {
   res.writeHead(204, {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+    "Vary": "Origin"
   });
   res.end();
 };

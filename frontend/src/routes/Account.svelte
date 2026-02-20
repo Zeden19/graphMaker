@@ -1,5 +1,6 @@
 <script>
   import {account} from "$lib/assets/index.js";
+  import {apiUrl} from "$lib/api.js";
   import {authLoading, currentUser, resolvedUser} from "$lib/stores/auth.js";
   import {setToast} from "$lib/stores/toast.js";
   import Popup from "$lib/components/Popup/Popup.svelte";
@@ -15,7 +16,7 @@
 
   const handleLogout = async () => {
     try {
-      const result = await fetch("/accounts/logout", {method: "POST", credentials: "include"});
+      const result = await fetch(apiUrl("/accounts/logout"), {method: "POST", credentials: "include"});
       if (result.ok)
         setToast({
           type: "success",

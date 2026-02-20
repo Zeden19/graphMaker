@@ -6,6 +6,7 @@
   import Dialog from "$lib/components/Dialog/Dialog.svelte";
   import DialogTrigger from "$lib/components/Dialog/DialogTrigger.svelte";
   import DialogContent from "$lib/components/Dialog/DialogContent.svelte";
+  import {apiUrl} from "$lib/api.js";
 
   let error = $state('');
   let errorTimeout;
@@ -15,10 +16,9 @@
   let confirmPassword = $state();
 
   let activeTab = $state("profile");
-
   async function deleteAccount() {
     try {
-      const response = await fetch("/accounts/delete", {credentials: "include", method: "DELETE"});
+      const response = await fetch(apiUrl("/accounts/delete"), {credentials: "include", method: "DELETE"});
       if (response.ok) {
         setToast({type: "success", title: "Successfully deleted account"});
       } else {
@@ -27,7 +27,7 @@
     } catch {
       setToast({type: "error", title: "Could not Delete account", subtitle: "Please log in and try again"});
     } finally {
-      await fetch("/accounts/logout", {credentials: "include", method: "POST"});
+      await fetch(apiUrl("/accounts/logout"), {credentials: "include", method: "POST"});
       $currentUser = null;
       window.location.href = "/"
     }
@@ -43,7 +43,7 @@
 
     let data;
     try {
-      const response = await fetch("/accounts/change-password", {
+      const response = await fetch(apiUrl("/accounts/change-password"), {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         credentials: "include",

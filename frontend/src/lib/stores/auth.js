@@ -1,4 +1,5 @@
 import {derived, writable} from "svelte/store";
+import {apiUrl} from "$lib/api.js";
 
 export const currentUser = writable(null);
 export const authLoading = writable(true);
@@ -17,7 +18,7 @@ export const initCurrentUser = () => {
     let user = null;
     authLoading.set(true);
     try {
-      const response = await fetch("/accounts/me", {credentials: "include"});
+      const response = await fetch(apiUrl("/accounts/me"), {credentials: "include"});
       if (response.ok) {
         const payload = await response.json().catch(() => ({}));
         user = payload?.user ?? null;

@@ -10,6 +10,7 @@
   import PopupContent from "$lib/components/Popup/PopupContent.svelte";
   import PopupTitle from "$lib/components/Popup/PopupTitle.svelte";
   import PopupDivider from "$lib/components/Popup/PopupDivider.svelte";
+  import {apiUrl} from "$lib/api.js";
 
   let shareLink = $state("");
   let graphName = $state("Untitled graph");
@@ -26,7 +27,7 @@
     let response;
     let graphData;
     try {
-      response = await fetch(`${isAccount ? "/accounts" : ""}/graphs/${graphId}`, {credentials: "include"});
+      response = await fetch(apiUrl(`${isAccount ? "/accounts" : ""}/graphs/${graphId}`), {credentials: "include"});
       if (!response.ok) {
         $toast = {type: "error", title: "Graph failed to load", subtitle: "Please check the url"};
         return;
@@ -57,7 +58,7 @@
 
   const getShareLink = async () => {
     const payload = buildGraphPayload(shapes, graphName);
-    const response = await fetch("/graphs", {
+    const response = await fetch(apiUrl("/graphs"), {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(payload)
@@ -81,7 +82,7 @@
       const payload = buildGraphPayload(shapes, graphName);
       const endpoint = accountGraphId ? `/accounts/graphs/${accountGraphId}` : "/accounts/graphs";
       const method = accountGraphId ? "PUT" : "POST";
-      const response = await fetch(endpoint, {
+      const response = await fetch(apiUrl(endpoint), {
         method,
         headers: {"Content-Type": "application/json"},
         credentials: "include",
