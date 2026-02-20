@@ -22,13 +22,18 @@ const isObject = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
-const getSessionUser = async (req: http.IncomingMessage) => {
+async function getSessionUser(req: http.IncomingMessage, required: true): Promise<{ userId: string, id: string }>
+async function getSessionUser(req: http.IncomingMessage, required: false): Promise<{ userId: string, id: string } | null>
+async function getSessionUser(req: http.IncomingMessage, required = true) {
   const cookies = cookieStoreg.parseCookies(req);
   const sessionId = cookies.session_id;
-  if (!sessionId) throw new AppError("unauthorized");
+  if (!sessionId) {
+    if (required) throw new AppError("unauthorized")
+    else return null;
+  }
   const sessionResult = await sessionStore.getSession(sessionId);
   return {userId: sessionResult.session.user_id, id: sessionResult.session.id};
-};
+}
 
 const createRoute = <B extends z.ZodTypeAny, P extends ReadonlyArray<string>>(route: RouteObject<B, P>) => {
   return route
@@ -86,7 +91,8 @@ export const routes: Routes["routes"] = {
   
   "/accounts/me": {
     GET: async ({req, res}) => {
-      const session = await getSessionUser(req);
+      const session = await getSessionUser(req, false);
+      if (!session) return sendJson(res, 200, {user: null});
       const userResult = await userStore.getUser(session.userId);
       return sendJson(res, 200, {user: userResult});
     }
@@ -94,14 +100,14 @@ export const routes: Routes["routes"] = {
   
   "/accounts/graphs": {
     GET: async ({req, res}) => {
-      const session = await getSessionUser(req);
+      const session = await getSessionUser(req, true);
       const result = await graphStore.getUserGraphs(session.userId);
       return sendJson(res, 200, {graphs: result.graphs});
     },
     POST: createRoute({
       body: accountGraphBody,
       method: async ({req, res, body}) => {
-        const session = await getSessionUser(req);
+        const session = await getSessionUser(req, true);
         
         const name = body?.name ?? body.graph?.name ?? "Untitled graph";
         const graphData = {...body.graph, name} as GraphPayload;
@@ -115,7 +121,7 @@ export const routes: Routes["routes"] = {
     GET: createRoute({
       params: ["id"],
       method: async ({req, res, params: {id}}) => {
-        const session = await getSessionUser(req);
+        const session = await getSessionUser(req, true);
         
         const result = await graphStore.getUserGraph(id, session.userId);
         return sendJson(res, 200, result.payload);
@@ -126,7 +132,7 @@ export const routes: Routes["routes"] = {
       params: ["id"],
       body: accountGraphBody,
       method: async ({req, res, body, params: {id}}) => {
-        const session = await getSessionUser(req);
+        const session = await getSessionUser(req, true);
         
         if (!isObject(body?.graph) || !body?.graph.shapes) {
           throw new AppError("missing_fields");
@@ -145,7 +151,7 @@ export const routes: Routes["routes"] = {
       params: ["id"],
       body: accountGraphNameBody,
       method: async ({req, res, body, params: {id}}) => {
-        const session = await getSessionUser(req);
+        const session = await getSessionUser(req, true);
         
         if (typeof id !== "string") throw new AppError("not_found")
         
@@ -159,7 +165,7 @@ export const routes: Routes["routes"] = {
       params: ["id"],
       method: async ({req, res, params: {id}}) => {
         if (typeof id !== "string") throw new AppError("not_found");
-        const session = await getSessionUser(req);
+        const session = await getSessionUser(req, true);
         
         await graphStore.deleteUserGraph(id, session.userId);
         
@@ -206,7 +212,7 @@ export const routes: Routes["routes"] = {
     POST: createRoute({
       body: changePasswordBody,
       method: async ({res, req, body}) => {
-        const session = await getSessionUser(req);
+        const session = await getSessionUser(req, true);
         
         await userStore.changePassword(session.userId, body.password, body.oldPassword);
         
@@ -223,7 +229,7 @@ export const routes: Routes["routes"] = {
   
   "/accounts/delete": {
     DELETE: async ({res, req}) => {
-      const session = await getSessionUser(req);
+      const session = await getSessionUser(req, true);
       
       // could probably do a toDelete param in the DB and send an email before deleting
       await userStore.deleteUser(session.userId);

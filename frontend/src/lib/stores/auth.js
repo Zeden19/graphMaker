@@ -20,7 +20,7 @@ export const initCurrentUser = () => {
     try {
       const response = await fetch(apiUrl("/accounts/me"), {credentials: "include"});
       if (response.ok) {
-        const payload = await response.json().catch(() => ({}));
+        const payload = await response.json();
         user = payload?.user ?? null;
       }
     } catch {

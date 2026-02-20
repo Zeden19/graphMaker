@@ -1,6 +1,5 @@
 import http = require("node:http");
 import {Session} from "../types/session"
-import {AppError} from "../errors";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -9,10 +8,10 @@ const secure = isProd ? "Secure; " : "";
 
 
 export const createCookieStore = () => {
-  const parseCookies = (req: http.IncomingMessage): { session_id: string } => {
+  const parseCookies = (req: http.IncomingMessage): { session_id: string | null } => {
     const cookieHeader = req.headers?.cookie;
     // fix throwing error
-    if (!cookieHeader) throw new AppError("unauthorized");
+    if (!cookieHeader) return {session_id: null};
     return cookieHeader.split(";").reduce((acc, pair) => {
       const [key, ...rest] = pair.trim().split("=");
       acc[key] = decodeURIComponent(rest.join("="));

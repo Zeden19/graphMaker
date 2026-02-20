@@ -57,7 +57,8 @@ describe("User tests", () => {
     
     await agent.post("/accounts/logout").expect(204);
     
-    await agent.get("/accounts/me").expect(401);
+    const result = await agent.get("/accounts/me").expect(200);
+    expect(result.body.user).toBeNull();
   });
   
   test("User register email already taken", async () => {
@@ -81,7 +82,8 @@ describe("User tests", () => {
     
     await agent.post("/accounts/change-password").send({password: "1234", oldPassword: "123"}).expect(200);
     
-    await agent.get("/accounts/me").expect(401);
+    const result = await agent.get("/accounts/me").expect(200);
+    expect(result.body.user).toBeNull()
     
     await agent.post("/accounts/change-password").send({password: "12345", oldPassword: "1234"}).expect(401);
     
