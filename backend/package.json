@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "graphs.js",
+  "main": "src/server.ts",
   "scripts": {
     "test": "jest",
     "dev": "NODE_ENV=dev npx tsx --watch ./src/server.ts",
