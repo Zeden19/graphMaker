@@ -2,7 +2,7 @@ import {createServer} from "./createServer";
 import {routes} from "./routes";
 
 const PORT = 3000
-const HOSTNAME = "localhost";
+const HOSTNAME = "0.0.0.0";
 
 const server = createServer({
   hostname: HOSTNAME, routes
