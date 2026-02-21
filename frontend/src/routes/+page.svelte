@@ -144,9 +144,11 @@
   });
 
   const addShape = (ShapeClassRef, shapeProperties) => {
-    const array = getShapeArray(ShapeClassRef.name);
+    const shape = new ShapeClassRef(offset, shapeProperties, removeShape);
+
+    const array = getShapeArray(shape);
     if (!array) return;
-    array.push(new ShapeClassRef(offset, shapeProperties, removeShape));
+    array.push(shape);
   }
 
   const removeShape = (shape) => {
@@ -191,8 +193,7 @@
   }
 
   const getShapeArray = (shape) => {
-    return typeof shape.toString === "function" ? shapes[shape.toString().toLowerCase() + "s"] :
-      shapes[shape.toString.toLowerCase() + "s"];
+    return shapes[shape.type.toLowerCase() + "s"];
   }
 </script>
 

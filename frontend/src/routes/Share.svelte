@@ -48,7 +48,7 @@
       const ShapeClassRef = shapeClasses[shapeType];
       if (!ShapeClassRef) return;
       const shapeInstance = new ShapeClassRef(offset, shapeData, removeShape);
-      const shapeArray = getShapeArray(ShapeClassRef.name);
+      const shapeArray = getShapeArray(shapeInstance);
       shapeArray?.push(shapeInstance);
     });
     graphName = graphData.name ?? graphName;

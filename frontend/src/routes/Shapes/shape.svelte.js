@@ -36,7 +36,7 @@ export class Shape {
     return {
       color: this.color,
       text: JSON.parse(JSON.stringify(this.text)),
-      toString: this.toString(),
+      toString: this.type,
       strokeWidth: this.strokeWidth,
       strokeColor: this.strokeColor,
       strokeStyle: this.strokeStyle

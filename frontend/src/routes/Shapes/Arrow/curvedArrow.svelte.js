@@ -4,6 +4,7 @@ import {Arrow} from "./arrow.svelte.js";
 const DEFAULT_CURVE_OFFSET = 60;
 
 export class CurvedArrow extends Arrow {
+  type = "CurvedArrow";
   constructor(offset, properties = {text: {color: "white"}}, removeShape) {
     super(offset, properties, removeShape);
 

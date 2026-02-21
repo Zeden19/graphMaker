@@ -4,6 +4,7 @@ const DEFAULT_WIDTH = 100;
 const DEFAULT_HEIGHT = 20;
 
 export class GraphText extends Box {
+  type = "GraphText";
   static defaultProperties = {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,

@@ -8,6 +8,7 @@ const DEFAULT_Y = 250;
 const DEFAULT_WIDTH = 5;
 
 export class Arrow extends Shape {
+  type = "Arrow"
   #color = $state();
   #rotation = $state();
 

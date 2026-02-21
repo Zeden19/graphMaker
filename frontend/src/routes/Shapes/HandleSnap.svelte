@@ -21,7 +21,7 @@
   }
 
   const isPointSnappedToAnotherArrow = (shape, key) => {
-    const shapeName = shape.toString().toLowerCase();
+    const shapeName = shape.type.toLowerCase();
     return (shapeName.includes("arrow")) && shape[key + "Snapped"] !== undefined;
   }
 
