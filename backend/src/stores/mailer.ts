@@ -28,7 +28,7 @@ export const sendPasswordReset = async ({to, resetURL}: { to: string, resetURL: 
       html: `<p>Reset your password using this link:</p>
            <p><a href="${resetURL}">${resetURL}</a></p>`
     });
-  } catch {
-    throw new AppError("db_error")
+  } catch (e) {
+    throw new AppError("db_error", "Send Password Reset error", e)
   }
 }

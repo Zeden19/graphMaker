@@ -4,6 +4,7 @@ import {AppError} from "../errors";
 import {DatabaseError} from "pg"
 import {ChangeUserPassword, GetUser, LoginUser, UserCreate} from "../types/user";
 import {QueryResult} from "pg";
+import {sendJson} from "../sendJson";
 
 const hashPassword = async (plainPassword: string) => {
   const saltRounds = 12;
@@ -28,7 +29,7 @@ export const createUserStore = () => {
       if (error instanceof DatabaseError && error?.code === "23505") {
         throw new AppError("email_taken");
       }
-      throw new AppError("db_error");
+      throw new AppError("db_error", "Create User Database Error", error);
     }
   };
   
@@ -39,8 +40,8 @@ export const createUserStore = () => {
         "SELECT id, email, password_hash FROM users WHERE email = $1",
         [email]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Login User Error", e);
     }
     if (result.rows.length === 0) {
       throw new AppError("invalid_credentials");
@@ -60,8 +61,8 @@ export const createUserStore = () => {
         "SELECT id, email, created_at, updated_at FROM users WHERE id = $1",
         [id]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "GetUser Error", e);
     }
     if (result.rows.length === 0) throw new AppError("not_found");
     return result.rows[0];
@@ -71,8 +72,8 @@ export const createUserStore = () => {
     let result: QueryResult<never>;
     try {
       result = await db.query("DELETE FROM users WHERE id = $1", [id]);
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Delete User Error", e);
     }
     if (result.rowCount === 0) throw new AppError("not_found");
     return {success: true};
@@ -84,8 +85,11 @@ export const createUserStore = () => {
       result = await db.query<GetUser>(`SELECT id, email, created_at, updated_at
                                         FROM users
                                         WHERE email = $1`, [email])
-    } catch {
-      throw new AppError("db_error");
+    } catch (error) {
+      if (error instanceof AppError && error?.code === "not_found") {
+        return null
+      }
+      throw new AppError("db_error", "Get User By Email error", error);
     }
     if (result.rows.length === 0) throw new AppError("not_found");
     return result.rows[0];
@@ -98,8 +102,8 @@ export const createUserStore = () => {
         "SELECT id, email, password_hash FROM users WHERE id = $1",
         [userId]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e){
+      throw new AppError("db_error", "Change Password error", e);
     }
     if (result.rows.length === 0) {
       throw new AppError("not_found");
@@ -124,8 +128,8 @@ export const createUserStore = () => {
         "SELECT id, email, password_hash FROM users WHERE id = $1",
         [userId]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Rest password database error", e);
     }
     if (result.rows.length === 0) {
       throw new AppError("not_found");

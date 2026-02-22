@@ -13,9 +13,11 @@ export const errorStatus = {
 
 export class AppError extends Error {
   public code: keyof typeof errorStatus;
+  cause?: unknown;
   
-  constructor(code?: keyof typeof errorStatus, message ?: string) {
+  constructor(code: keyof typeof errorStatus, message?: string, cause?: unknown) {
     super(message || code);
-    this.code = code ?? "email_failed";
+    this.code = code ?? "db_error";
+    this.cause = cause;
   }
 }

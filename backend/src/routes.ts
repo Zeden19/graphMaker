@@ -18,10 +18,6 @@ const sessionStore = createSessionStore();
 export const resetTokenStore = createResetTokenStore();
 const cookieStoreg = createCookieStore();
 
-const isObject = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-};
-
 async function getSessionUser(req: http.IncomingMessage, required: true): Promise<{ userId: string, id: string }>
 async function getSessionUser(req: http.IncomingMessage, required: false): Promise<{ userId: string, id: string } | null>
 async function getSessionUser(req: http.IncomingMessage, required = true) {
@@ -79,11 +75,8 @@ export const routes: Routes["routes"] = {
         cookieStoreg.clearSessionCookie(res);
         return sendJson(res, 204, {success: true});
       }
-      try {
-        await sessionStore.deleteSession(sessionId);
-      } catch (error) {
-        throw error;
-      }
+      
+      await sessionStore.deleteSession(sessionId);
       cookieStoreg.clearSessionCookie(res);
       return sendJson(res, 204, {success: true});
     }
@@ -134,12 +127,6 @@ export const routes: Routes["routes"] = {
       method: async ({req, res, body, params: {id}}) => {
         const session = await getSessionUser(req, true);
         
-        if (!isObject(body?.graph) || !body?.graph.shapes) {
-          throw new AppError("missing_fields");
-        }
-        
-        if (typeof id !== "string") throw new AppError("not_found")
-        
         const graphData = {...body.graph, name: body.graph?.name ?? body.name} as GraphPayload;
         await graphStore.updateGraph(id, session.userId, graphData);
         
@@ -153,9 +140,6 @@ export const routes: Routes["routes"] = {
       method: async ({req, res, body, params: {id}}) => {
         const session = await getSessionUser(req, true);
         
-        if (typeof id !== "string") throw new AppError("not_found")
-        
-        
         await graphStore.updateGraphName(id, session.userId, body.name);
         return sendJson(res, 200, {success: true});
       }
@@ -164,7 +148,6 @@ export const routes: Routes["routes"] = {
     DELETE: createRoute({
       params: ["id"],
       method: async ({req, res, params: {id}}) => {
-        if (typeof id !== "string") throw new AppError("not_found");
         const session = await getSessionUser(req, true);
         
         await graphStore.deleteUserGraph(id, session.userId);
@@ -178,14 +161,10 @@ export const routes: Routes["routes"] = {
     POST: createRoute({
       body: forgotPasswordBody,
       method: async ({res, body}) => {
-        let userResult;
-        try {
-          userResult = await userStore.getUserByEmail(body.email);
-        } catch (error) {
-          if (error instanceof AppError && error?.code === "not_found") {
-            return sendJson(res, 200, {success: true});
-          }
-          throw error;
+        let userResult = await userStore.getUserByEmail(body.email);
+        
+        if (!userResult) {
+          return sendJson(res, 200, {success: true});
         }
         
         const {token} = resetTokenStore.createToken(userResult.id);
@@ -217,11 +196,7 @@ export const routes: Routes["routes"] = {
         await userStore.changePassword(session.userId, body.password, body.oldPassword);
         
         cookieStoreg.clearSessionCookie(res);
-        try {
-          await sessionStore.deleteSession(session.id);
-        } catch (error) {
-          throw error;
-        }
+        await sessionStore.deleteSession(session.id);
         return sendJson(res, 200, {success: true});
       }
     })
@@ -242,10 +217,6 @@ export const routes: Routes["routes"] = {
     POST: createRoute({
       body: shapes,
       method: async ({res, body}) => {
-        if (!body?.shapes) {
-          throw new AppError("missing_fields");
-        }
-        
         const graph = body as unknown as GraphPayload;
         const result = await graphStore.createGraph(graph);
         return sendJson(res, 200, {id: result.id});
@@ -257,8 +228,6 @@ export const routes: Routes["routes"] = {
     GET: createRoute({
       params: ["id"],
       method: async ({res, params: {id}}) => {
-        if (typeof id !== "string") throw new AppError("not_found")
-        
         const graph = await graphStore.getGraph(id);
         return sendJson(res, 200, graph.payload);
       }

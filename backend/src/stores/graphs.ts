@@ -86,8 +86,8 @@ const createGraphStore = () => {
         [id, ownerId, normalized]
       );
       return {id};
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Create Graph Database error", e);
     }
   };
   
@@ -101,8 +101,8 @@ const createGraphStore = () => {
            AND owner_id IS NULL`,
         [graphId]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Get Graph Database error", e);
     }
     if (result.rows.length === 0) {
       throw new AppError("not_found");
@@ -121,8 +121,8 @@ const createGraphStore = () => {
            AND owner_id = $2`,
         [graphId, userId]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Get User Graph Database error", e);
     }
     if (result.rows.length === 0) {
       throw new AppError("not_found");
@@ -142,8 +142,8 @@ const createGraphStore = () => {
         [userId]
       );
       return {graphs: result.rows};
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Get User Graphs Database error", e);
     }
   };
   
@@ -157,8 +157,8 @@ const createGraphStore = () => {
            AND owner_id = $2`,
         [graphId, userId]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Delete User Graphs Database error", e );
     }
     if (result.rowCount === 0) throw new AppError("not_found");
     
@@ -176,8 +176,8 @@ const createGraphStore = () => {
            AND owner_id = $3`,
         [name, graphId, userId]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Update Graph Name Database error", e);
     }
     if (result.rowCount === 0) throw new AppError("not_found");
     return {success: true};
@@ -196,8 +196,8 @@ const createGraphStore = () => {
            AND owner_id = $3`,
         [normalized, graphId, userId]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Update Graph Database error", e);
     }
     if (result.rowCount === 0) throw new AppError("not_found");
     return {success: true};

@@ -37,10 +37,20 @@ const notFound = (res: http.ServerResponse) => {
   sendJson(res, 404, {error: "not_found"});
 };
 
-const handleError = (res: http.ServerResponse, error: AppError) => {
-  const code = error?.code ?? "db_error";
-  const status = errorStatus[code] ?? 500;
-  sendJson(res, status, {error: code});
+const handleError = (res: http.ServerResponse, error: unknown) => {
+  if (error instanceof AppError) {
+    if (error.code === "db_error") {
+      console.error(error.message ?? "", error.cause ?? error);
+    }
+    
+    const code = error?.code ?? "db_error";
+    const status = errorStatus[code] ?? 500;
+    sendJson(res, status, {error: code});
+    return;
+  }
+  
+  console.error("Unhandled error:", error);
+  sendJson(res, 500, {error: "db_error"});
 };
 
 // Inspired from bun: https://bun.com/docs/runtime/http/server#/
@@ -130,7 +140,7 @@ export const createServer = ({hostname, routes}: Routes) => {
           handleError(res, new AppError("invalid_json"));
           return;
         }
-        throw new AppError("db_error");
+        handleError(res, new AppError("db_error", "Body parsing failed", e));
       }
     }
     if (handler.params) {

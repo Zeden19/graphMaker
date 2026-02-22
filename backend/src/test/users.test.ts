@@ -6,8 +6,8 @@ const userStore = createUserStore();
 
 const makeEmail = () => `test+${Date.now()}-${Math.random().toString(16).slice(2)}@email.com`;
 
-let id : string;
-let email : string;
+let id: string;
+let email: string;
 beforeEach(async () => {
   if (expect.getState().currentTestName === "Creating user") return
   
@@ -45,11 +45,11 @@ test("Log in user with email and password", async () => {
 });
 
 test("Get user by id and email", async () => {
-  let data = await userStore.getUser(id);
+  const data = await userStore.getUser(id);
   expect(data.email).toBe(email);
   
-  data = await userStore.getUserByEmail(email);
-  expect(data.email).toBe(email);
+  let emailData = await userStore.getUserByEmail(email);
+  expect(emailData?.email).toBe(email);
 });
 
 test("Resetting Password", async () => {

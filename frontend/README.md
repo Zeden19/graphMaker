@@ -29,8 +29,11 @@ Simple Graph maker made with Svelte
 # Features
 
 # Future
-- Create backend with Node
-- Ship with AWS
-- NoSQL database
-- testing
-- docker
+- cache requests done in account graphs so it's not done every single time you click the tab (that's really dumb!)
+- Look into front end testing
+- make saving existing graph more clear to the user that you are actually saving a graph that already exists
+- on account graphs, have a preview
+- have graph automatically determine "center" of all graphs when loading a new graph
+- layer management
+- better toast management (bugs in some places)
+- review error management

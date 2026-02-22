@@ -14,8 +14,8 @@ export const createSessionStore = () => {
         [userId, expiresAt]
       );
       return {session: result.rows[0]};
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Create session error", e);
     }
   };
   
@@ -26,8 +26,8 @@ export const createSessionStore = () => {
         "SELECT id, user_id, expires_at FROM sessions WHERE id = $1",
         [sessionId]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Create session error", e);
     }
     if (result.rows.length === 0) {
       throw new AppError("unauthorized");
@@ -47,8 +47,8 @@ export const createSessionStore = () => {
         "DELETE FROM sessions WHERE id = $1",
         [sessionId]
       );
-    } catch {
-      throw new AppError("db_error");
+    } catch (e) {
+      throw new AppError("db_error", "Delete session error", e);
     }
     if (result.rowCount === 0) throw new AppError("not_found");
     return {success: true};
